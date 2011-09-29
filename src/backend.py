@@ -4,7 +4,8 @@ para usar:
 
 import backend
 backend.create_user('Nico Cesar','nico@nicocesar.com')
-backend.create_kilink('sdkjj', 1, 'import mindread')
+backend.create_kilink(1, 'import mindread')
+backend.create_kilink(1, 'import this', 'sdkjj')
 k = backend.get_kilink(1)
 print k
 backend.get_content('sdkjj',1)
@@ -15,6 +16,7 @@ import sqlobject
 import datetime
 import difflib
 import os
+import uuid
 
 db_filename = os.path.abspath('data.db')
 if os.path.exists(db_filename):
@@ -26,6 +28,48 @@ connection_string = 'sqlite:' + db_filename
 #connection ='sqlite:/:memory:?debug=1'
 connection = sqlobject.connectionForURI(connection_string)
 sqlobject.sqlhub.processConnection = connection
+
+
+##
+## Sacado de: http://stackoverflow.com/questions/1119722
+
+ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+def base62_encode(num, alphabet=ALPHABET):
+    """Encode a number in Base X
+
+    `num`: The number to encode
+    `alphabet`: The alphabet to use for encoding
+    """
+    if (num == 0):
+        return alphabet[0]
+    arr = []
+    base = len(alphabet)
+    while num:
+        rem = num % base
+        num = num // base
+        arr.append(alphabet[rem])
+    arr.reverse()
+    return ''.join(arr)
+
+def base62_decode(string, alphabet=ALPHABET):
+    """Decode a Base X encoded string into the number
+
+    Arguments:
+    - `string`: The encoded string
+    - `alphabet`: The alphabet to use for encoding
+    """
+    base = len(alphabet)
+    strlen = len(string)
+    num = 0
+    idx = 0
+    for char in string:
+        power = (strlen - (idx + 1))
+        num += alphabet.index(char) * (base ** power)
+        idx += 1
+    return num
+
+
 
 class UserError:
     pass
@@ -77,7 +121,11 @@ def create_user(name, email):
     p = KiUser(name = name, email = email)
     return p.id
 
-def create_kilink(kid, user, content, timestamp=None):
+def create_kilink(user, content, kid=None, timestamp=None):
+
+    if not kid:
+        kid = base62_encode(int(uuid.uuid4()))
+
     results = Kilink.selectBy(kid=kid)
     if results.count() > 0:
         raise ExistingKilink(kid)
@@ -96,7 +144,7 @@ def create_kilink(kid, user, content, timestamp=None):
 
 
     k = Kilink(kid = kid, revno=1, parent_revno=-1, user=u, content=content, timestamp=timestamp)
-    return "ok "+ str(k.id)
+    return "ok "+ str(k.kid)
 
 def get_kilink(kid):
     k = Kilink.get(kid)
@@ -131,7 +179,7 @@ def get_content(kid, revno):
     elif results.count() > 1:
         raise MultipleKilink(kid, revno)
 
-    return k[1].content
+    return results[0].content
 
 def get_diff(kid, revno1, revno2):
     kilink1 = get_content(kid, revno1)
