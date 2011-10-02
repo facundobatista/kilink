@@ -6,10 +6,12 @@ import backend
 backend.create_user('Nico Cesar','nico@nicocesar.com')
 backend.create_kilink(1, 'import mindread')
 backend.create_kilink(1, 'import this', 'sdkjj')
-k = backend.get_kilink(1)
-print k
+list(backend.get_kilink('sdkjj'))
 backend.get_content('sdkjj',1)
-
+backend.update_kilink('sdkjj', revno=1, user_id=2, content='keep it up')
+list(backend.get_user_kilinks(1))
+for a in backend.get_diff('sdkjj',1,2):
+  print a 
 
 '''
 import sqlobject
@@ -147,11 +149,19 @@ def create_kilink(user, content, kid=None, timestamp=None):
     return "ok "+ str(k.kid)
 
 def get_kilink(kid):
-    k = Kilink.get(kid)
+    k = Kilink.selectBy(kid=kid)
+    #FIXME: This will return an array of unique (kid, revno,... ) objects.
+    ## there needs to be a done a more tree-like structure for this
     return k
 
-def update_kilink(kid, revno=None, parent_revno=None, user_id=None, content=None, timestamp=None):
-    k = Kilink.get(kid)
+def get_new_revno(kid):
+    k = Kilink.selectBy(kid=kid).max(Kilink.q.revno)
+    ## NOTE: This will bring a race condition... remember this is just a
+    ## prototype, get_new_revno() should be reimplemented on 
+    ## your favorite scale framework
+    return int(k) + 1    
+
+def update_kilink(kid, revno, user_id, content='', timestamp=None):
     u = None
     if user_id:
         try:
@@ -160,17 +170,18 @@ def update_kilink(kid, revno=None, parent_revno=None, user_id=None, content=None
             raise UserError
 
     if revno:
-        k.revno = revno
-    if parent_revno:
-        k.parent_revno = parent_revno
-    if u:
-        k.user = u
-    if content:
-        k.content = content
-    if timestamp:
-        k.timestamo = timestamp
-    
-    return "ok"
+        ## TODO:check if revno exists
+        pass
+
+
+    if not timestamp:
+        timestamp = datetime.datetime.now()
+    else:
+        timestamp = timestamp
+
+    k = Kilink(kid = kid, revno=get_new_revno(kid), parent_revno=revno, user=u, content=content, timestamp=timestamp)
+
+    return "ok "+ str(k.kid)
 
 def get_content(kid, revno):
     results = Kilink.selectBy(kid=kid, revno=revno)
@@ -182,18 +193,18 @@ def get_content(kid, revno):
     return results[0].content
 
 def get_diff(kid, revno1, revno2):
-    kilink1 = get_content(kid, revno1)
-    kilink2 = get_content(kid, revno1)
-    return difflib.context_diff(kilink1,kilink2)
+    kilink1 = get_content(kid, revno1).split("\n")
+    kilink2 = get_content(kid, revno2).split("\n")
+    return difflib.context_diff(kilink1, kilink2, fromfile='revision %d' % revno1, tofile='revision %d ' % revno2, lineterm="")
 
-def get_kilinks(user_id):
+def get_user_kilinks(user_id):
     if user_id:
         try:
             u = KiUser.get(user_id)
         except Exception,e:
             raise UserError
 
-    kilink_list = Kilink.select(user = u)
+    kilink_list = Kilink.selectBy(user = u)
     return kilink_list
 
 
