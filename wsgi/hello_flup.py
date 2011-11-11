@@ -54,7 +54,7 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 
 <h1 id="title">Kilink</h1>
 
-<form action="/create" method="POST" id="pasteform" name="pasteform">
+<form action="/action/create" method="POST" id="pasteform" name="pasteform">
 <textarea id="id_content" rows="20" cols="80" name="content"></textarea>
 <br/>
 <input type="submit" value="Create kilink" />
@@ -83,17 +83,29 @@ def kilink(environ, start_response):
     path_info = environ['PATH_INFO']
     query_string = environ['QUERY_STRING']
 
+    # assure the user is there
+    try:
+        backend.get_user_kilinks(1)
+    except backend.UserError:
+        backend.create_user('name', 'mail')
+
     if path_info == '/':
         start_response('200 OK', [('Content-Type', 'text/html')])
-        response = MAIN_PAGE
-    elif path_info == '/create':
-        start_response('200 OK', [('Content-Type', 'text/plain')])
+        return [MAIN_PAGE]
+
+    if path_info == '/action/create':
         response = str(environ)
         post_data = environ['wsgi.input'].read()
-        response = post_data
-    else:
-        start_response('200 OK', [('Content-Type', 'text/plain')])
-        response = "Oops"
+        assert post_data[:8] == 'content='
+        content = post_data[8:]
+        kid = backend.create_kilink(1, content)
+        start_response('303 see other', [('Location', "/" + kid)])
+        return ''
+
+    # serving a kilink
+    start_response('200 OK', [('Content-Type', 'text/plain')])
+    kid = path_info[1:]
+    response = backend.get_content(kid, 1)
     return [response]
 
 
