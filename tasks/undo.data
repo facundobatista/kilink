@@ -1,3 +1,6 @@
 time 1321019074
 new [description:"cambiar nombre hello_flup" entry:"1321019074" status:"pending" uuid:"0b933a59-2df6-3914-939a-7bc83b4207f0"]
 ---
+time 1321019149
+new [description:"Revisar si task es concurrente" entry:"1321019149" status:"pending" uuid:"c2b55957-1a64-725e-4f08-9b4e1c886873"]
+---
