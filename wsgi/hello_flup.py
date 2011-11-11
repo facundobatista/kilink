@@ -18,6 +18,9 @@ http://wiki.codemongers.com/NginxModules
 from flup.server.fcgi import WSGIServer
 import time, os, sys
 import optparse
+import cgi
+
+import backend
 
 __usage__ = "%prog -n <num>"
 __version__ = "$Id$"
@@ -32,13 +35,16 @@ def myapp(environ, start_response):
     # SLEEP 100 ms to force a demostration of parallel threading performance
     time.sleep(0.1)
     start_response('200 OK', [('Content-Type', 'text/plain')])
-    pretty_env = '\n'.join(['%s: %s' % (repr(k),repr(v)) for (k,v) in environ.items()])
-    msg = '''\
-Hallo Welt!
-Die zeit ist: %s
-PID %s\n
-%s\n''' % (time.ctime(), os.getpid(), pretty_env)
-    return [msg]
+    path_info = environ['PATH_INFO']
+    query_string = environ['QUERY_STRING']
+
+    # convert to something usable
+    method_name = path_info[1:]
+    kwargs = dict((k, v[0]) for k, v in cgi.parse_qs(query_string).iteritems())
+    meth = getattr(backend, method_name)
+    result = meth(**kwargs)
+    return [str(result)]
+
 
 def get_application():
     return myapp
