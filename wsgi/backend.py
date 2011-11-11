@@ -11,7 +11,7 @@ backend.get_content('sdkjj',1)
 backend.update_kilink('sdkjj', revno=1, user_id=2, content='keep it up')
 list(backend.get_user_kilinks(1))
 for a in backend.get_diff('sdkjj',1,2):
-  print a 
+  print a
 
 '''
 import sqlobject
@@ -131,18 +131,18 @@ def create_kilink(user, content, kid=None, timestamp=None):
     results = Kilink.selectBy(kid=kid)
     if results.count() > 0:
         raise ExistingKilink(kid)
-    
+
 
     try:
         u = KiUser.get(user)
     except Exception,e:
         raise UserError
-    
+
     if not timestamp:
         timestamp = datetime.datetime.now()
     else:
         if not isinstance(timestamp,datetime.datetime):
-            raise WrongTimestap(datetime)
+            raise WrongTimestamp(datetime)
 
 
     k = Kilink(kid = kid, revno=1, parent_revno=-1, user=u, content=content, timestamp=timestamp)
@@ -157,11 +157,13 @@ def get_kilink(kid):
 def get_new_revno(kid):
     k = Kilink.selectBy(kid=kid).max(Kilink.q.revno)
     ## NOTE: This will bring a race condition... remember this is just a
-    ## prototype, get_new_revno() should be reimplemented on 
+    ## prototype, get_new_revno() should be reimplemented on
     ## your favorite scale framework
-    return int(k) + 1    
+    return int(k) + 1
 
 def update_kilink(kid, revno, user_id, content='', timestamp=None):
+    revno = int(revno)
+    user_id = int(user_id)
     u = None
     if user_id:
         try:
@@ -184,6 +186,7 @@ def update_kilink(kid, revno, user_id, content='', timestamp=None):
     return "ok "+ str(k.kid)
 
 def get_content(kid, revno):
+    revno = int(revno)
     results = Kilink.selectBy(kid=kid, revno=revno)
     if results.count() == 0:
         raise MissingKilink(kid, revno)
@@ -193,11 +196,14 @@ def get_content(kid, revno):
     return results[0].content
 
 def get_diff(kid, revno1, revno2):
+    revno1 = int(revno1)
+    revno2 = int(revno2)
     kilink1 = get_content(kid, revno1).split("\n")
     kilink2 = get_content(kid, revno2).split("\n")
     return difflib.context_diff(kilink1, kilink2, fromfile='revision %d' % revno1, tofile='revision %d ' % revno2, lineterm="")
 
 def get_user_kilinks(user_id):
+    user_id = int(user_id)
     if user_id:
         try:
             u = KiUser.get(user_id)
