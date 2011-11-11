@@ -50,15 +50,19 @@ def myapp(environ, start_response):
 
 def kilink(environ, start_response):
     """Kilink, :)"""
-    start_response('200 OK', [('Content-Type', 'text/html')])
     path_info = environ['PATH_INFO']
     query_string = environ['QUERY_STRING']
 
     if path_info == '/':
+        start_response('200 OK', [('Content-Type', 'text/html')])
         response = MAIN_PAGE
     elif path_info == '/create':
+        start_response('200 OK', [('Content-Type', 'text/plain')])
         response = str(environ)
+        post_data = environ['wsgi.input'].read()
+        response = post_data
     else:
+        start_response('200 OK', [('Content-Type', 'text/plain')])
         response = "Oops"
     return [response]
 
