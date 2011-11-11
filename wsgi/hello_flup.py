@@ -50,7 +50,7 @@ def myapp(environ, start_response):
 
 def kilink(environ, start_response):
     """Kilink, :)"""
-    start_response('200 OK', [('Content-Type', 'text/plain')])
+    start_response('200 OK', [('Content-Type', 'text/html')])
     path_info = environ['PATH_INFO']
     query_string = environ['QUERY_STRING']
 
