@@ -1,0 +1,11 @@
+Nico
+* cambiar nombre hello_flup a kilink
+* sacar el HTML afuera
+* edicion in place, que vuelva a al mismo HTML
+
+Facu
+
+
+
+
+
