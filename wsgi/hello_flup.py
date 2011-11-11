@@ -19,6 +19,36 @@ MAIN_PAGE = """
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>Kilink</title>
+<style type="text/css">
+textarea#styleid{
+color:#666;
+font-size:14px;
+-moz-border-radius: 8px; -webkit-border-radius: 8px;
+margin:5px 0px 10px 0px;
+padding:10px;
+height:75px;
+width:350px;
+border:#999 1px solid;
+font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+transition: all 0.25s ease-in-out;
+-webkit-transition: all 0.25s ease-in-out;
+-moz-transition: all 0.25s ease-in-out;
+box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+-webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+-moz-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+}
+
+
+textarea#styleid:focus{
+color:#000;
+outline:none;
+border:#35a5e5 1px solid;
+font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+-webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+-moz-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+}
+</style>
 </head>
 <body>
 
