@@ -183,7 +183,9 @@ def update_kilink(kid, revno, user_id, content='', timestamp=None):
 
     return "ok "+ str(k.kid)
 
-def get_content(kid, revno):
+def get_content(kid, revno=None):
+    if not revno:
+        revno = "1"
     results = Kilink.selectBy(kid=kid, revno=revno)
     if results.count() == 0:
         raise MissingKilink(kid, revno)
