@@ -20,7 +20,7 @@ MAIN_PAGE = """
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>Kilink</title>
 <style type="text/css">
-textarea#title{
+textarea#id_content{
 color:#666;
 font-size:14px;
 -moz-border-radius: 8px; -webkit-border-radius: 8px;
@@ -39,7 +39,7 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 0);
 }
 
 
-textarea#title:focus{
+textarea#id_content:focus{
 color:#000;
 outline:none;
 border:#35a5e5 1px solid;
