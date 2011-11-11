@@ -146,7 +146,7 @@ def create_kilink(user, content, kid=None, timestamp=None):
 
 
     k = Kilink(kid = kid, revno=1, parent_revno=-1, user=u, content=content, timestamp=timestamp)
-    return "ok "+ str(k.kid)
+    return str(k.kid)
 
 def get_kilink(kid):
     k = Kilink.selectBy(kid=kid)
