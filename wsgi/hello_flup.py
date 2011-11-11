@@ -26,8 +26,6 @@ font-size:14px;
 -moz-border-radius: 8px; -webkit-border-radius: 8px;
 margin:5px 0px 10px 0px;
 padding:10px;
-height:75px;
-width:350px;
 border:#999 1px solid;
 font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
 transition: all 0.25s ease-in-out;
