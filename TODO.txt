@@ -1,10 +1,125 @@
-Nico
-* cambiar nombre hello_flup a kilink
-* sacar el HTML afuera
-* edicion in place, que vuelva a al mismo HTML
 
-Facu
+Varios
+------
 
+Sacar el HTML afuera [Nico]:
+ - Tener no el html incrustado en el .py, sino un template afuera
+
+
+Fase 1
+------
+
+Edición in place [Nico]:
+ - Un gran detalle con respecto a la edición es que queremos que sea "in
+   place". En otras palabras, en lugar de ofrecer un texto estático y un
+   área nueva (como la mayoría de los pastebines), queremos mostrar el
+   texto del kilink, y que el usuario lo pueda editar ahí mismo.
+
+Interfaz limpia:
+ - que entre el textarea y el botón de submit no haya nada que distraiga
+ - que el botón de submit se llame "crear kilink" o lo que corresponda
+ - que se pueda crear un kilink sin registrarse ni loguearse
+
+Crear y editar kilinks (sin nombre)
+ - El usuario puede crear o editar kilinks aunque no se loguee (ver
+   "contribución anónima" arriba para más detalles).
+
+URLs o IDs
+ - una URL o kilink ID fácilmente recordable (y que casi funciona como
+   URL corta: kilink.com/4g3jxd)
+
+Encontrable via google
+ - se lo puede encontrar los textos públicos desde google o cualquier
+   buscador
+
+Lanzamiento alfa interno:
+- usarlo mucho, nosotros, tratar de romperlo.
+
+
+Fase 2
+------
+
+Ver árbol y versionado:
+ - Poder editar nos va a generar una estructura de árbol para las versiones.
+   Este árbol será mostrado de forma explícita en la interfaz web, pudiendo
+   el usuario hacer click en cualquiera de los nodos, viendo las distintas
+   versiones del mismo kilink. Al mostrar las distintas versiones como nodos
+   de un árbol evitamos confundir al usuario con cosas como versiones
+   "hermanas", "padres" o "hijas". El usuario ve la versión que tiene
+   elegida, y si la edita aparecerá un nuevo nodo hijo del que estaba viendo.
+
+Detalles interfaz:
+ - que el cursor por default esté en el textarea destino.
+ - que el textarea, en lugar de estar 100% vacío, tenga adentro un "pegar
+   acá" o algo similar en gris, suavecito, que desaparezca al pegarle algo.
+
+Usuarios anónimos:
+ - Se va a poder crear o editar un kilink sin tener que registrarse ni
+   loguearse, pero no debe aparecer "Anonymous" como autor, sino algo
+   tipo "Usuario12345".
+
+Selección tipo texto:
+ - Va a haber un combobox con todos los tipos que el usuario puede
+   modificar: si el usuario cambia el tipo de texto, el coloreado
+   cambiará correspondientemente).
+
+Publicidad multiplexada en el tiempo:
+ - Queremos un mecanismo de Publicidad Multiplexada en el Tiempo:
+   que el sistema sirva, en el lugar de la publicidad, un determinado
+   javascript o un jpg/png un determinado porcentaje del tiempo. De esta
+   manera, se podrá configurar que muestre 50% google ad-sense, 30% un
+   png con publicidad A, y 20% publicidad B, o lo que se configure. No
+   se necesita un sistema de administración para esto, la configuración
+   puede ser bastante manual, ya que cambiaría poco.
+
+Lanzamiento beta interno:
+ - usarlo mucho, nosotros, tratar de romperlo.
+
+
+Fase 3
+------
+
+Detalles interfaz:
+ - que pueda llevar la url del kilink creado sin tener que seleccionar
+   un texto.
+
+Edición coloreada:
+ - La "edición coloreada" es la habilidad de poder editar el kilink y
+   que se vaya coloreando mientras se edita (recordemos que vamos a
+   mostrar un sólo texto y el usuario podrá editar directamente allí).
+
+
+Fase 4
+------
+
+Detalles interfaz:
+ - botones para copiar automaticamente al clipboard: URL y texto del kilink.
+ - download as file.
+
+API
+ - Queremos una API HTTP sobre la cual podamos hacer todo lo que se pueda hacer.
+
+Lanzamiento beta público:
+ - usarlo mucho, nosotros, tratar de romperlo
+ - armar algo tipo bug tracker o mail tonto para que nos
+   puedan reportar problemas
+ - empezar a usarlo publicamente
+ - pedir a "amigotes" que lo prueben un poco, sugieran algunas cosas
+
+
+Fase 5
+------
+
+Detalles interfaz:
+ - botón de imprimir, y CSS especial para que quede linda la impresión
+
+Herramientas:
+ - linea de comando ("grep ERROR *.log | kilink" y este escupe la url
+   de un kilink nuevo)
+
+Lanzamiento público:
+ - usarlo publicamente
+ - hacer propaganda
 
 
 
