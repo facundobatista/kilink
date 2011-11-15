@@ -61,31 +61,12 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 </body> </html>
 """
 
-
-def myapp(environ, start_response):
-    """Generic handler."""
-    start_response('200 OK', [('Content-Type', 'text/plain')])
-    path_info = environ['PATH_INFO']
-    query_string = environ['QUERY_STRING']
-
-    # convert to something usable
-    method_name = path_info[1:]
-    kwargs = dict((k, v[0]) for k, v in cgi.parse_qs(query_string).iteritems())
-    meth = getattr(backend, method_name)
-    result = meth(**kwargs)
-    return [str(result)]
-
+klnkbkend = backend.KilinkBackend()
 
 def kilink(environ, start_response):
     """Kilink, :)"""
     path_info = environ['PATH_INFO']
     query_string = environ['QUERY_STRING']
-
-    # assure the user is there
-    try:
-        backend.get_user_kilinks(1)
-    except backend.UserError:
-        backend.create_user('name', 'mail')
 
     if path_info == '/':
         start_response('200 OK', [('Content-Type', 'text/html')])
@@ -96,14 +77,14 @@ def kilink(environ, start_response):
         post_data = environ['wsgi.input'].read()
         assert post_data[:8] == 'content='
         content = post_data[8:]
-        kid = backend.create_kilink(1, content)
+        kid = klnkbkend.create_kilink(content)
         start_response('303 see other', [('Location', "/" + kid)])
         return ''
 
     # serving a kilink
     start_response('200 OK', [('Content-Type', 'text/plain')])
     kid = path_info[1:]
-    response = backend.get_content(kid, 1)
+    response = klnkbkend.get_content(kid, 1)
     return [response]
 
 
