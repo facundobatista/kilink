@@ -6,7 +6,7 @@
 import cgi
 import os
 import sys
-
+from mako.template import Template
 import backend
 
 from flup.server.fcgi import WSGIServer
@@ -14,18 +14,20 @@ from flup.server.fcgi import WSGIServer
 FCGI_SOCKET_DIR = '/tmp'
 FCGI_SOCKET_UMASK = 0111
 
-MAIN_PAGE = file('templates/index.html').read()
+MAIN_PAGE = Template(file('templates/index.html').read())
 
 klnkbkend = backend.KilinkBackend()
 
-def kilink(environ, start_response):
+def kilink(environ, start_response, extra_data={}):
     """Kilink, :)"""
     path_info = environ['PATH_INFO']
     query_string = environ['QUERY_STRING']
+    render_dict={}
+    render_dict.update(extra_data)
 
     if path_info == '/':
         start_response('200 OK', [('Content-Type', 'text/html')])
-        return [MAIN_PAGE]
+        return [MAIN_PAGE.render(render_dict)]
 
     if path_info == '/action/create':
         response = str(environ)
@@ -40,7 +42,8 @@ def kilink(environ, start_response):
     start_response('200 OK', [('Content-Type', 'text/plain')])
     kid = path_info[1:]
     response = klnkbkend.get_content(kid, 1)
-    return [response]
+    render_dict.update('value'=response)
+    return [MAIN_PAGE.render(render_dict)]
 
 
 def main(args_in, app_name="hello"):
