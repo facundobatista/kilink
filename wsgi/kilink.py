@@ -27,7 +27,8 @@ def kilink(environ, start_response, extra_data={}):
 
     if path_info == '/':
         start_response('200 OK', [('Content-Type', 'text/html')])
-        return [MAIN_PAGE.render(render_dict)]
+        print MAIN_PAGE.render(render_dict)
+        return [str(MAIN_PAGE.render(render_dict))]
 
     if path_info == '/action/create':
         response = str(environ)
