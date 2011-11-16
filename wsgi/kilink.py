@@ -27,7 +27,6 @@ def kilink(environ, start_response, extra_data={}):
 
     if path_info == '/':
         start_response('200 OK', [('Content-Type', 'text/html')])
-        print MAIN_PAGE.render(**render_dict)
         return [str(MAIN_PAGE.render(**render_dict))]
 
     if path_info == '/action/create':
@@ -40,9 +39,10 @@ def kilink(environ, start_response, extra_data={}):
         return ''
 
     # serving a kilink
-    start_response('200 OK', [('Content-Type', 'text/plain')])
+    start_response('200 OK', [('Content-Type', 'text/html')])
     kid = path_info[1:]
     response = klnkbkend.get_content(kid, 1)
+    ## FIXME response = htmlize(response) ## estara dentro de un textarea
     render_dict.update({'value':response})
     return [MAIN_PAGE.render(**render_dict)]
 
