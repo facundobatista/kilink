@@ -42,7 +42,7 @@ def kilink(environ, start_response, extra_data={}):
     start_response('200 OK', [('Content-Type', 'text/plain')])
     kid = path_info[1:]
     response = klnkbkend.get_content(kid, 1)
-    render_dict.update({'value'=response})
+    render_dict.update({'value':response})
     return [MAIN_PAGE.render(render_dict)]
 
 
