@@ -22,7 +22,7 @@ def kilink(environ, start_response, extra_data={}):
     """Kilink, :)"""
     path_info = environ['PATH_INFO']
     query_string = environ['QUERY_STRING']
-    render_dict={}
+    render_dict={'value':''}
     render_dict.update(extra_data)
 
     if path_info == '/':
