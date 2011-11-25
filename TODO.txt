@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-Varios
-------
-
-DONE! Sacar el HTML afuera [Nico]:
- - Tener no el html incrustado en el .py, sino un template afuera
-
-
 Fase 1
 ------
 
