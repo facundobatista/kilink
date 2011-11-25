@@ -28,6 +28,10 @@ Encontrable via google
 Lanzamiento alfa interno:
 - usarlo mucho, nosotros, tratar de romperlo.
 
+Problemas a atacar en la fase:
+- [urlencode] %0D%0A viene en vez de un enter por problemas del navegador
+- [caracteres unicode] cuando queremos poner un caracter unicode se ve extraño
+- [representacion en HTML] no se puede romper el HTML con un kilink con contenido "</html>"
 
 Fase 2
 ------
