@@ -38,9 +38,7 @@ def kilink(environ, start_response, extra_data={}):
         response = str(environ)
         post_data = environ['wsgi.input'].read()
         assert post_data[:8] == 'content='
-        print "======== raw", repr(post_data[8:])
         content = tools.magic_quote(post_data[8:])
-        print "======== cnt", repr(content)
         kid = klnkbkend.create_kilink(content)
         start_response('303 see other', [('Location', "/" + kid)])
         return ''

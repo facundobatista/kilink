@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 Fase 1
 ------
 
@@ -17,10 +18,6 @@ Crear y editar kilinks (sin nombre)
  - El usuario puede crear o editar kilinks aunque no se loguee (ver
    "contribución anónima" arriba para más detalles).
 
-URLs o IDs
- - una URL o kilink ID fácilmente recordable (y que casi funciona como
-   URL corta: kilink.com/4g3jxd)
-
 Encontrable via google
  - se lo puede encontrar los textos públicos desde google o cualquier
    buscador
@@ -28,10 +25,6 @@ Encontrable via google
 Lanzamiento alfa interno:
 - usarlo mucho, nosotros, tratar de romperlo.
 
-Problemas a atacar en la fase:
-- [urlencode] %0D%0A viene en vez de un enter por problemas del navegador
-- [caracteres unicode] cuando queremos poner un caracter unicode se ve extraño
-- [representacion en HTML] no se puede romper el HTML con un kilink con contenido "</html>"
 
 Fase 2
 ------
