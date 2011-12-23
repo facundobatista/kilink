@@ -1,16 +1,19 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
 
+# Copyright 2011 Facundo Batista, Nicolás César
+# All Rigths Reserved
+
 """Kilink FTW!"""
 
 import os
-import re
 import sys
 
 from flup.server.fcgi import WSGIServer
 from mako.template import Template
 
 import backend
+import tools
 
 FCGI_SOCKET_DIR = '/tmp'
 FCGI_SOCKET_UMASK = 0111
@@ -18,57 +21,6 @@ FCGI_SOCKET_UMASK = 0111
 MAIN_PAGE = Template(file('templates/index.html').read())
 
 klnkbkend = backend.KilinkBackend()
-
-
-def magic_quote(text):
-    """Magic! FIXME: need explanation, and tests!!"""
-    response = []
-    text = iter(text)
-    while True:
-        try:
-            char = text.next()
-        except StopIteration:
-            break
-
-        if char != '%':
-            response.append(char)
-            continue
-
-        head = int(text.next() + text.next(), 16)
-        if head <= 127:
-            response.append("&#%d;" % head)
-            continue
-
-        if 192 <= head <= 223:
-            assert text.next() == '%'
-            c2 = int(text.next() + text.next(), 16)
-            u = chr(head) + chr(c2)
-            response.append("&#%d;" % ord(u.decode("utf8")))
-            continue
-
-        if 224 <= head <= 239:
-            assert text.next() == '%'
-            c2 = int(text.next() + text.next(), 16)
-            assert text.next() == '%'
-            c3 = int(text.next() + text.next(), 16)
-            u = chr(head) + chr(c2) + chr(c3)
-            response.append("&#%d;" % ord(u.decode("utf8")))
-            continue
-
-        if 240 <= head <= 247:
-            assert text.next() == '%'
-            c2 = int(text.next() + text.next(), 16)
-            assert text.next() == '%'
-            c3 = int(text.next() + text.next(), 16)
-            assert text.next() == '%'
-            c4 = int(text.next() + text.next(), 16)
-            u = chr(head) + chr(c2) + chr(c3) + chr(c4)
-            response.append("&#%d;" % ord(u.decode("utf8")))
-            continue
-
-        raise ValueError("Not recognized text format: %r" % ("".join(text),))
-    return "".join(response)
-
 
 
 def kilink(environ, start_response, extra_data={}):
@@ -86,7 +38,9 @@ def kilink(environ, start_response, extra_data={}):
         response = str(environ)
         post_data = environ['wsgi.input'].read()
         assert post_data[:8] == 'content='
-        content = magic_quote(post_data[8:])
+        print "======== raw", repr(post_data[8:])
+        content = tools.magic_quote(post_data[8:])
+        print "======== cnt", repr(content)
         kid = klnkbkend.create_kilink(content)
         start_response('303 see other', [('Location', "/" + kid)])
         return ''
