@@ -3,13 +3,14 @@
 
 """Kilink FTW!"""
 
-import cgi
 import os
+import re
 import sys
-from mako.template import Template
-import backend
 
 from flup.server.fcgi import WSGIServer
+from mako.template import Template
+
+import backend
 
 FCGI_SOCKET_DIR = '/tmp'
 FCGI_SOCKET_UMASK = 0111
@@ -17,6 +18,58 @@ FCGI_SOCKET_UMASK = 0111
 MAIN_PAGE = Template(file('templates/index.html').read())
 
 klnkbkend = backend.KilinkBackend()
+
+
+def magic_quote(text):
+    """Magic! FIXME: need explanation, and tests!!"""
+    response = []
+    text = iter(text)
+    while True:
+        try:
+            char = text.next()
+        except StopIteration:
+            break
+
+        if char != '%':
+            response.append(char)
+            continue
+
+        head = int(text.next() + text.next(), 16)
+        if head <= 127:
+            response.append("&#%d;" % head)
+            continue
+
+        if 192 <= head <= 223:
+            assert text.next() == '%'
+            c2 = int(text.next() + text.next(), 16)
+            u = chr(head) + chr(c2)
+            response.append("&#%d;" % ord(u.decode("utf8")))
+            continue
+
+        if 224 <= head <= 239:
+            assert text.next() == '%'
+            c2 = int(text.next() + text.next(), 16)
+            assert text.next() == '%'
+            c3 = int(text.next() + text.next(), 16)
+            u = chr(head) + chr(c2) + chr(c3)
+            response.append("&#%d;" % ord(u.decode("utf8")))
+            continue
+
+        if 240 <= head <= 247:
+            assert text.next() == '%'
+            c2 = int(text.next() + text.next(), 16)
+            assert text.next() == '%'
+            c3 = int(text.next() + text.next(), 16)
+            assert text.next() == '%'
+            c4 = int(text.next() + text.next(), 16)
+            u = chr(head) + chr(c2) + chr(c3) + chr(c4)
+            response.append("&#%d;" % ord(u.decode("utf8")))
+            continue
+
+        raise ValueError("Not recognized text format: %r" % ("".join(text),))
+    return "".join(response)
+
+
 
 def kilink(environ, start_response, extra_data={}):
     """Kilink, :)"""
@@ -33,7 +86,7 @@ def kilink(environ, start_response, extra_data={}):
         response = str(environ)
         post_data = environ['wsgi.input'].read()
         assert post_data[:8] == 'content='
-        content = post_data[8:]
+        content = magic_quote(post_data[8:])
         kid = klnkbkend.create_kilink(content)
         start_response('303 see other', [('Location', "/" + kid)])
         return ''
@@ -42,8 +95,7 @@ def kilink(environ, start_response, extra_data={}):
     start_response('200 OK', [('Content-Type', 'text/html')])
     kid = path_info[1:]
     response = klnkbkend.get_content(kid, 1)
-    ## FIXME response = htmlize(response) ## estara dentro de un textarea
-    render_dict.update({'value':response})
+    render_dict.update({'value': response})
     return [MAIN_PAGE.render(**render_dict)]
 
 
