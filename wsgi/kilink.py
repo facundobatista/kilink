@@ -6,6 +6,7 @@
 
 """Kilink FTW!"""
 
+import cgi
 import os
 import sys
 
@@ -26,15 +27,19 @@ klnkbkend = backend.KilinkBackend()
 def kilink(environ, start_response, extra_data={}):
     """Kilink, :)"""
     path_info = environ['PATH_INFO']
-    query_string = environ['QUERY_STRING']
-    render_dict={'value':''}
+    query_string = cgi.parse_qs(environ['QUERY_STRING'])
+    render_dict = {'value':''}
     render_dict.update(extra_data)
 
     if path_info == '/':
+        print "======= root"
         start_response('200 OK', [('Content-Type', 'text/html')])
+        render_dict['button_text'] = 'Create kilink'
+        render_dict['user_action'] = 'create'
         return [str(MAIN_PAGE.render(**render_dict))]
 
     if path_info == '/action/create':
+        print "======= create"
         response = str(environ)
         post_data = environ['wsgi.input'].read()
         assert post_data[:8] == 'content='
@@ -43,11 +48,28 @@ def kilink(environ, start_response, extra_data={}):
         start_response('303 see other', [('Location', "/" + kid)])
         return ''
 
+    if path_info == '/action/edit':
+        response = str(environ)
+        post_data = environ['wsgi.input'].read()
+        assert post_data[:8] == 'content='
+        content = tools.magic_quote(post_data[8:])
+        kid = query_string['kid'][0]
+        parent = int(query_string['parent'][0])
+        print "======= EDIT!", kid, parent
+        new_revno = klnkbkend.update_kilink(kid, parent, content)
+        start_response('303 see other',
+                       [('Location', "/%s?revno=%s" % (kid, new_revno))])
+        return ''
+
     # serving a kilink
+    print "======= serving"
     start_response('200 OK', [('Content-Type', 'text/html')])
     kid = path_info[1:]
-    response = klnkbkend.get_content(kid, 1)
+    revno = int(query_string.get('revno', [1])[0])
+    response = klnkbkend.get_content(kid, revno)
     render_dict.update({'value': response})
+    render_dict['button_text'] = 'Save new version'
+    render_dict['user_action'] = 'edit?kid=%s&parent=%s' % (kid, revno)
     return [MAIN_PAGE.render(**render_dict)]
 
 
