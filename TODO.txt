@@ -3,12 +3,6 @@
 Fase 1
 ------
 
-Edición in place [Nico]:
- - Un gran detalle con respecto a la edición es que queremos que sea "in
-   place". En otras palabras, en lugar de ofrecer un texto estático y un
-   área nueva (como la mayoría de los pastebines), queremos mostrar el
-   texto del kilink, y que el usuario lo pueda editar ahí mismo.
-
 Interfaz limpia:
  - que entre el textarea y el botón de submit no haya nada que distraiga
  - que el botón de submit se llame "crear kilink" o lo que corresponda
