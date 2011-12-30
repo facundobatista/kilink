@@ -12,9 +12,10 @@ Crear y editar kilinks (sin nombre)
  - El usuario puede crear o editar kilinks aunque no se loguee (ver
    "contribución anónima" arriba para más detalles).
 
-Encontrable via google
+Encontrable via google [Nico]
  - se lo puede encontrar los textos públicos desde google o cualquier
    buscador
+ - sitemaps
 
 Lanzamiento alfa interno:
 - usarlo mucho, nosotros, tratar de romperlo.
