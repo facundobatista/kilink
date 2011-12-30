@@ -8,10 +8,6 @@ Interfaz limpia:
  - que el botón de submit se llame "crear kilink" o lo que corresponda
  - que se pueda crear un kilink sin registrarse ni loguearse
 
-Crear y editar kilinks (sin nombre)
- - El usuario puede crear o editar kilinks aunque no se loguee (ver
-   "contribución anónima" arriba para más detalles).
-
 Encontrable via google [Nico]
  - se lo puede encontrar los textos públicos desde google o cualquier
    buscador
@@ -24,7 +20,7 @@ Lanzamiento alfa interno:
 Fase 2
 ------
 
-Ver árbol y versionado:
+Ver árbol y versionado [Facu]
  - Poder editar nos va a generar una estructura de árbol para las versiones.
    Este árbol será mostrado de forma explícita en la interfaz web, pudiendo
    el usuario hacer click en cualquiera de los nodos, viendo las distintas
