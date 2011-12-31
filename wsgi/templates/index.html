@@ -37,6 +37,24 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 
 <h1 id="title">Kilink</h1>
 
+% if tree_info is not None:
+    <table>
+        <tr><th>Parent</th><th>Revno</th></tr>
+        % for parent, revno, url, timestamp in tree_info:
+            <tr>
+                <td>${parent}</td>
+                % if current_revno != revno:
+                    <td title="${timestamp}"><a href="${url}">${revno}</a></td>
+                % else:
+                    <td title="${timestamp}">${revno}</td>
+                % endif
+            </tr>
+        % endfor
+    </table>
+    <br>
+% endif
+
+
 <form action="/action/${user_action}" method="POST" id="pasteform" name="pasteform">
 <textarea id="id_content" rows="20" cols="80" name="content">${value}</textarea>
 <br/>

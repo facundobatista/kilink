@@ -66,6 +66,7 @@ class KilinkServer(object):
             'value': '',
             'button_text': 'Create kilink',
             'user_action': 'create',
+            'tree_info': None,
         }
         return [str(self.template.render(**render_dict))]
 
@@ -93,15 +94,26 @@ class KilinkServer(object):
         """Serve a kilink by default."""
         kid = path_info[1:]  # without the initial '/'
         qs = self.parse_qs(self.environ['QUERY_STRING'])
-        revno = int(qs.get('revno', 1))
+        current_revno = int(qs.get('revno', 1))
 
-        action_url = 'edit?kid=%s&parent=%s' % (kid, revno)
-        content = self.klnkbkend.get_content(kid, revno)
+        # content
+        action_url = 'edit?kid=%s&parent=%s' % (kid, current_revno)
+        content = self.klnkbkend.get_content(kid, current_revno)
+
+        # tree info
+        tree_info = []
+        for revno, _, parent, tstamp in self.klnkbkend.get_kilink_tree(kid):
+            url = "/%s?revno=%s" % (kid, revno)
+            if parent is None:
+                parent = "-"
+            tree_info.append((parent, revno, url, tstamp))
 
         self.start_response('200 OK', [('Content-Type', 'text/html')])
         render_dict = {
             'value': content,
             'button_text': 'Save new version',
             'user_action': action_url,
+            'tree_info': tree_info,
+            'current_revno': current_revno,
         }
         return [str(self.template.render(**render_dict))]
