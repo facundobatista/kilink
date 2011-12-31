@@ -27,7 +27,8 @@ def main(args_in, app_name="hello"):
         srvr.run()
     finally:
         # clean up server socket file
-        os.unlink(socketfile)
+        if os.path.exists(socketfile):
+            os.unlink(socketfile)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
