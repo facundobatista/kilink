@@ -105,7 +105,7 @@ class KilinkServer(object):
         for revno, _, parent, tstamp in self.klnkbkend.get_kilink_tree(kid):
             url = "/%s?revno=%s" % (kid, revno)
             if parent is None:
-                parent = "-"
+                parent = "-1"
             tree_info.append((parent, revno, url, tstamp))
 
         self.start_response('200 OK', [('Content-Type', 'text/html')])

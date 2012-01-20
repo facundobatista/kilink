@@ -32,28 +32,43 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 -moz-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 }
 </style>
+
+<script type="text/javascript" src="/static/js/ECOTree.js"></script>
+<link type="text/css" rel="stylesheet" href="/static/js/ECOTree.css" />
+<xml:namespace ns="urn:schemas-microsoft-com:vml" prefix="v"/>
+<style>v\:*{ behavior:url(#default#VML);}</style> 
+
+<script>
+	var myTree = null;
+	
+	function CreateTree() {
+    % if tree_info is not None:
+		myTree = new ECOTree('myTree','myTreeContainer');							
+        myTree.config.selectMode = ECOTree.SL_SINGLE;
+        myTree.config.nodeFill = ECOTree.NF_FLAT;
+        myTree.config.defaultNodeWidth = 25;
+        myTree.config.defaultNodeHeight = 25;
+        myTree.config.linkColor = '#556B2F';
+        % for parent, revno, url, timestamp in tree_info:
+            % if current_revno == revno:
+                myTree.add(${revno},${parent},"${revno}", 0, 0, 'white', 'black');
+            % else:
+                myTree.add(${revno},${parent},"${revno}", 0, 0, '#00FFFF', 'blue', "${url}");
+            % endif
+        % endfor
+		myTree.UpdateTree();
+    % endif
+	}			
+</script>			
+
 </head>
-<body>
+<body onload="CreateTree();">
 
 <h1 id="title">Kilink</h1>
 
 % if tree_info is not None:
-    <table>
-        <tr><th>Parent</th><th>Revno</th></tr>
-        % for parent, revno, url, timestamp in tree_info:
-            <tr>
-                <td>${parent}</td>
-                % if current_revno != revno:
-                    <td title="${timestamp}"><a href="${url}">${revno}</a></td>
-                % else:
-                    <td title="${timestamp}">${revno}</td>
-                % endif
-            </tr>
-        % endfor
-    </table>
-    <br>
+<div id="myTreeContainer"></div>
 % endif
-
 
 <form action="/action/${user_action}" method="POST" id="pasteform" name="pasteform">
 <textarea id="id_content" rows="20" cols="80" name="content">${value}</textarea>
