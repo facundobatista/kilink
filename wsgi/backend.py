@@ -69,7 +69,12 @@ class KilinkBackend(object):
                 raise ValueError("The given kilink id is already used: %r" %
                                  (kid,))
 
-        Kilink(kid=kid, content=zipped)
+        try:
+            Kilink(kid=kid, content=zipped)
+        except sqlobject.dberrors.OperationalError,e:
+            # TODO check that e is "no such table: kilink "
+            Kilink.createTable()
+            Kilink(kid=kid, content=zipped)
         return kid
 
     def update_kilink(self, kid, parent, new_content):

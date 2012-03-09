@@ -280,13 +280,13 @@ ECONode.prototype._drawChildrenLinks = function (tree) {
 ECOTree = function (obj, elm) {
 	this.config = {
 		iMaxDepth : 100,
-		iLevelSeparation : 40,
-		iSiblingSeparation : 40,
+		iLevelSeparation : 20,
+		iSiblingSeparation : 26,
 		iSubtreeSeparation : 80,
 		iRootOrientation : ECOTree.RO_TOP,
-		iNodeJustification : ECOTree.NJ_TOP,
+		iNodeJustification : ECOTree.NJ_CENTER,
 		topXAdjustment : 0,
-		topYAdjustment : 0,		
+		topYAdjustment : -16,
 		render : "AUTO",
 		linkType : "M",
 		linkColor : "blue",
@@ -746,7 +746,7 @@ ECOTree.prototype._drawTree = function () {
 					s.push('</font></v:textbox>');											
 					switch (this.config.nodeFill) {
 						case ECOTree.NF_GRADIENT:
-							s.push('<v:fill type=gradient color2="'+((node.isSelected)?this.config.nodeSelColor:color)+'" color="#F5FFF5" angle=90 />');	
+							s.push('<v:fill type=gradient color2="'+((node.isSelected)?this.config.nodeSelColor:color)+'" color="#FBD400" angle="180" />');	
 							break;
 						case ECOTree.NF_FLAT:
 							s.push('<v:fill type="solid" color="'+((node.isSelected)?this.config.nodeSelColor:color)+'" />');	
@@ -770,7 +770,7 @@ ECOTree.prototype.toString = function () {
 	switch (this.render)
 	{
 		case "CANVAS":
-			s.push('<canvas id="ECOTreecanvas" width=200 height=200></canvas>');
+			s.push('<canvas id="ECOTreecanvas" height="400"  width="200"></canvas>');
 			break;
 			
 		case "HTML":

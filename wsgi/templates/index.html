@@ -31,6 +31,18 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 -webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 -moz-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 }
+
+#title {
+font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+font-size:1.1em;
+}
+
+#myTreeContainer {
+float:left;
+}
+
+
+
 </style>
 
 <script type="text/javascript" src="/static/js/ECOTree.js"></script>
@@ -48,12 +60,13 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 1);
         myTree.config.nodeFill = ECOTree.NF_FLAT;
         myTree.config.defaultNodeWidth = 25;
         myTree.config.defaultNodeHeight = 25;
-        myTree.config.linkColor = '#556B2F';
+
+        myTree.config.linkColor = '#556B00';
         % for parent, revno, url, timestamp in tree_info:
             % if current_revno == revno:
-                myTree.add(${revno},${parent},"${revno}", 0, 0, 'white', 'black');
+                myTree.add(${revno},${parent},"${revno}", 0, 0, '#FBD400', 'black');
             % else:
-                myTree.add(${revno},${parent},"${revno}", 0, 0, '#00FFFF', 'blue', "${url}");
+                myTree.add(${revno},${parent},"${revno}", 0, 0, '#A38B00', 'blue', "${url}");
             % endif
         % endfor
 		myTree.UpdateTree();
@@ -70,11 +83,12 @@ box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 <div id="myTreeContainer"></div>
 % endif
 
+<div id="kilinko">
 <form action="/action/${user_action}" method="POST" id="pasteform" name="pasteform">
 <textarea id="id_content" rows="20" cols="80" name="content">${value}</textarea>
 <br/>
 <input type="submit" value="${button_text}" />
 </form>
-
+</div>
 </body> 
 </html>
