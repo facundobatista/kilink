@@ -1,3 +1,17 @@
+.maingroup {
+	position: absolute;
+	width: 980px;
+	height: 370px;
+	overflow: scroll;	
+}
+
+.maindiv {
+	position: relative;
+	width: 980px;
+	height: 370px;
+	overflow: scroll;
+}
+
 .econode {
 	position: absolute;
 	text-overflow: clip;
