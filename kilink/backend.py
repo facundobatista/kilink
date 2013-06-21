@@ -57,6 +57,7 @@ class KilinkBackend(object):
 
     def create_kilink(self, content, kid=None):
         """Create a new kilink with given content."""
+        content = content.encode('utf8')
         zipped = zlib.compress(content)
 
         # create a kilink id if none is given
@@ -90,6 +91,7 @@ class KilinkBackend(object):
         new_revno = highest_revno + 1
 
         # create new revision
+        new_content = new_content.encode('utf8')
         zipped = zlib.compress(new_content)
         Kilink(kid=kid, revno=new_revno, parent_revno=parent, content=zipped)
         return new_revno
@@ -102,6 +104,7 @@ class KilinkBackend(object):
             raise ValueError("Data not found for kilink=%r revno=%s" % (
                              kid, revno))
         expanded = zlib.decompress(klnk.content)
+        expanded = expanded.decode('utf8')
         return expanded
 
     def get_kilink_tree(self, kid):
