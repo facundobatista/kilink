@@ -47,8 +47,8 @@ class KilinkBackend(object):
 
     def __init__(self, db_connection=None):
         if db_connection is None:
-            if not os.path.exists(DB_FILENAME):
-                Kilink.createTable()
+            #if not os.path.exists(DB_FILENAME):
+            #    Kilink.createTable()
             db_connection = 'sqlite:' + DB_FILENAME
 
         # connect
