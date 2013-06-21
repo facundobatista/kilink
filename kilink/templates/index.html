@@ -48,14 +48,14 @@ float:left;
 <script type="text/javascript" src="/static/js/ECOTree.js"></script>
 <link type="text/css" rel="stylesheet" href="/static/js/ECOTree.css" />
 <xml:namespace ns="urn:schemas-microsoft-com:vml" prefix="v"/>
-<style>v\:*{ behavior:url(#default#VML);}</style> 
+<style>v\:*{ behavior:url(#default#VML);}</style>
 
 <script>
 	var myTree = null;
-	
+
 	function CreateTree() {
     % if tree_info is not None:
-		myTree = new ECOTree('myTree','myTreeContainer');							
+		myTree = new ECOTree('myTree','myTreeContainer');
         myTree.config.selectMode = ECOTree.SL_SINGLE;
         myTree.config.nodeFill = ECOTree.NF_FLAT;
         myTree.config.defaultNodeWidth = 25;
@@ -71,8 +71,8 @@ float:left;
         % endfor
 		myTree.UpdateTree();
     % endif
-	}			
-</script>			
+	}
+</script>
 
 </head>
 <body onload="CreateTree();">
@@ -84,11 +84,11 @@ float:left;
 
 
 <div id="kilinko">
-<form action="/action/${user_action}" method="POST" id="pasteform" name="pasteform">
-<textarea id="id_content" rows="20" cols="80" name="content">${value}</textarea>
+<form action="/action/{{user_action}}" method="POST" id="pasteform" name="pasteform">
+<textarea id="id_content" rows="20" cols="80" name="content">{{value}}</textarea>
 <br/>
-<input type="submit" value="${button_text}" />
+<input type="submit" value="{{button_text}}" />
 </form>
 </div>
-</body> 
+</body>
 </html>
