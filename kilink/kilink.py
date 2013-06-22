@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
-
-# all the imports
-from flask import Flask, request, session, g, redirect, url_for,\
-    abort, render_template, flash
+from flask import (
+    Flask,
+    redirect,
+    render_template,
+    request,
+)
 
 import backend
 import tools
@@ -18,15 +19,14 @@ kilinkbackend = backend.KilinkBackend()
 
 # Vistas
 @app.route('/')
-def home():
-
+def index():
+    """The base page."""
     render_dict = {
         'value': '',
         'button_text': 'Create kilink',
         'user_action': 'create',
         'tree_info': None,
     }
-
     return render_template('index.html', **render_dict)
 
 

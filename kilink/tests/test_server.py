@@ -9,7 +9,13 @@ from StringIO import StringIO
 
 from twisted.trial.unittest import TestCase
 
-from kilink.server import KilinkServer
+from kilink import kilink
+
+
+class FakeRequest(object):
+    """A fake request to patch Flask."""
+    def __init__(self, **k):
+        self.__dict__.update(k)
 
 
 class FakeTemplate(object):
@@ -44,81 +50,79 @@ class ServingTestCase(TestCase):
         """Set up."""
         self.template = FakeTemplate()
         self.backend = FakeBackend()
-        self.klnk = KilinkServer(template=self.template,
-                                 klnkbkend=self.backend)
-        self.klnk.start_response = self._start_resp
+        self.patch(kilink, "kilinkbackend", self.backend)
 
-    def _start_resp(self, code, headers):
-        """Store response."""
-        self._resp_code = code
-        self._resp_headers = headers
-
-    def test_parse_qs(self):
-        """Check the query string parser."""
-        r = self.klnk.parse_qs("a=b&c=3")
-        self.assertEqual(r, dict(a='b', c='3'))
+        # to check
+        self.rendered = None
+        self.patch(kilink, "render_template",
+                   lambda *a, **k: setattr(self, "rendered", (a, k)))
+        self.redirected = None
+        self.patch(kilink, "redirect",
+                   lambda *a, **k: setattr(self, "redirected", (a, k)))
 
     def test_root_page(self):
         """Root page."""
-        response = self.klnk._dispatcher('/')
-        self.assertEqual(self.template.called['value'], '')
-        self.assertEqual(self.template.called['button_text'], 'Create kilink')
-        self.assertEqual(self.template.called['user_action'], 'create')
-        self.assertEqual(self._resp_code, '200 OK')
-        self.assertIn(('Content-Type', 'text/html'), self._resp_headers)
-        self.assertEqual(response, [str(self.template.rendered)])
+        kilink.index()
+        a, k = self.rendered
+        self.assertEqual(a, ("index.html",))
+        self.assertEqual(k['value'], '')
+        self.assertEqual(k['button_text'], 'Create kilink')
+        self.assertEqual(k['user_action'], 'create')
+        self.assertEqual(k['tree_info'], None)
 
     def test_serving_simple(self):
         """Serving a kilink with just its id."""
-        called = []
-        self.backend.get_content = lambda *a: called.extend(a) or "foobar"
-        self.klnk.environ['QUERY_STRING'] = ''
-        response = self.klnk._dispatcher('/kilink_id')
-        self.assertEqual(self.template.called['value'], 'foobar')
-        self.assertEqual(self.template.called['button_text'],
-                         'Save new version')
-        self.assertEqual(self.template.called['user_action'],
-                         'edit?kid=kilink_id&parent=1')
-        self.assertEqual(self._resp_code, '200 OK')
-        self.assertIn(('Content-Type', 'text/html'), self._resp_headers)
-        self.assertEqual(response, [str(self.template.rendered)])
-        self.assertEqual(called, ['kilink_id', 1])
+        self.backend.get_content = lambda *a: "foobar"
+        self.backend.get_kilink_tree = lambda *a: []
+        self.patch(kilink, "request", FakeRequest(args=dict(revno=1)))
+
+        kilink.show("kid")
+
+        a, k = self.rendered
+        should_action = "edit?kid=kid&parent=1"
+        self.assertEqual(a, ("index.html",))
+        self.assertEqual(k['value'], 'foobar')
+        self.assertEqual(k['button_text'], 'Save new version')
+        self.assertEqual(k['user_action'], should_action)
+        self.assertEqual(k['tree_info'], [])
 
     def test_serving_revno(self):
         """Serving a kilink with a revno."""
-        called = []
-        self.backend.get_content = lambda *a: called.extend(a) or "foobar"
-        self.klnk.environ['QUERY_STRING'] = 'revno=87'
-        response = self.klnk._dispatcher('/kilink_id')
-        self.assertEqual(self.template.called['value'], 'foobar')
-        self.assertEqual(self.template.called['button_text'],
-                         'Save new version')
-        self.assertEqual(self.template.called['user_action'],
-                         'edit?kid=kilink_id&parent=87')
-        self.assertEqual(self._resp_code, '200 OK')
-        self.assertIn(('Content-Type', 'text/html'), self._resp_headers)
-        self.assertEqual(response, [str(self.template.rendered)])
-        self.assertEqual(called, ['kilink_id', 87])
+        self.backend.get_content = lambda *a: "foobar"
+        self.backend.get_kilink_tree = lambda *a: []
+        self.patch(kilink, "request", FakeRequest(args=dict(revno=87)))
+        kilink.show("kid")
+
+        a, k = self.rendered
+        should_action = "edit?kid=kid&parent=87"
+        self.assertEqual(a, ("index.html",))
+        self.assertEqual(k['value'], 'foobar')
+        self.assertEqual(k['button_text'], 'Save new version')
+        self.assertEqual(k['user_action'], should_action)
+        self.assertEqual(k['tree_info'], [])
 
     def test_create(self):
         """Create a kilink."""
-        self.klnk.environ['wsgi.input'] = StringIO("content=foobar")
+        self.patch(kilink, "request", FakeRequest(form=dict(content=u"moño")))
         called = []
         self.backend.create_kilink = lambda c: called.append(c) or 'kilink_id'
-        response = self.klnk._dispatcher('/action/create')
-        self.assertEqual(self._resp_code, '303 see other')
-        self.assertIn(('Location', '/kilink_id'), self._resp_headers)
-        self.assertEqual(response, '')
-        self.assertEqual(called, ['foobar'])
+
+        kilink.create()
+        self.assertEqual(called[0], u"moño")
+        a, k = self.redirected
+        self.assertEqual(a, ("/k/kilink_id",))
+        self.assertEqual(k, dict(code=303))
 
     def test_edit(self):
         """Edit a kilink."""
-        self.klnk.environ['wsgi.input'] = StringIO("content=newcontent")
-        self.klnk.environ['QUERY_STRING'] = 'kid=klnkid&parent=17'
+        form = dict(content=u"moño")
+        args = dict(kid='kid', parent=23)
+        self.patch(kilink, "request", FakeRequest(form=form, args=args))
         called = []
-        self.backend.update_kilink = lambda *a: called.extend(a) or 23
-        response = self.klnk._dispatcher('/action/edit')
-        self.assertEqual(self._resp_code, '303 see other')
-        self.assertIn(('Location', '/klnkid?revno=23'), self._resp_headers)
-        self.assertEqual(response, '')
-        self.assertEqual(called, ['klnkid', 17, 'newcontent'])
+        self.backend.update_kilink = lambda *a: called.append(a) or 'newrev'
+
+        kilink.edit()
+        self.assertEqual(called[0], ("kid", 23, u"moño"))
+        a, k = self.redirected
+        self.assertEqual(a, ("/k/kid?revno=newrev",))
+        self.assertEqual(k, dict(code=303))
