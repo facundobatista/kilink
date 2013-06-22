@@ -6,7 +6,6 @@ from flask import (
 )
 
 import backend
-import tools
 import json
 
 
@@ -25,7 +24,7 @@ def index():
         'value': '',
         'button_text': 'Create kilink',
         'user_action': 'create',
-        'tree_info': None,
+        'tree_info': [],
     }
     return render_template('index.html', **render_dict)
 
@@ -73,7 +72,6 @@ def show(path):
         'tree_info': json.dumps(tree_info) if tree_info else [],
         'current_revno': current_revno,
     }
-    #import pdb; pdb.set_trace()
     return render_template('index.html', **render_dict)
 
 
