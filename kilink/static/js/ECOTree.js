@@ -704,7 +704,7 @@ ECOTree.prototype._drawTree = function () {
 					this.ctx.restore();
 					
 					//HTML part...
-					s.push('<div id="' + node.id + '" class="econode" style="{top:'+(node.YPosition+this.canvasoffsetTop+1)+'; left:'+(node.XPosition+this.canvasoffsetLeft+3)+'; width:'+node.w+'; height:'+node.h+';}" ');
+					s.push('<div id="' + node.id + '" class="econode" style="top:'+(node.YPosition+this.canvasoffsetTop+1)+'px; left:'+(node.XPosition+this.canvasoffsetLeft+3)+'px; width:'+node.w+'px; height:'+node.h+'px;" ');
 					if (this.config.selectMode != ECOTree.SL_NONE)											
 						s.push('onclick="window.location=\''+node.target+'\'"');
 					s.push('>');

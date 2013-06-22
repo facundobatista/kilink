@@ -1,94 +1,34 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
 
+<html>
 <head>
     <meta name="google-site-verification" content="SU95TWvB44aUvVJnwgE0B_UW3uCwnrAh1NMB410Mew0" />
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>Kilink</title>
-<style type="text/css">
-textarea#id_content{
-color:#666;
-font-size:14px;
--moz-border-radius: 8px; -webkit-border-radius: 8px;
-margin:5px 0px 10px 0px;
-padding:10px;
-border:#999 1px solid;
-font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-transition: all 0.25s ease-in-out;
--webkit-transition: all 0.25s ease-in-out;
--moz-transition: all 0.25s ease-in-out;
-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
--webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
--moz-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
-}
 
-
-textarea#id_content:focus{
-color:#000;
-outline:none;
-border:#35a5e5 1px solid;
-font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
--webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
--moz-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
-}
-
-#title {
-font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-font-size:1.1em;
-}
-
-#myTreeContainer {
-float:left;
-}
-
-
-
-</style>
-
-<script type="text/javascript" src="/static/js/ECOTree.js"></script>
-<link type="text/css" rel="stylesheet" href="/static/js/ECOTree.css" />
-<xml:namespace ns="urn:schemas-microsoft-com:vml" prefix="v"/>
-<style>v\:*{ behavior:url(#default#VML);}</style>
-
-<script>
-	var myTree = null;
-
-	function CreateTree() {
-    % if tree_info is not None:
-		myTree = new ECOTree('myTree','myTreeContainer');
-        myTree.config.selectMode = ECOTree.SL_SINGLE;
-        myTree.config.nodeFill = ECOTree.NF_FLAT;
-        myTree.config.defaultNodeWidth = 25;
-        myTree.config.defaultNodeHeight = 25;
-
-        myTree.config.linkColor = '#556B00';
-        % for parent, revno, url, timestamp in tree_info:
-            % if current_revno == revno:
-                myTree.add(${revno},${parent},"${revno}", 0, 0, '#FBD400', 'black');
-            % else:
-                myTree.add(${revno},${parent},"${revno}", 0, 0, '#A38B00', 'blue', "${url}");
-            % endif
-        % endfor
-		myTree.UpdateTree();
-    % endif
-	}
-</script>
-
+    <script type="text/javascript">
+        var node_list = {{ tree_info|safe }};
+        var current_revno = "{{ current_revno }}";
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ECOTree.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/tree.js') }}"></script>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/ECOTree.css') }}" />
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 </head>
+
 <body onload="CreateTree();">
-
-<h1 id="title">Kilink</h1>
-% if tree_info is not None:
+    <h1 id="title">Kilink</h1>
+{% if tree_info %}
 <div id="myTreeContainer"></div>
-% endif
-
+{% endif %}
 
 <div id="kilinko">
-<form action="/action/{{user_action}}" method="POST" id="pasteform" name="pasteform">
-<textarea id="id_content" rows="20" cols="80" name="content">{{value}}</textarea>
-<br/>
-<input type="submit" value="{{button_text}}" />
-</form>
+    <form action="/action/{{ user_action }}" method="POST" id="pasteform" name="pasteform">
+        <textarea id="id_content" rows="20" cols="80" name="content">{{value}}</textarea>
+        <input type="submit" value="{{button_text}}" />
+    </form>
 </div>
+
 </body>
 </html>
