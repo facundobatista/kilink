@@ -83,8 +83,8 @@ def show(path):
 
 #API
 # Estamos usando crossdomain porque si no, desde JS no podemos
-# Postear.Deberiamos pedir ayuda a un JS Ninja
-@app.route('/api/1/action/create', methods=['POST', 'OPTIONS'])
+# postear.Deberiamos pedir ayuda a un JS Ninja
+@app.route('/api/1/action/create', methods=['POST'])
 @crossdomain(origin='*')
 def api_create():
     """Create a kilink."""
