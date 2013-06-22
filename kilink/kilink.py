@@ -1,3 +1,5 @@
+"""The server and main app for kilink."""
+
 from flask import (
     Flask,
     redirect,
@@ -6,7 +8,6 @@ from flask import (
 )
 
 import backend
-import tools
 
 
 app = Flask(__name__)
@@ -72,7 +73,6 @@ def show(path):
         'current_revno': current_revno,
     }
     return render_template('index.html', **render_dict)
-
 
 
 if __name__ == "__main__":
