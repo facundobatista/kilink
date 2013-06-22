@@ -6,10 +6,15 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>Kilink</title>
 
+    <script type="text/javascript">
+        var node_list = {{ tree_info|safe }};
+        var current_revno = "{{ current_revno }}";
+    </script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/ECOTree.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/tree.js') }}"></script>
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/ECOTree.css') }}" />
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 </head>
 
 <body onload="CreateTree();">
@@ -17,7 +22,6 @@
 {% if tree_info %}
 <div id="myTreeContainer"></div>
 {% endif %}
-
 
 <div id="kilinko">
     <form action="/action/{{ user_action }}" method="POST" id="pasteform" name="pasteform">

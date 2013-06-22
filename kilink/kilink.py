@@ -6,10 +6,12 @@ from flask import Flask, request, session, g, redirect, url_for,\
 
 import backend
 import tools
+import json
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-
+app.config["STATIC_URL"] = 'static'
+app.config["STATIC_ROOT"] = 'static'
 kilinkbackend = backend.KilinkBackend()
 
 
@@ -62,23 +64,21 @@ def show(path):
     # tree info
     tree_info = []
     for revno, _, parent, tstamp in kilinkbackend.get_kilink_tree(kid):
-        url = "/%s?revno=%s" % (kid, revno)
+        url = "/k/%s?revno=%s" % (kid, revno)
         if parent is None:
-            parent = "-1"
-            tree_info.append((parent, revno, url, tstamp))
+            parent = -1
+        tree_info.append((parent, revno, url, str(tstamp)))
 
     render_dict = {
         'value': content,
         'button_text': 'Save new version',
         'user_action': action_url,
-        'tree_info': tree_info,
+        'tree_info': json.dumps(tree_info) if tree_info else [],
         'current_revno': current_revno,
     }
+    #import pdb; pdb.set_trace()
     return render_template('index.html', **render_dict)
 
 
-
-
-
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

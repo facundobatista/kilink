@@ -9,13 +9,18 @@ function CreateTree() {
 
     myTree.config.linkColor = '#556B00';
 
-    for(nodo in nodo_list) {
-        [parent, revno, url, tstamp] = nodo;
 
+    for(var node in node_list) {
+        //[parent, revno, url, tstamp] = node_list[node];
+        no = node_list[node];
+        parent = no[0];
+        revno = no[1];
+        url = no[2];
+        tstamp = no[3];
         if (current_revno == revno){
-            myTree.add(revno, parent, revno.toString(), 0, 0, '#FBD400', 'black');
+            myTree.add(parseInt(revno), parent, revno, 0, 0, '#FBD400', 'black', url);
         } else {
-            myTree.add(revno, parent, revno.toString(), 0, 0, '#A38B00', 'blue', url);
+            myTree.add(parseInt(revno), parent, revno, 0, 0, '#A38B00', 'blue', url);
         }
     }
     myTree.UpdateTree();
