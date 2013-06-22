@@ -8,6 +8,7 @@ import backend
 import tools
 import json
 
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
@@ -32,8 +33,7 @@ def home():
 @app.route('/action/create', methods=['POST'])
 def create():
     """Create a kilink."""
-    post_data = request.data
-    content = tools.magic_quote(post_data[8:])  # starts with 'content='
+    content = request.form['content']
     kid = kilinkbackend.create_kilink(content)
     return redirect('/k/' + kid, code=303)
 
@@ -41,14 +41,12 @@ def create():
 @app.route('/action/edit', methods=['POST'])
 def edit():
     """Edit a kilink."""
-    post_data = request.data
-    content = tools.magic_quote(post_data[8:])  # starts with 'content='
+    content = request.form['content']
     kid = request.args['kid']
     parent = int(request.args['parent'])
     new_revno = kilinkbackend.update_kilink(kid, parent, content)
     new_url = "/k/%s?revno=%s" % (kid, new_revno)
     return redirect(new_url, code=303)
-
 
 
 @app.route('/k/<path:path>')
@@ -60,7 +58,6 @@ def show(path):
     # content
     action_url = 'edit?kid=%s&parent=%s' % (kid, current_revno)
     content = kilinkbackend.get_content(kid, current_revno)
-
     # tree info
     tree_info = []
     for revno, _, parent, tstamp in kilinkbackend.get_kilink_tree(kid):
