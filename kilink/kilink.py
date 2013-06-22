@@ -1,3 +1,7 @@
+"""The server and main app for kilink."""
+
+import json
+
 from flask import (
     Flask,
     redirect,
@@ -6,7 +10,6 @@ from flask import (
 )
 
 import backend
-import json
 
 
 app = Flask(__name__)

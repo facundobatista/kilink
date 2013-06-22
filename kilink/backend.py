@@ -72,8 +72,7 @@ class KilinkBackend(object):
 
         try:
             Kilink(kid=kid, content=zipped)
-        except sqlobject.dberrors.OperationalError,e:
-            # TODO check that e is "no such table: kilink "
+        except sqlobject.dberrors.OperationalError:
             Kilink.createTable()
             Kilink(kid=kid, content=zipped)
         return kid

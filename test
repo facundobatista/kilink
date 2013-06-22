@@ -1,5 +1,5 @@
 set -e
-trial kilink
+trial tests
 pylint kilink
 pep8 --repeat kilink
 rm -rf _trial_temp
