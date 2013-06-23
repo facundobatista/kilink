@@ -106,16 +106,21 @@ def api_edit():
     return ret_json
 
 
-@app.route('/api/1/action/get', methods=['POST'])
+@app.route('/api/1/action/get/<kid>/<int:revno>', methods=['GET'])
+@app.route('/api/1/action/get', methods=['GET'])
 @crossdomain(origin='*')
-def api_get():
+def api_get(kid=None, revno=None):
     """Get the kilink and revno content"""
-    kid = request.form['kid']
-    revno = int(request.form['revno'])
-    content = kilinkbackend.get_content(kid, revno)
-    ret_json = jsonify(kilink_id=kid, revno=revno, content=content)
-    return ret_json
+    if not kid:
+        kid = request.args.get('kid')
+        revno = int(request.args.get('revno', 1))
 
+    try:
+        content = kilinkbackend.get_content(kid, revno)
+        ret_json = jsonify(kilink_id=kid, revno=revno, content=content)
+        return ret_json
+    except ValueError:
+        return "This kilink does not exists"
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
