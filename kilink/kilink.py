@@ -105,5 +105,17 @@ def api_edit():
     ret_json = jsonify(kilink_id=kid, revno=new_revno)
     return ret_json
 
+
+@app.route('/api/1/action/get', methods=['POST'])
+@crossdomain(origin='*')
+def api_get():
+    """Get the kilink and revno content"""
+    kid = request.form['kid']
+    revno = int(request.form['revno'])
+    content = kilinkbackend.get_content(kid, revno)
+    ret_json = jsonify(kilink_id=kid, revno=revno, content=content)
+    return ret_json
+
+
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
