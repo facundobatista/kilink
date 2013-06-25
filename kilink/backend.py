@@ -39,6 +39,7 @@ class Kilink(sqlobject.SQLObject):
     revno = sqlobject.IntCol(default=1)
     parent_revno = sqlobject.IntCol(default=None)
     content = sqlobject.PickleCol()
+    lang = sqlobject.StringCol()
     timestamp = sqlobject.DateTimeCol(default=sqlobject.DateTimeCol.now)
 
 
@@ -55,7 +56,7 @@ class KilinkBackend(object):
         connection = sqlobject.connectionForURI(db_connection)
         sqlobject.sqlhub.processConnection = connection
 
-    def create_kilink(self, content, kid=None):
+    def create_kilink(self, content, lang, kid=None):
         """Create a new kilink with given content."""
         content = content.encode('utf8')
         zipped = zlib.compress(content)
@@ -71,13 +72,13 @@ class KilinkBackend(object):
                                  (kid,))
 
         try:
-            Kilink(kid=kid, content=zipped)
+            Kilink(kid=kid, lang=lang, content=zipped)
         except sqlobject.dberrors.OperationalError:
             Kilink.createTable()
-            Kilink(kid=kid, content=zipped)
+            Kilink(kid=kid, lang=lang, content=zipped)
         return kid
 
-    def update_kilink(self, kid, parent, new_content):
+    def update_kilink(self, kid, lang, parent, new_content):
         """Add a new revision to a kilink."""
         # assure the parent is there
         search = Kilink.selectBy(kid=kid, revno=parent)

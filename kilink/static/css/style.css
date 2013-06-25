@@ -54,3 +54,10 @@ div.klk-tree-wrap {
     display: inline-block;
 }
 
+.highlight {
+    background: #f8f8f8;
+    overflow: auto;
+}
+.highlight .lineno {
+    color: #000000;
+} 

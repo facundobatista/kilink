@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html ng-app>
 <head>
     <meta name="google-site-verification" content="SU95TWvB44aUvVJnwgE0B_UW3uCwnrAh1NMB410Mew0" />
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -21,21 +21,34 @@
     <!-- styles -->
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/ECOTree.css') }}" />
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/highlight.css') }}" />
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
 </head>
 
 <body onload="CreateTree();">
 
-<div class="klk-container">
+<div class="klk-container container">
     <div class="klk-title">
         <h1>Kilink</h1>
     </div>
     <div class="klk-form-wrap">
         <div id="kilinko">
-            <form action="/action/{{ user_action }}" method="POST" id="pasteform" name="pasteform">
-                <textarea class="klk-textarea" id="id_content" rows="20" cols="80" name="content">{{value}}</textarea>
-                <button class="btn btn-primary pull-right" type="submit" value="{{button_text}}" >{{button_text}}</button>
-            </form>
+                {% if request.path != "/" %}
+                    <div class="well">{{ rendered_code|safe }}</div>
+                {% endif %}
+                <form action="/action/{{ user_action }}" method="POST" id="pasteform" name="pasteform">
+                    <textarea class="klk-textarea" id="id_content" rows="20" cols="89" name="content">{{ code }}</textarea>
+                    {% if request.path == url_for('index') %}
+                        <select name="lang">
+                            {% for language in languages: %}
+                                <option value="{{ language[1][0] }}">{{ language[0] }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <div>Kilink created with <b>{{ language.name }}</b>.</div>
+                    {% endif %}
+                    <button class="btn btn-primary pull-right" type="submit" value="{{button_text}}" >{{button_text}}</button>
+                </form>
         </div>
     </div>
     <div class="klk-tree-wrap">
