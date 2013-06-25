@@ -57,9 +57,9 @@ def edit():
     """Edit a kilink."""
     content = request.form['content']
     kid = request.args['kid']
-    lang = Kilink.selectBy(kid=kid).getOne()
-    lang = lang.lang
     parent = int(request.args['parent'])
+    lang = Kilink.selectBy(kid=kid, revno=parent).getOne()
+    lang = lang.lang
     new_revno = kilinkbackend.update_kilink(kid, lang, parent, content)
     new_url = "/k/%s?revno=%s" % (kid, new_revno)
     return redirect(new_url, code=303)
