@@ -53,11 +53,3 @@ div.klk-tree-wrap {
     vertical-align: top;
     display: inline-block;
 }
-
-.highlight {
-    background: #f8f8f8;
-    overflow: auto;
-}
-.highlight .lineno {
-    color: #000000;
-} 
