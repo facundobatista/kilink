@@ -82,6 +82,8 @@ class KilinkBackend(object):
         """Add a new revision to a kilink."""
         # assure the parent is there
         search = Kilink.selectBy(kid=kid, revno=parent)
+        lang = Kilink.selectBy(kid=kid, revno=parent).getOne()
+        lang = lang.lang
         if not search.count():
             raise ValueError("There's no such kilink for kid=%r revno=%s" % (
                              kid, parent))
@@ -93,7 +95,7 @@ class KilinkBackend(object):
         # create new revision
         new_content = new_content.encode('utf8')
         zipped = zlib.compress(new_content)
-        Kilink(kid=kid, revno=new_revno, parent_revno=parent, content=zipped)
+        Kilink(kid=kid, revno=new_revno, lang=lang, parent_revno=parent, content=zipped)
         return new_revno
 
     def get_content(self, kid, revno=1):

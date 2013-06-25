@@ -57,7 +57,7 @@ def edit():
     """Edit a kilink."""
     content = request.form['content']
     kid = request.args['kid']
-    lang = Kilink.selectBy(kid=kid, revno=revno).getOne()
+    lang = Kilink.selectBy(kid=kid).getOne()
     lang = lang.lang
     parent = int(request.args['parent'])
     new_revno = kilinkbackend.update_kilink(kid, lang, parent, content)
@@ -74,7 +74,7 @@ def show(path):
     # content
     action_url = 'edit?kid=%s&parent=%s' % (kid, current_revno)
     content = kilinkbackend.get_content(kid, current_revno)
-    lang = Kilink.selectBy(kid=kid).getOne()
+    lang = Kilink.selectBy(kid=kid, revno=current_revno).getOne()
     lang = get_lexer_by_name(lang.lang)
      # tree info
     tree_info = []
