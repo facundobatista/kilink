@@ -95,7 +95,11 @@ class KilinkBackend(object):
         # create new revision
         new_content = new_content.encode('utf8')
         zipped = zlib.compress(new_content)
-        Kilink(kid=kid, revno=new_revno, lang=lang, parent_revno=parent, content=zipped)
+        Kilink(kid=kid,
+               revno=new_revno,
+               lang=lang,
+               parent_revno=parent,
+               content=zipped)
         return new_revno
 
     def get_content(self, kid, revno=1):
@@ -118,3 +122,8 @@ class KilinkBackend(object):
         data = [(k.revno, decomp(k.content), k.parent_revno, k.timestamp)
                 for k in search]
         return data
+
+    def get_latest_kilinks(self, amount):
+        latest_kilinks = Kilink.select(orderBy=Kilink.q.timestamp)[:amount]
+
+        return latest_kilinks

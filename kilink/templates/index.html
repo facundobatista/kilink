@@ -49,6 +49,19 @@
                     {% endif %}
                     <button class="btn btn-primary pull-right" type="submit" value="{{button_text}}" >{{button_text}}</button>
                 </form>
+                {% if request.path == url_for('index') %}
+                    <div class="container">
+                        <div class="span4">
+                            <h2>Latest Kilinks</h2>
+
+                            <ul>
+                                {% for kilink in latest %}
+                                <li><a href="/k/{{ kilink.kid }}">Kilink #{{ kilink.kid }} at {{ kilink.timestamp }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
         </div>
     </div>
     <div class="klk-tree-wrap">

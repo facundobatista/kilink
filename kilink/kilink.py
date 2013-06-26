@@ -39,6 +39,7 @@ def index():
         'user_action': 'create',
         'tree_info': [],
         'languages': get_all_lexers(),
+        'latest': kilinkbackend.get_latest_kilinks(5),
     }
     return render_template('index.html', **render_dict)
 
