@@ -10,16 +10,23 @@ from flask import (
     jsonify,
 )
 
+from pygments import highlight
+from pygments.lexers import (
+    get_lexer_by_name,
+    get_all_lexers,
+    )
+from pygments.formatters import HtmlFormatter
+
 from decorators import *
 
-import backend
+from backend import Kilink, KilinkBackend
 
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
-kilinkbackend = backend.KilinkBackend()
+kilinkbackend = KilinkBackend()
 
 
 # Vistas
@@ -31,6 +38,8 @@ def index():
         'button_text': 'Create kilink',
         'user_action': 'create',
         'tree_info': [],
+        'languages': get_all_lexers(),
+        'latest': kilinkbackend.get_latest_kilinks(5),
     }
     return render_template('index.html', **render_dict)
 
@@ -39,7 +48,8 @@ def index():
 def create():
     """Create a kilink."""
     content = request.form['content']
-    kid = kilinkbackend.create_kilink(content)
+    lang = request.form['lang']
+    kid = kilinkbackend.create_kilink(content, lang)
     return redirect('/k/' + kid, code=303)
 
 
@@ -49,7 +59,9 @@ def edit():
     content = request.form['content']
     kid = request.args['kid']
     parent = int(request.args['parent'])
-    new_revno = kilinkbackend.update_kilink(kid, parent, content)
+    lang = Kilink.selectBy(kid=kid, revno=parent).getOne()
+    lang = lang.lang
+    new_revno = kilinkbackend.update_kilink(kid, lang, parent, content)
     new_url = "/k/%s?revno=%s" % (kid, new_revno)
     return redirect(new_url, code=303)
 
@@ -63,7 +75,9 @@ def show(path):
     # content
     action_url = 'edit?kid=%s&parent=%s' % (kid, current_revno)
     content = kilinkbackend.get_content(kid, current_revno)
-    # tree info
+    lang = Kilink.selectBy(kid=kid, revno=current_revno).getOne()
+    lang = get_lexer_by_name(lang.lang)
+     # tree info
     tree_info = []
     for revno, _, parent, tstamp in kilinkbackend.get_kilink_tree(kid):
         url = "/k/%s?revno=%s" % (kid, revno)
@@ -72,11 +86,15 @@ def show(path):
         tree_info.append((parent, revno, url, str(tstamp)))
 
     render_dict = {
-        'value': content,
+        'code': content,
+        'rendered_code': highlight(content,
+                                      get_lexer_by_name('python'),
+                                      HtmlFormatter()),
         'button_text': 'Save new version',
         'user_action': action_url,
         'tree_info': json.dumps(tree_info) if tree_info else [],
         'current_revno': current_revno,
+        'language': lang,
     }
     return render_template('index.html', **render_dict)
 

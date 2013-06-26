@@ -39,6 +39,7 @@ class Kilink(sqlobject.SQLObject):
     revno = sqlobject.IntCol(default=1)
     parent_revno = sqlobject.IntCol(default=None)
     content = sqlobject.PickleCol()
+    lang = sqlobject.StringCol()
     timestamp = sqlobject.DateTimeCol(default=sqlobject.DateTimeCol.now)
 
 
@@ -55,7 +56,7 @@ class KilinkBackend(object):
         connection = sqlobject.connectionForURI(db_connection)
         sqlobject.sqlhub.processConnection = connection
 
-    def create_kilink(self, content, kid=None):
+    def create_kilink(self, content, lang, kid=None):
         """Create a new kilink with given content."""
         content = content.encode('utf8')
         zipped = zlib.compress(content)
@@ -71,16 +72,18 @@ class KilinkBackend(object):
                                  (kid,))
 
         try:
-            Kilink(kid=kid, content=zipped)
+            Kilink(kid=kid, lang=lang, content=zipped)
         except sqlobject.dberrors.OperationalError:
             Kilink.createTable()
-            Kilink(kid=kid, content=zipped)
+            Kilink(kid=kid, lang=lang, content=zipped)
         return kid
 
-    def update_kilink(self, kid, parent, new_content):
+    def update_kilink(self, kid, lang, parent, new_content):
         """Add a new revision to a kilink."""
         # assure the parent is there
         search = Kilink.selectBy(kid=kid, revno=parent)
+        lang = Kilink.selectBy(kid=kid, revno=parent).getOne()
+        lang = lang.lang
         if not search.count():
             raise ValueError("There's no such kilink for kid=%r revno=%s" % (
                              kid, parent))
@@ -92,7 +95,11 @@ class KilinkBackend(object):
         # create new revision
         new_content = new_content.encode('utf8')
         zipped = zlib.compress(new_content)
-        Kilink(kid=kid, revno=new_revno, parent_revno=parent, content=zipped)
+        Kilink(kid=kid,
+               revno=new_revno,
+               lang=lang,
+               parent_revno=parent,
+               content=zipped)
         return new_revno
 
     def get_content(self, kid, revno=1):
@@ -115,3 +122,8 @@ class KilinkBackend(object):
         data = [(k.revno, decomp(k.content), k.parent_revno, k.timestamp)
                 for k in search]
         return data
+
+    def get_latest_kilinks(self, amount):
+        latest_kilinks = Kilink.select(orderBy=Kilink.q.timestamp)[:amount]
+
+        return latest_kilinks
