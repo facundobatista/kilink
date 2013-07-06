@@ -5,113 +5,93 @@
 
 """Backend functionality for Kilink."""
 
-import os
-import time
+import collections
+import datetime
+import operator
+import uuid
 import zlib
 
-import sqlobject
+from sqlalchemy import Column, DateTime, String, LargeBinary
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
+
+Base = declarative_base()
+Session = sessionmaker()
 
 
-DB_FILENAME = os.path.abspath('data.db')
+class KilinkNotFoundError(Exception):
+    """A kilink was specified, we couldn't find it."""
 
-ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-
-def _b62_encode(num):
-    """Encode using a 62 letters alphabet."""
-    arr = []
-    base = len(ALPHABET)
-    while num:
-        num, rem = divmod(num, base)
-        arr.append(ALPHABET[rem])
-    arr.reverse()
-    return ''.join(arr)
+TreeNode = collections.namedtuple("TreeNode",
+                                  "content parent order revno timestamp")
 
 
-def get_short_kid():
-    """Build a short unique identifier."""
-    return _b62_encode(int((time.time() * 1000000)))
-
-
-class Kilink(sqlobject.SQLObject):
+class Kilink(Base):
     """Kilink data."""
-    kid = sqlobject.StringCol()
-    revno = sqlobject.IntCol(default=1)
-    parent_revno = sqlobject.IntCol(default=None)
-    content = sqlobject.PickleCol()
-    timestamp = sqlobject.DateTimeCol(default=sqlobject.DateTimeCol.now)
+    __tablename__ = 'kilink'
+
+    kid = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    revno = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    parent = Column(String, default=None)
+    content = Column(LargeBinary)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
 
 class KilinkBackend(object):
     """Backend for Kilink."""
 
-    def __init__(self, db_connection=None):
-        if db_connection is None:
-            #if not os.path.exists(DB_FILENAME):
-            #    Kilink.createTable()
-            db_connection = 'sqlite:' + DB_FILENAME
+    def __init__(self, db_engine):
+        conn = db_engine.connect()
+        Base.metadata.create_all(db_engine)
+        self.session = Session(bind=conn)
 
-        # connect
-        connection = sqlobject.connectionForURI(db_connection)
-        sqlobject.sqlhub.processConnection = connection
-
-    def create_kilink(self, content, kid=None):
+    def create_kilink(self, content):
         """Create a new kilink with given content."""
         content = content.encode('utf8')
         zipped = zlib.compress(content)
-
-        # create a kilink id if none is given
-        if kid is None:
-            kid = get_short_kid()
-        else:
-            # assure that the given kilink id is unique
-            search = Kilink.selectBy(kid=kid)
-            if search.count() > 0:
-                raise ValueError("The given kilink id is already used: %r" %
-                                 (kid,))
-
-        try:
-            Kilink(kid=kid, content=zipped)
-        except sqlobject.dberrors.OperationalError:
-            Kilink.createTable()
-            Kilink(kid=kid, content=zipped)
-        return kid
+        klnk = Kilink(content=zipped)
+        self.session.add(klnk)
+        self.session.commit()
+        return klnk
 
     def update_kilink(self, kid, parent, new_content):
         """Add a new revision to a kilink."""
-        # assure the parent is there
-        search = Kilink.selectBy(kid=kid, revno=parent)
-        if not search.count():
-            raise ValueError("There's no such kilink for kid=%r revno=%s" % (
-                             kid, parent))
-
-        # calculate new revno; note that this is not thread safe
-        highest_revno = Kilink.selectBy(kid=kid).max(Kilink.q.revno)
-        new_revno = highest_revno + 1
-
-        # create new revision
         new_content = new_content.encode('utf8')
         zipped = zlib.compress(new_content)
-        Kilink(kid=kid, revno=new_revno, parent_revno=parent, content=zipped)
-        return new_revno
+        search = self.session.query(Kilink).filter_by(kid=kid, revno=parent)
+        if not search.all():
+            raise KilinkNotFoundError("Parent kilink not found")
 
-    def get_content(self, kid, revno=1):
-        """Get content for a specific kilink and version."""
+        klnk = Kilink(kid=kid, parent=parent, content=zipped)
+        self.session.add(klnk)
+        self.session.commit()
+        return klnk
+
+    def get_content(self, kid, revno):
+        """Get content for a specific kilink and revision number."""
         try:
-            klnk = Kilink.selectBy(kid=kid, revno=revno).getOne()
-        except sqlobject.main.SQLObjectNotFound:
-            raise ValueError("Data not found for kilink=%r revno=%s" % (
-                             kid, revno))
+            klnk = self.session.query(Kilink).filter_by(
+                kid=kid, revno=revno).one()
+        except NoResultFound:
+            msg = "Data not found for kilink=%r revno=%r" % (kid, revno)
+            raise KilinkNotFoundError(msg)
+
         expanded = zlib.decompress(klnk.content)
         expanded = expanded.decode('utf8')
         return expanded
 
     def get_kilink_tree(self, kid):
         """Return all the information about the kilink."""
-        search = Kilink.selectBy(kid=kid)
-        if not search.count():
+        klnk_tree = self.session.query(Kilink).filter_by(kid=kid).all()
+        if len(klnk_tree) == 0:
             raise ValueError("Kilink id not found: %r" % (kid,))
         decomp = zlib.decompress
-        data = [(k.revno, decomp(k.content), k.parent_revno, k.timestamp)
-                for k in search]
-        return data
+        klnk_tree.sort(key=operator.attrgetter("timestamp", "revno"))
+        result = []
+        for i, klnk in enumerate(klnk_tree, 1):
+            tn = TreeNode(order=i, content=decomp(klnk.content),
+                          revno=klnk.revno, parent=klnk.parent,
+                          timestamp=klnk.timestamp)
+            result.append(tn)
+        return result

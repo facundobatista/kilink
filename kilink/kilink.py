@@ -2,27 +2,21 @@
 
 import json
 
-from flask import (
-    Flask,
-    redirect,
-    render_template,
-    request,
-    jsonify,
-)
-
-from decorators import *
+from flask import Flask, redirect, render_template, request, jsonify
+from sqlalchemy import create_engine
 
 import backend
 
+from decorators import crossdomain
 
+# set up flask
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
-kilinkbackend = backend.KilinkBackend()
 
 
-# Vistas
+# views
 @app.route('/')
 def index():
     """The base page."""
@@ -39,8 +33,9 @@ def index():
 def create():
     """Create a kilink."""
     content = request.form['content']
-    kid = kilinkbackend.create_kilink(content)
-    return redirect('/k/' + kid, code=303)
+    klnk = kilinkbackend.create_kilink(content)
+    url = "/k/%s?revno=%s" % (klnk.kid, klnk.revno)
+    return redirect(url, code=303)
 
 
 @app.route('/action/edit', methods=['POST'])
@@ -48,9 +43,9 @@ def edit():
     """Edit a kilink."""
     content = request.form['content']
     kid = request.args['kid']
-    parent = int(request.args['parent'])
-    new_revno = kilinkbackend.update_kilink(kid, parent, content)
-    new_url = "/k/%s?revno=%s" % (kid, new_revno)
+    parent = request.args['parent']
+    klnk = kilinkbackend.update_kilink(kid, parent, content)
+    new_url = "/k/%s?revno=%s" % (kid, klnk.revno)
     return redirect(new_url, code=303)
 
 
@@ -58,18 +53,20 @@ def edit():
 def show(path):
     """Show the kilink content"""
     kid = path
-    current_revno = int(request.args.get('revno', 1))
+    current_revno = request.args['revno']
 
     # content
     action_url = 'edit?kid=%s&parent=%s' % (kid, current_revno)
     content = kilinkbackend.get_content(kid, current_revno)
     # tree info
     tree_info = []
-    for revno, _, parent, tstamp in kilinkbackend.get_kilink_tree(kid):
-        url = "/k/%s?revno=%s" % (kid, revno)
+    for treenode in kilinkbackend.get_kilink_tree(kid):
+        url = "/k/%s?revno=%s" % (kid, treenode.revno)
+        parent = treenode.parent
         if parent is None:
             parent = -1
-        tree_info.append((parent, revno, url, str(tstamp)))
+        tree_info.append((treenode.order, parent, treenode.revno,
+                         url, str(treenode.timestamp)))
 
     render_dict = {
         'value': content,
@@ -89,8 +86,8 @@ def show(path):
 def api_create():
     """Create a kilink."""
     content = request.form['content']
-    kid = kilinkbackend.create_kilink(content)
-    ret_json = jsonify(kilink_id=kid)
+    klnk = kilinkbackend.create_kilink(content)
+    ret_json = jsonify(kilink_id=klnk.kid, revno=klnk.revno)
     return ret_json
 
 
@@ -100,9 +97,9 @@ def api_edit():
     """Edit a kilink."""
     content = request.form['content']
     kid = request.form['kid']
-    parent = int(request.form['parent'])
-    new_revno = kilinkbackend.update_kilink(kid, parent, content)
-    ret_json = jsonify(kilink_id=kid, revno=new_revno)
+    parent = request.form['parent']
+    klnk = kilinkbackend.update_kilink(kid, parent, content)
+    ret_json = jsonify(revno=klnk.revno)
     return ret_json
 
 
@@ -111,11 +108,15 @@ def api_edit():
 def api_get():
     """Get the kilink and revno content"""
     kid = request.form['kid']
-    revno = int(request.form['revno'])
+    revno = request.form['revno']
     content = kilinkbackend.get_content(kid, revno)
-    ret_json = jsonify(kilink_id=kid, revno=revno, content=content)
+    ret_json = jsonify(content=content)
     return ret_json
 
 
 if __name__ == "__main__":
+    # set up the backend
+    engine = create_engine('sqlite:///tmp/kilink.db')
+    kilinkbackend = backend.KilinkBackend(engine)
+
     app.run(debug=True, host='0.0.0.0')

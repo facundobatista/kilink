@@ -2,21 +2,40 @@
 
 """API tests."""
 
+import json
+
 from unittest import TestCase
 
-#from kilink.backend import KilinkBackend, Kilink
-#from kilink import *
-import requests
+from sqlalchemy import create_engine
 
+from kilink import kilink, backend
 
 class BaseTestCase(TestCase):
     """Base for all test using a API."""
     def setUp(self):
         """Set up."""
         super(BaseTestCase, self).setUp()
-        self.kilink_create = 'http://localhost:5000/api/1/action/create'
-        self.kilink_edit = 'http://localhost:5000/api/1/action/edit'
-        self.kilink_get = 'http://localhost:5000/api/1/action/get'
+        engine = create_engine("sqlite://")
+        kilink.kilinkbackend = backend.KilinkBackend(engine)
+        self.app = kilink.app.test_client()
+
+    def api_create(self, data, code=200):
+        """Helper to hit the api to create."""
+        r = self.app.post("/api/1/action/create", data=data)
+        self.assertEqual(r.status_code, code)
+        return json.loads(r.data)
+
+    def api_edit(self, data, code=200):
+        """Helper to hit the api to edit."""
+        r = self.app.post("/api/1/action/edit", data=data)
+        self.assertEqual(r.status_code, code)
+        return json.loads(r.data)
+
+    def api_get(self, data, code=200):
+        """Helper to hit the api to get."""
+        r = self.app.post("/api/1/action/get", data=data)
+        self.assertEqual(r.status_code, code)
+        return json.loads(r.data)
 
 
 class ApiTestCase(BaseTestCase):
@@ -25,29 +44,40 @@ class ApiTestCase(BaseTestCase):
     def test_create_simple(self):
         """Simple create."""
         datos = {'content': u'Moñooo()?¿'}
-        r = requests.post(self.kilink_create, data=datos)
-        self.assertTrue(r.ok)
-        self.assertTrue(u'kilink_id' in r.json())
+        resp = self.api_create(data=datos)
+        self.assertTrue(u'kilink_id' in resp)
+        self.assertTrue(u'revno' in resp)
 
     def test_update_simple(self):
         """Update a kilink with new content."""
         parent_content = {'content': u'ÑOÑO'}
-        p = requests.post(self.kilink_create, data=parent_content)
-        kid = p.json()['kilink_id']
+        resp = self.api_create(data=parent_content)
+        kid = resp['kilink_id']
+        revno0 = resp["revno"]
 
-        child_content = {'content': u'Moñito', 'kid': kid, 'parent': 1}
-        c = requests.post(self.kilink_edit, data=child_content)
-        self.assertEqual(c.json().get('revno'), 2)
+        child_content = {
+            'content': u'Moñito',
+            'kid': kid,
+            'parent': revno0,
+        }
+        resp = self.api_edit(data=child_content)
+        revno1 = resp["revno"]
 
-        child_content2 = {'content': u'Moñito2', 'kid': kid, 'parent': 1}
-        c2 = requests.post(self.kilink_edit, data=child_content2)
-        self.assertEqual(c2.json().get('revno'), 3)
+        child_content2 = {
+            'content': u'Moñito2',
+            'kid': kid,
+            'parent': revno0,
+        }
+        resp = self.api_edit(data=child_content2)
+        revno2 = resp["revno"]
+
+        # all three are different
+        self.assertEqual(len(set([revno0, revno1, revno2])), 3)
 
     def test_get_simple(self):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO'}
-        p = requests.post(self.kilink_create, data=content)
-        kid = p.json()['kilink_id']
-        get = {'kid': kid, 'revno': 1}
-        c = requests.post(self.kilink_get, data=get)
-        self.assertEqual(c.json().get('revno'), 1)
+        resp = self.api_create(data=content)
+        get = {'kid': resp['kilink_id'], 'revno': resp['revno']}
+        resp = self.api_get(data=get)
+        self.assertEqual(resp["content"], u"ÑOÑO")

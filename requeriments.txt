@@ -2,7 +2,7 @@ Flask==0.10.1
 FormEncode==1.2.6
 Jinja2==2.7
 MarkupSafe==0.18
-SQLObject==1.4.1
+SQLAlchemy==0.8.1
 Werkzeug==0.9.1
 argparse==1.2.1
 distribute==0.6.34
