@@ -31,9 +31,10 @@ class BaseTestCase(TestCase):
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
-    def api_get(self, data, code=200):
+    def api_get(self, kid, revno, code=200):
         """Helper to hit the api to get."""
-        r = self.app.post("/api/1/action/get", data=data)
+        url = "/api/1/action/get/%s/%s" % (kid, revno)
+        r = self.app.get(url)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
@@ -78,6 +79,5 @@ class ApiTestCase(BaseTestCase):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO'}
         resp = self.api_create(data=content)
-        get = {'kid': resp['kilink_id'], 'revno': resp['revno']}
-        resp = self.api_get(data=get)
+        resp = self.api_get(resp['kilink_id'], resp['revno'])
         self.assertEqual(resp["content"], u"ÑOÑO")

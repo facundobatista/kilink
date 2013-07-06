@@ -103,13 +103,11 @@ def api_edit():
     return ret_json
 
 
-@app.route('/api/1/action/get/<kid>/<int:revno>', methods=['GET'])
+@app.route('/api/1/action/get/<kid>/<revno>', methods=['GET'])
 @app.route('/api/1/action/get', methods=['GET'])
 @crossdomain(origin='*')
 def api_get(kid=None, revno=None):
     """Get the kilink and revno content"""
-    kid = request.form['kid']
-    revno = request.form['revno']
     content = kilinkbackend.get_content(kid, revno)
     ret_json = jsonify(content=content)
     return ret_json

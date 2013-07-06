@@ -1,10 +1,14 @@
+"""Decorators to use in Flask."""
+
 from datetime import timedelta
 from flask import make_response, request, current_app
 from functools import update_wrapper
 
+
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True):
+    """Allow to be hit from other domain."""
     if methods is not None:
         methods = ', '.join(sorted(x.upper() for x in methods))
     if headers is not None and not isinstance(headers, basestring):
@@ -15,6 +19,7 @@ def crossdomain(origin=None, methods=None, headers=None,
         max_age = max_age.total_seconds()
 
     def get_methods():
+        """Get methods."""
         if methods is not None:
             return methods
 
@@ -22,7 +27,9 @@ def crossdomain(origin=None, methods=None, headers=None,
         return options_resp.headers['allow']
 
     def decorator(f):
+        """The decorator."""
         def wrapped_function(*args, **kwargs):
+            """The wrapped function."""
             if automatic_options and request.method == 'OPTIONS':
                 resp = current_app.make_default_options_response()
             else:
