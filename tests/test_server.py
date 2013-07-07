@@ -75,7 +75,8 @@ class ServingTestCase(TestCase):
             kilink.create()
 
         # get what was created, to compare
-        created = self.backend.session.query(backend.Kilink).one()
+        session = self.backend.sm.get_session()
+        created = session.query(backend.Kilink).one()
 
         # compare
         url = "/k/%s?revno=%s" % (created.kid, created.revno)
@@ -83,18 +84,6 @@ class ServingTestCase(TestCase):
 
     def test_edit(self):
         """Edit a kilink."""
-        #form = dict(content=u"moño")
-        #self.patch(kilink, "request", FakeRequest(form=form, args=args))
-        #called = []
-        #self.backend.update_kilink = lambda *a: called.append(a) or 'newrev'
-
-        #kilink.edit()
-        #self.assertEqual(called[0], ("kid", 23, u"moño"))
-        #a, k = self.redirected
-        #self.assertEqual(a, ("/k/kid?revno=newrev",))
-        #self.assertEqual(k, dict(code=303))
-
-
         klnk = self.backend.create_kilink("content")
 
         with patch("kilink.kilink.request") as m:
@@ -103,7 +92,8 @@ class ServingTestCase(TestCase):
             kilink.edit()
 
         # get what was created, to compare
-        created = self.backend.session.query(backend.Kilink).filter_by(
+        session = self.backend.sm.get_session()
+        created = session.query(backend.Kilink).filter_by(
             kid=klnk.kid, parent=klnk.revno).one()
 
         # compare

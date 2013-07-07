@@ -115,7 +115,6 @@ def api_get(kid=None, revno=None):
 
 if __name__ == "__main__":
     # set up the backend
-    engine = create_engine('sqlite:///tmp/kilink.db')
+    engine = create_engine('sqlite:////tmp/kilink.db')
     kilinkbackend = backend.KilinkBackend(engine)
-
     app.run(debug=True, host='0.0.0.0')
