@@ -2,7 +2,7 @@
 
 import json
 
-from flask import Flask, redirect, render_template, request, jsonify
+from flask import Flask, redirect, render_template, request, jsonify, make_response
 from sqlalchemy import create_engine
 
 import backend
@@ -88,7 +88,9 @@ def api_create():
     content = request.form['content']
     klnk = kilinkbackend.create_kilink(content)
     ret_json = jsonify(kilink_id=klnk.kid, revno=klnk.revno)
-    return ret_json
+    response = make_response(ret_json)
+    response.headers['Location'] = 'http://kilink.com.ar/%s' % (klnk.kid)
+    return response, 201
 
 
 @app.route('/api/1/action/edit', methods=['POST'])
