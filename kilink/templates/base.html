@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="google-site-verification" content="SU95TWvB44aUvVJnwgE0B_UW3uCwnrAh1NMB410Mew0" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>Kilink</title>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A calm, blue sky.">
+    <meta name="author" content="Thomas Park">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- styles -->
+    <link type="test/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link type="test/css" href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link type="test/css" href="{{ url_for('static', filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">
+    <link type="test/css" href="{{ url_for('static', filename='theme/monokai.css') }}" rel='stylesheet'>
+    <link type="test/css" href="{{ url_for('static', filename='lib/codemirror.css') }}" rel="stylesheet">
+    <link type="text/css" href="{{ url_for('static', filename='css/ECOTree.css') }}" rel="stylesheet">
+
+    <!-- javascript -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.10.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.hotkeys.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+
+  </head>
+
+  <body class="preview" id="top" data-spy="scroll" data-target=".subnav" data-offset="80">
+
+
+  <!-- Navbar
+    ================================================== -->
+ <div class="navbar navbar navbar-fixed-top">
+   <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="/">Kilink</a>
+       <div class="nav-collapse collapse" id="main-menu">
+        <ul class="nav" id="main-menu-left">
+          <li><a href="/">New</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+       </div>
+     </div>
+   </div>
+ </div>
+
+    <div class="container main">
+    {% block main %}
+    {% endblock %}
+
+    <hr>
+
+    <footer id="footer">
+        <p class="pull-right"><a href="#top">Back to top</a></p>
+        Theme by <a href="http://thomaspark.me">Thomas Park</a>.
+    </footer>
+
+    </div><!-- /container -->
+  </body>
+</html>
