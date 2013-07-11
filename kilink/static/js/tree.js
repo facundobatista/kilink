@@ -11,16 +11,17 @@ function CreateTree() {
 
 
     for(var node in node_list) {
-        //[parent, revno, url, tstamp] = node_list[node];
+        //[order, parent, revno, url, tstamp] = node_list[node];
         no = node_list[node];
-        parent = no[0];
-        revno = no[1];
-        url = no[2];
-        tstamp = no[3];
+        order = no[0];
+        parent = no[1];
+        revno = no[2];
+        url = no[3];
+        tstamp = no[4];
         if (current_revno == revno){
-            myTree.add(parseInt(revno), parent, revno, 0, 0, '#FBD400', 'black', url);
+            myTree.add(revno, parent, order, 0, 0, '#FBD400', 'black', url);
         } else {
-            myTree.add(parseInt(revno), parent, revno, 0, 0, '#A38B00', 'blue', url);
+            myTree.add(revno, parent, order, 0, 0, '#A38B00', 'blue', url);
         }
     }
     myTree.UpdateTree();
