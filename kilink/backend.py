@@ -18,7 +18,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 Base = declarative_base()
-#Session = sessionmaker()
 
 
 class KilinkNotFoundError(Exception):
