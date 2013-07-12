@@ -27,13 +27,15 @@ To create a child of an existing kilink node:
 
 To get a specific kilink node:
 
-    - type: POST
+    - type: GET
     - url: /api/1/kilinks/<kid>/<revno>
 
 To get all the tree of a kilink:
 
-    - type: POST
+    - type: GET
     - url: /api/1/kilinks/<kid>
+
+As we don't know if the "get all the tree of a kilink" it's going to be used, it's not implemented yet. But will have the previous API ;-)
 
 
 How To Try It In Development
