@@ -2,7 +2,14 @@
 
 import json
 
-from flask import Flask, redirect, render_template, request, jsonify, make_response
+from flask import (
+    Flask,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+)
 from sqlalchemy import create_engine
 
 import backend
@@ -81,7 +88,7 @@ def show(path):
 #API
 # Estamos usando crossdomain porque si no, desde JS no podemos
 # postear.Deberiamos pedir ayuda a un JS Ninja
-@app.route('/api/1/action/create', methods=['POST'])
+@app.route('/api/1/kilinks', methods=['POST'])
 @crossdomain(origin='*')
 def api_create():
     """Create a kilink."""
@@ -89,31 +96,43 @@ def api_create():
     klnk = kilinkbackend.create_kilink(content)
     ret_json = jsonify(kilink_id=klnk.kid, revno=klnk.revno)
     response = make_response(ret_json)
-    response.headers['Location'] = 'http://kilink.com.ar/%s' % (klnk.kid)
+    # FIXME: Esto va en un archivo de configuracion
+    response.headers['Location'] = 'http://kilink.com.ar/%s/%s' % (
+        klnk.kid, klnk.revno)
     return response, 201
 
 
-@app.route('/api/1/action/edit', methods=['POST'])
+@app.route('/api/1/kilinks/<kid>', methods=['POST'])
 @crossdomain(origin='*')
-def api_edit():
-    """Edit a kilink."""
+def api_update(kid):
+    """Update a kilink."""
     content = request.form['content']
-    kid = request.form['kid']
     parent = request.form['parent']
-    klnk = kilinkbackend.update_kilink(kid, parent, content)
+    try:
+        klnk = kilinkbackend.update_kilink(kid, parent, content)
+    except backend.KilinkNotFoundError:
+        response = make_response()
+        return response, 404
+
     ret_json = jsonify(revno=klnk.revno)
-    return ret_json
+    response = make_response(ret_json)
+    # FIXME: Esto va en un archivo de configuracion
+    response.headers['Location'] = 'http://kilink.com.ar/%s/%s' % (
+        klnk.kid, klnk.revno)
+    return response, 201
 
 
-@app.route('/api/1/action/get/<kid>/<revno>', methods=['GET'])
-@app.route('/api/1/action/get', methods=['GET'])
+@app.route('/api/1/kilinks/<kid>/<revno>', methods=['GET'])
 @crossdomain(origin='*')
-def api_get(kid=None, revno=None):
+def api_get(kid, revno):
     """Get the kilink and revno content"""
-    content = kilinkbackend.get_content(kid, revno)
-    ret_json = jsonify(content=content)
-    return ret_json
-
+    try:
+        content = kilinkbackend.get_content(kid, revno)
+        ret_json = jsonify(content=content)
+        return ret_json
+    except backend.KilinkNotFoundError:
+        response = make_response()
+        return response, 404
 
 if __name__ == "__main__":
     # set up the backend
