@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 
 from kilink import kilink, backend
 
+
 class BaseTestCase(TestCase):
     """Base for all test using a API."""
     def setUp(self):
@@ -19,21 +20,21 @@ class BaseTestCase(TestCase):
         kilink.kilinkbackend = backend.KilinkBackend(engine)
         self.app = kilink.app.test_client()
 
-    def api_create(self, data, code=200):
+    def api_create(self, data, code=201):
         """Helper to hit the api to create."""
-        r = self.app.post("/api/1/action/create", data=data)
+        r = self.app.post("/api/1/kilinks", data=data)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
-    def api_edit(self, data, code=200):
+    def api_update(self, data, code=201):
         """Helper to hit the api to edit."""
-        r = self.app.post("/api/1/action/edit", data=data)
+        r = self.app.post("/api/1/kilinks", data=data)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
     def api_get(self, kid, revno, code=200):
         """Helper to hit the api to get."""
-        url = "/api/1/action/get/%s/%s" % (kid, revno)
+        url = "/api/1/kilinks/%s/%s" % (kid, revno)
         r = self.app.get(url)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
@@ -61,7 +62,7 @@ class ApiTestCase(BaseTestCase):
             'kid': kid,
             'parent': revno0,
         }
-        resp = self.api_edit(data=child_content)
+        resp = self.api_update(data=child_content)
         revno1 = resp["revno"]
 
         child_content2 = {
@@ -69,7 +70,7 @@ class ApiTestCase(BaseTestCase):
             'kid': kid,
             'parent': revno0,
         }
-        resp = self.api_edit(data=child_content2)
+        resp = self.api_update(data=child_content2)
         revno2 = resp["revno"]
 
         # all three are different
