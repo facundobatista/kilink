@@ -27,7 +27,13 @@
 
 
     <script src="/static/lib/codemirror.js"></script>
-    <script src='/static/mode/python/python.js'></script>
+    <!-- <script src='/static/mode/python/python.js'></script> -->
+    <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
+    <script>
+    $(document).ready(function() {
+      $('pre').each(function(i, e) {hljs.highlightBlock(e)});
+    }); 
+    </script>
     <script src='/static/editor.js'></script>
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/ECOTree.js') }}"></script>

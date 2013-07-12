@@ -1,10 +1,16 @@
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-  mode: "python",
+//  mode: "python",
   lineNumbers: true,
   tabMode: "indent"
 });
 
 editor.setOption("theme", 'monokai');
+
+editor.on("change", function() {
+  $(document).ready(function() {
+    $('pre').each(function(i, e) {hljs.highlightBlock(e)});
+  });
+});
 
 /*
   editor.on("change", function() {
