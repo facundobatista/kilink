@@ -33,7 +33,11 @@ def index():
         'user_action': 'create',
         'tree_info': [],
     }
-    return render_template('index.html', **render_dict)
+    return render_template('_new.html', **render_dict)
+
+@app.route('/about')
+def about():
+    return render_template('_about.html')
 
 
 @app.route('/action/create', methods=['POST'])
@@ -82,7 +86,7 @@ def show(path):
         'tree_info': json.dumps(tree_info) if tree_info else [],
         'current_revno': current_revno,
     }
-    return render_template('index.html', **render_dict)
+    return render_template('_new.html', **render_dict)
 
 
 #API

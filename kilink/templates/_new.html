@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+
+<script type="text/javascript">
+    var node_list = {{ tree_info|safe }};
+    var current_revno = "{{ current_revno }}";
+</script>
+
+<div class="row">
+  <div class="span10">
+    <form action="/action/{{ user_action }}" method="POST" id="pasteform" name="pasteform">
+      <textarea id='code' name='content' rows="8" cols="40">{{value}}</textarea>
+
+      <div class='buttons'>
+        <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
+      </div>
+    </form>
+  </div>
+  <div class='span2'>
+    <div class="klk-tree-wrap">
+        <div id="myTreeContainer"></div>
+    </div>
+  </div>
+</div>
+
+
+    <script src="/static/lib/codemirror.js"></script>
+    <script src='/static/mode/python/python.js'></script>
+    <script src='/static/editor.js'></script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ECOTree.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/tree.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+{% endblock %}
