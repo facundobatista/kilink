@@ -7,9 +7,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 editor.setOption("theme", 'monokai');
 
 editor.on("change", function() {
-  $(document).ready(function() {
-    $('pre').each(function(i, e) {hljs.highlightBlock(e)});
-  });
+  highlightLoadHeur();
 });
 
 /*
