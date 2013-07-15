@@ -6,10 +6,10 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 
 editor.setOption("theme", 'monokai');
 
-var tempoc;
-editor.on("change", function() {
-  clearTimeout(tempoc);
-  setTimeout(highlightLoadHeur, 400);
+var tempor;
+editor.on("update", function() {
+  clearTimeout(tempor);
+  setTimeout(highlightLoadHeur, 1000);
 });
 
 /*
