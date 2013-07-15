@@ -35,7 +35,8 @@ To get all the tree of a kilink:
     - type: GET
     - url: /api/1/kilinks/<kid>
 
-As we don't know if the "get all the tree of a kilink" it's going to be used, it's not implemented yet. But will have the previous API ;-)
+As we don't know if the "get all the tree of a kilink" it's going to be used,
+it's not implemented yet. But will have the previous API ;-)
 
 
 How To Try It In Development
@@ -43,8 +44,8 @@ How To Try It In Development
 
     $ virtualenv kilink
     $ cd kilink
-    $ git clone git@github.com:facundobatista/kilink.git
+    $ git clone https://github.com/facundobatista/kilink.git
     $ source bin/activate
-    $ pip install -r requirements.tx
+    $ pip install -r requirements.txt
     $ ./test
     $ ./run
