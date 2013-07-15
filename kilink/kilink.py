@@ -31,9 +31,10 @@ def index():
         'value': '',
         'button_text': 'Create kilink',
         'user_action': 'create',
-        'tree_info': [],
+        'tree_info': json.dumps(False),
     }
     return render_template('_new.html', **render_dict)
+
 
 @app.route('/about')
 def about():
@@ -69,24 +70,60 @@ def show(path):
     # content
     action_url = 'edit?kid=%s&parent=%s' % (kid, current_revno)
     content = kilinkbackend.get_content(kid, current_revno)
-    # tree info
-    tree_info = []
+    # node list
+    node_list = []
     for treenode in kilinkbackend.get_kilink_tree(kid):
         url = "/k/%s?revno=%s" % (kid, treenode.revno)
         parent = treenode.parent
-        if parent is None:
-            parent = -1
-        tree_info.append((treenode.order, parent, treenode.revno,
-                         url, str(treenode.timestamp)))
+        node_list.append({
+            'order': treenode.order,
+            'parent': parent,
+            'revno': treenode.revno,
+            'url': url,
+            'timestamp': str(treenode.timestamp)
+        })
+
+    tree = {}
+    build_tree(tree, {}, node_list)
 
     render_dict = {
         'value': content,
         'button_text': 'Save new version',
         'user_action': action_url,
-        'tree_info': json.dumps(tree_info) if tree_info else [],
+        'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': current_revno,
     }
     return render_template('_new.html', **render_dict)
+
+
+def build_tree(tree, parent, nodes):
+    """ Build tree for 3djs """
+
+    children = [
+        n for n in nodes
+        if n.get('parent', None) == parent.get('revno', None)
+    ]
+
+    for child in children:
+        if tree == {}:
+            tree['contents'] = []
+            tree['order'] = child['order']
+            tree['revno'] = child['revno']
+            tree['parent'] = child['parent']
+            tree['url'] = child['url']
+            tree['timestamp'] = child['timestamp']
+            new_child = tree
+        else:
+            new_child = {
+                'contents': [],
+                'order': child['order'],
+                'revno': child['revno'],
+                'parent': child['parent'],
+                'url': child['url'],
+                'timestamp': child['timestamp']
+            }
+            tree['contents'].append(new_child)
+        build_tree(new_child, child, nodes)
 
 
 #API

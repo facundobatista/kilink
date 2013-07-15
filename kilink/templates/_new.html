@@ -19,19 +19,19 @@
     </form>
   </div>
   <div class='span2'>
-    <div class="klk-tree-wrap">
-        <div id="myTreeContainer"></div>
+    <div class="klk-tree">
     </div>
   </div>
 </div>
 
 
+    <script src="{{ url_for('static', filename='lib/d3.min.js') }}"></script>
     <script src="/static/lib/codemirror.js"></script>
     <script src='/static/mode/python/python.js'></script>
     <script src='/static/editor.js'></script>
 
-    <script type="text/javascript" src="{{ url_for('static', filename='js/ECOTree.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/tree.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',
+        filename='js/draw_tree.js') }}"></script>
 
 {% endblock %}
