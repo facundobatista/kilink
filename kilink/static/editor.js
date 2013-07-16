@@ -13,7 +13,28 @@ editor.on("change", function() {
 var pending;
 function looksLike(contents) {
   info = hljs.highlightAuto(contents);
-  return info.language;
+  lang = info.language;
+  if (lang in {'cpp':0, 'cs':0, 'scala':0, 'java':0})
+    {
+  lang = "clike";
+    }
+  else if (lang=="html")
+    {
+  lang = "xml";
+    }
+  else if (lang=="json")
+    {
+  lang = "javascript";
+    }        
+  else if (lang=="tex")
+    {
+  lang = "stex";
+    }       
+  else
+    {
+//  do nothing    
+    }
+  return lang;
 }
 
 function update() {
