@@ -1,0 +1,5 @@
+# Kilink configuration for development environment
+
+server_host: localhost
+db_engine: sqlite:////tmp/kilink.db
+db_auth_config:
