@@ -14,6 +14,7 @@ from sqlalchemy import create_engine
 
 import backend
 
+from config import config
 from decorators import crossdomain
 
 # set up flask
@@ -38,6 +39,7 @@ def index():
 
 @app.route('/about')
 def about():
+    """Show the about page."""
     return render_template('_about.html')
 
 
@@ -127,8 +129,6 @@ def build_tree(tree, parent, nodes):
 
 
 #API
-# Estamos usando crossdomain porque si no, desde JS no podemos
-# postear.Deberiamos pedir ayuda a un JS Ninja
 @app.route('/api/1/kilinks', methods=['POST'])
 @crossdomain(origin='*')
 def api_create():
@@ -137,9 +137,8 @@ def api_create():
     klnk = kilinkbackend.create_kilink(content)
     ret_json = jsonify(kilink_id=klnk.kid, revno=klnk.revno)
     response = make_response(ret_json)
-    # FIXME: Esto va en un archivo de configuracion
-    response.headers['Location'] = 'http://kilink.com.ar/%s/%s' % (
-        klnk.kid, klnk.revno)
+    response.headers['Location'] = 'http://%s/%s/%s' % (
+        config["server_host"], klnk.kid, klnk.revno)
     return response, 201
 
 
@@ -157,9 +156,8 @@ def api_update(kid):
 
     ret_json = jsonify(revno=klnk.revno)
     response = make_response(ret_json)
-    # FIXME: Esto va en un archivo de configuracion
-    response.headers['Location'] = 'http://kilink.com.ar/%s/%s' % (
-        klnk.kid, klnk.revno)
+    response.headers['Location'] = 'http://%s/%s/%s' % (
+        config["server_host"], klnk.kid, klnk.revno)
     return response, 201
 
 
@@ -176,7 +174,10 @@ def api_get(kid, revno):
         return response, 404
 
 if __name__ == "__main__":
+    # load config
+    config.load_file("configs/development.yaml")
+
     # set up the backend
-    engine = create_engine('sqlite:////tmp/kilink.db')
+    engine = create_engine(config["db_engine"])
     kilinkbackend = backend.KilinkBackend(engine)
     app.run(debug=True, host='0.0.0.0')
