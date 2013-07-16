@@ -1,10 +1,16 @@
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-  mode: "python",
+//  mode: "python",
   lineNumbers: true,
   tabMode: "indent"
 });
 
 editor.setOption("theme", 'monokai');
+
+var tempor;
+editor.on("update", function() {
+  clearTimeout(tempor);
+  setTimeout(highlightLoadHeur, 1000);
+});
 
 /*
   editor.on("change", function() {
