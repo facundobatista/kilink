@@ -54,6 +54,7 @@ How To Deploy With Apache
 -------------------------
 
 Documentation based in http://flask.pocoo.org/docs/deploying/mod_wsgi/
+
 We use a virtualenv to deploy the project and apache virtual host on Ubuntu
 13.04, This configuration es very general, I guess that works in almost all
 linux OS
