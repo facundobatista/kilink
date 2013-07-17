@@ -82,15 +82,64 @@ Clone repository:
     
 Create WSGI configuration file
     
-    $ vi /var/kilink_home/kilink_app/kilink/kilink.wsgi
+    $ vi /var/kilink_home/kilink.wsgi
 
 And paste this:
     
     activate_this = '/var/kilink_home/kilink_virtualenv/bin/activate_this.py'
     execfile(activate_this, dict(__file__=activate_this))
     
+    import sys
     
-    from kilink import app as application
+    sys.path.insert(0, "/var/kilink_home/")
+    sys.path.insert(0, "/var/kilink_home/kilink_app")
+    sys.path.insert(0, "/var/kilink_home/kilink_app/kilink")
+    
+    import backend
+    import kilink
+    from sqlalchemy import create_engine
+    from config import config 
+    
+    config.load_file("/var/kilink_home/config.yaml")
+    
+    # set up the backend
+    engine = create_engine(config["db_engine"])
+    kilink.kilinkbackend = backend.KilinkBackend(engine)
+    
+    application = kilink.app
+    
+
+for develop or debuging you can use something like this:
+
+    activate_this = '/var/kilink_home/kilink_virtualenv/bin/activate_this.py'
+    execfile(activate_this, dict(__file__=activate_this))
+    
+    import sys
+    
+    sys.stdout = sys.stderr
+    sys.path.insert(0, "/var/kilink_home/")
+    sys.path.insert(0, "/var/kilink_home/kilink_app")
+    sys.path.insert(0, "/var/kilink_home/kilink_app/kilink")
+    
+    import backend
+    import kilink
+    from sqlalchemy import create_engine
+    from config import config 
+    
+    config.load_file("/var/kilink_home/config.yaml")
+    
+    # set up the backend
+    engine = create_engine(config["db_engine"])
+    kilink.kilinkbackend = backend.KilinkBackend(engine)
+    
+    application = kilink.app
+    application.debug = True
+    
+    # Needs install paste via pip "pip install paste"
+    # For More information:
+    # http://code.google.com/p/modwsgi/wiki/DebuggingTechniques#Browser_Based_Debugger
+    from paste.evalexception.middleware import EvalException
+    application = EvalException(application)
 
 
 Create a virtual host configuration file in /etc/apache2/sites-enabled/
@@ -103,8 +152,8 @@ And paste this:
     <VirtualHost *>
         ServerName kilink.mydomain
     
-        WSGIDaemonProcess kilink user=www-data group=www-data threads=5 python-path=/var/kilink_home/kilink_virtualen/lib/python2.7/site-packages/:/var/kilink_home/kilink_app/kilink/
-        WSGIScriptAlias / /var/kilink_home/kilink_app/kilink/kilink.wsgi
+        WSGIDaemonProcess kilink user=www-data group=www-data threads=5
+        WSGIScriptAlias / /var/kilink_home/kilink.wsgi
         WSGIScriptReloading On
     
         <Directory /var/kilink_home/kilink_app/kilink/>
