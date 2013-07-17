@@ -49,7 +49,7 @@ class ServingTestCase(TestCase):
         k['button_text'] = 'Create kilink'
         k['user_action'] = 'create'
         k['tree_info'] = []
-        self.mocked_render.assert_called_once_with("index.html", **k)
+        self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_serving_revno(self):
         """Serving a kilink with a revno."""
@@ -66,7 +66,7 @@ class ServingTestCase(TestCase):
         k['user_action'] = "edit?kid=%s&parent=%s" % (klnk.kid, klnk.revno)
         k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
-        self.mocked_render.assert_called_once_with("index.html", **k)
+        self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_create(self):
         """Create a kilink."""

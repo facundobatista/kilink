@@ -9,6 +9,7 @@ from unittest import TestCase
 from sqlalchemy import create_engine
 
 from kilink import kilink, backend
+from kilink.config import config
 
 
 class BaseTestCase(TestCase):
@@ -16,6 +17,7 @@ class BaseTestCase(TestCase):
     def setUp(self):
         """Set up."""
         super(BaseTestCase, self).setUp()
+        config.load_file("configs/development.yaml")
         engine = create_engine("sqlite://")
         kilink.kilinkbackend = backend.KilinkBackend(engine)
         self.app = kilink.app.test_client()
