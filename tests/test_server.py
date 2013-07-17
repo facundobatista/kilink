@@ -48,7 +48,7 @@ class ServingTestCase(TestCase):
         k['value'] = ''
         k['button_text'] = 'Create kilink'
         k['user_action'] = 'create'
-        k['tree_info'] = []
+        k['tree_info'] = json.dumps(False)
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_serving_revno(self):
@@ -58,8 +58,15 @@ class ServingTestCase(TestCase):
             m.args = dict(revno=klnk.revno)
             kilink.show(klnk.kid)
 
-        tree = [[1, -1, klnk.revno, "/k/%s?revno=%s" % (klnk.kid, klnk.revno),
-                str(klnk.timestamp)]]
+        tree = dict(
+            contents=[],
+            order=1,
+            revno=klnk.revno,
+            parent=None,
+            url="/k/%s?revno=%s" % (klnk.kid, klnk.revno),
+            timestamp=str(klnk.timestamp)
+        )
+
         k = {}
         k['value'] = 'content'
         k['button_text'] = 'Save new version'
