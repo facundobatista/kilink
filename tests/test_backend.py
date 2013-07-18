@@ -7,7 +7,6 @@
 
 import datetime
 import uuid
-import zlib
 
 from unittest import TestCase
 
@@ -40,11 +39,10 @@ class ContentTestCase(BaseTestCase):
     def test_create_simple(self):
         """Simple create."""
         content = "some content"
-        zipped = zlib.compress(content)
         klnk = self.bkend.create_kilink(content)
         klnk = self.session.query(Kilink).filter_by(
             kid=klnk.kid, revno=klnk.revno).one()
-        self.assertEqual(klnk.content, zipped)
+        self.assertEqual(klnk.content, content)
         self.assertTrue(uuid.UUID(klnk.revno))
         self.assertEqual(klnk.parent, None)
 
@@ -60,10 +58,10 @@ class ContentTestCase(BaseTestCase):
         self.assertGreater(new_klnk.timestamp, klnk.timestamp)
         parent = self.session.query(Kilink).filter_by(
             kid=klnk.kid, revno=klnk.revno).one()
-        self.assertEqual(parent.content, zlib.compress(parent_content))
+        self.assertEqual(parent.content, parent_content)
         child = self.session.query(Kilink).filter_by(
             kid=klnk.kid, revno=new_klnk.revno).one()
-        self.assertEqual(child.content, zlib.compress(child_content))
+        self.assertEqual(child.content, child_content)
 
     def test_update_bad_kilink(self):
         """No kilink to update."""
@@ -114,7 +112,7 @@ class DataRetrievalTestCase(BaseTestCase):
         self.assertRaises(KilinkNotFoundError,
                           self.bkend.get_content, "kid", "revno")
 
-    def test_getkilink_ok(self):
+    def test_getkilink_tree_ok(self):
         """Get all the info for a kilink."""
         # create a tree
         klnk = self.bkend.create_kilink("content 1")
@@ -139,6 +137,35 @@ class DataRetrievalTestCase(BaseTestCase):
         self.assertEqual(tree[2].parent, tree[1].revno)  # 3rd is child of 2nd
         self.assertEqual(tree[3].parent, tree[0].revno)  # 4th is child of root
 
-    def test_getkilink_bad(self):
+    def test_getkilink_tree_bad(self):
         """Get all the info for a kilink that does not exist"""
-        self.assertRaises(ValueError, self.bkend.get_kilink_tree, 'kid')
+        self.assertRaises(KilinkNotFoundError,
+                          self.bkend.get_kilink_tree, 'kid')
+
+    def test_findroot_ok_one_node(self):
+        """Get the root node for a kilink when there's only one."""
+        # create a node
+        orig_klnk = self.bkend.create_kilink("content")
+
+        # get it and check
+        klnk = self.bkend.get_root_node(orig_klnk.kid)
+        self.assertEqual(klnk.kid, orig_klnk.kid)
+        self.assertEqual(klnk.revno, orig_klnk.revno)
+        self.assertEqual(klnk.content, "content")
+
+    def test_findroot_ok_two_nodes(self):
+        """Get the root node for a kilink when there are several."""
+        # create a couple of nodes
+        orig_klnk = self.bkend.create_kilink("content")
+        self.bkend.update_kilink(orig_klnk.kid, orig_klnk.revno, "content2")
+        self.bkend.update_kilink(orig_klnk.kid, orig_klnk.revno, "content3")
+
+        # get it and check
+        klnk = self.bkend.get_root_node(orig_klnk.kid)
+        self.assertEqual(klnk.kid, orig_klnk.kid)
+        self.assertEqual(klnk.revno, orig_klnk.revno)
+        self.assertEqual(klnk.content, orig_klnk.content)
+
+    def test_findroot_tree_bad(self):
+        """Get the root node for a kilink that does not exist."""
+        self.assertRaises(KilinkNotFoundError, self.bkend.get_root_node, 'kid')

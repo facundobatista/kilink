@@ -24,6 +24,13 @@ app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 
 
+# accesory pages
+@app.route('/about')
+def about():
+    """Show the about page."""
+    return render_template('_about.html')
+
+
 # views
 @app.route('/')
 def index():
@@ -31,51 +38,51 @@ def index():
     render_dict = {
         'value': '',
         'button_text': 'Create kilink',
-        'user_action': 'create',
+        'kid_info': 'k/',
         'tree_info': [],
     }
     return render_template('_new.html', **render_dict)
 
 
-@app.route('/about')
-def about():
-    """Show the about page."""
-    return render_template('_about.html')
-
-
-@app.route('/action/create', methods=['POST'])
+@app.route('/k/', methods=['POST'])
 def create():
     """Create a kilink."""
     content = request.form['content']
     klnk = kilinkbackend.create_kilink(content)
-    url = "/k/%s?revno=%s" % (klnk.kid, klnk.revno)
+    url = "/k/%s" % (klnk.kid,)
     return redirect(url, code=303)
 
 
-@app.route('/action/edit', methods=['POST'])
-def edit():
-    """Edit a kilink."""
+@app.route('/k/<kid>', methods=['POST'])
+@app.route('/k/<kid>/<parent>', methods=['POST'])
+def update(kid, parent=None):
+    """Update a kilink."""
+    if parent is None:
+        root = kilinkbackend.get_root_node(kid)
+        parent = root.revno
+
     content = request.form['content']
-    kid = request.args['kid']
-    parent = request.args['parent']
     klnk = kilinkbackend.update_kilink(kid, parent, content)
-    new_url = "/k/%s?revno=%s" % (kid, klnk.revno)
+    new_url = "/k/%s/%s" % (kid, klnk.revno)
     return redirect(new_url, code=303)
 
 
-@app.route('/k/<path:path>')
-def show(path):
+@app.route('/k/<kid>')
+@app.route('/k/<kid>/<revno>')
+def show(kid, revno=None):
     """Show the kilink content"""
-    kid = path
-    current_revno = request.args['revno']
+    # get the content
+    if revno is None:
+        root = kilinkbackend.get_root_node(kid)
+        revno = root.revno
+        content = root.content
+    else:
+        content = kilinkbackend.get_content(kid, revno)
 
-    # content
-    action_url = 'edit?kid=%s&parent=%s' % (kid, current_revno)
-    content = kilinkbackend.get_content(kid, current_revno)
     # tree info
     tree_info = []
     for treenode in kilinkbackend.get_kilink_tree(kid):
-        url = "/k/%s?revno=%s" % (kid, treenode.revno)
+        url = "/k/%s/%s" % (kid, treenode.revno)
         parent = treenode.parent
         if parent is None:
             parent = -1
@@ -85,9 +92,9 @@ def show(path):
     render_dict = {
         'value': content,
         'button_text': 'Save new version',
-        'user_action': action_url,
+        'kid_info': "k/%s/%s" % (kid, revno),
         'tree_info': json.dumps(tree_info) if tree_info else [],
-        'current_revno': current_revno,
+        'current_revno': revno,
     }
     return render_template('_new.html', **render_dict)
 
