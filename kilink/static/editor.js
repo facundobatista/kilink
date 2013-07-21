@@ -1,6 +1,7 @@
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
-  tabMode: "indent"
+  tabMode: "indent",
+  autofocus: true
 });
 
 editor.setOption("theme", 'monokai');
