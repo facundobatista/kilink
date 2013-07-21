@@ -10,6 +10,63 @@
 
 <div class="row">
   <div class="span10">
+    <div style="text-align:right">
+      Select a language: <select onchange="selectMode()" id=seleclang class='btn-success'>
+        <option selected>auto</option>
+        <option>c++</option>
+        <option>c#</option>
+        <option>clojure</option>
+        <option>coffeescript</option>
+        <option>css</option>
+        <option>d</option>
+        <option>diff</option>
+        <option>erlang</option>
+        <option>go</option>
+        <option>haskell</option>
+        <option>html</option>
+        <option>htmlmixed</option>
+        <option>http</option>
+        <option>java</option>
+        <option>javascript</option>
+        <option>json</option>
+        <option>lua</option>
+        <option>markdown</option>
+        <option>php</option>
+        <option>perl</option>
+        <option>python</option>
+        <option>r</option>
+        <option>ruby</option>
+        <option>rust</option>
+        <option>scala</option>
+        <option>smalltalk</option>
+        <option>sql</option>
+        <option>stex</option>
+        <option>tex</option>
+        <option>vbscript</option>
+        <option>xml</option>
+      </select>
+      &nbsp; &nbsp;
+      Select a theme: <select onchange="selectTheme()" id=selectheme class='btn-success'>
+        <option selected>monokai</option>
+        <option>ambiance</option>
+        <option>ambiance-mobile</option>
+        <option>blackboard</option>
+        <option>cobalt</option>
+        <option>eclipse</option>
+        <option>elegant</option>
+        <option>erlang-dark</option>
+        <option>lesser-dark</option>
+        <option>midnight</option>
+        <option>neat</option>
+        <option>night</option>
+        <option>rubyblue</option>
+        <option>solarized</option>
+        <option>twilight</option>
+        <option>vibrant-ink</option>
+        <option>xq-dark</option>
+        <option>xq-light</option>
+      </select>
+    </div>
     <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
       <textarea id='code' name='content' rows="8" cols="40">{{value}}</textarea>
 
