@@ -6,14 +6,6 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 
 editor.setOption("theme", 'monokai');
 
-/* Theme selector */
-
-var input = document.getElementById("selectheme");
-function selectTheme() {
-  var theme = input.options[input.selectedIndex].innerHTML;
-  editor.setOption("theme", theme);
-}
-
 /* Mode (language) selector */
 
 var modeInput = document.getElementById("seleclang");
