@@ -11,7 +11,7 @@ editor.setOption("theme", 'monokai');
 var modeInput = document.getElementById("seleclang");
 function selectMode() {
   var mode = modeInput.options[modeInput.selectedIndex].innerHTML;
-  cmode = langLike(mode);
+  var cmode = langLike(mode.toLowerCase());
   if (cmode=="auto"){
     autoDetection = 1;
     update();
@@ -61,7 +61,12 @@ function langLike(lang) {
         'cmake':0, 'dos':0, '.bat':0, 'delphi':0, 'django':0, 'glsl':0,
         'ini':0, 'lisp':0, 'mel':0, 'matlab':0, 'nginx':0, 'objectivec':0,
         'parser3':0, 'profile':0, 'rsl':0, 'rib':0, 'vhdl':0, 'vala':0}){
-  lang = "undefined";
+  lang = "plain text";
+  }
+  else if (typeof lang === "undefined"){
+  lang = "plain text";
+  // "plain text" does not exist,
+  // it is a dummy mode to get easily "plain text" mode
   }
   else{
     //do nothing
@@ -72,5 +77,10 @@ function langLike(lang) {
 function update() {
   var langMode = looksLike(editor.getValue());
   editor.setOption("mode", langMode);
-  modeInput.options[modeInput.selectedIndex].text = "auto: " + langMode;
+  modeInput.options[modeInput.selectedIndex].text = "auto: " + capitalise(langMode);
+}
+
+function capitalise(string)
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
