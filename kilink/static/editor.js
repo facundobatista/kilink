@@ -6,6 +6,14 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 
 editor.setOption("theme", 'monokai');
 
+/* Run update function first to highlight pre-existent code */
+
+window.onload = function () {
+  setTimeout(function () {
+    update();
+  },1)
+}
+
 /* Mode (language) selector */
 
 var modeInput = document.getElementById("seleclang");
