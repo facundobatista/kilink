@@ -13,7 +13,43 @@
     <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
       <textarea id='code' name='content' rows="8" cols="40">{{value}}</textarea>
 
-      <div class='buttons'>
+      <div class='buttons' style="text-align:right">
+        Select a text type:&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success'>
+          <option selected>auto</option>
+          <option>C++</option>
+          <option>C#</option>
+          <option>Clojure</option>
+          <option>Coffeescript</option>
+          <option>Css</option>
+          <option>D</option>
+          <option>Diff</option>
+          <option>Erlang</option>
+          <option>Go</option>
+          <option>Haskell</option>
+          <option>Html</option>
+          <option>Htmlmixed</option>
+          <option>Http</option>
+          <option>Java</option>
+          <option>Javascript</option>
+          <option>Json</option>
+          <option>Lua</option>
+          <option>Markdown</option>
+          <option>Php</option>
+          <option>Perl</option>
+          <option>Plain text</option>
+          <option>Python</option>
+          <option>R</option>
+          <option>Ruby</option>
+          <option>Rust</option>
+          <option>Scala</option>
+          <option>Smalltalk</option>
+          <option>Sql</option>
+          <option>Stex</option>
+          <option>Tex</option>
+          <option>Vbscript</option>
+          <option>Xml</option>
+        </select>
+        &nbsp; &nbsp;
         <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
       </div>
     </form>
