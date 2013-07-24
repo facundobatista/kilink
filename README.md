@@ -1,11 +1,19 @@
-Kilink
-======
+Linkode
+=======
 
-The useful pastebin!
+Linkode is the useful pastebin!
 
-This is a pastebin with a lot of fascinating features:
+It's a kind of "short living collaboration space", a "dynamic pastebin".
 
-  - FIXME
+Some awesome detailes:
+
+    - you can create linkodes anywhere, whenever, and effortesly.
+    - editable texts, not static!
+    - every new edition creates a child: you have a tree
+    - code/text type autodetection (and coloring!)
+    - permantent linkodes (but still the owner can remove them)
+    - absolutely anonymous (unless you login, which is dead simple)
+    - private URLs: because you can not guess UUIDs
 
 
 The API
@@ -13,38 +21,38 @@ The API
 
 This is the version 1 of the API.
 
-To create a new kilink:
+To create a new linkode:
 
     - type: POST
-    - url: /api/1/kilinks/
+    - url: /api/1/linkodes/
     - data: content=<content>
 
-To create a child of an existing kilink node:
+To create a child of an existing linkode node:
 
     - type: POST
-    - url: /api/1/kilinks/<kid>
+    - url: /api/1/linkodes/<lid>
     - data: content=<content>&parent=<parentrevno>
 
-To get a specific kilink node:
+To get a specific linkode node:
 
     - type: GET
-    - url: /api/1/kilinks/<kid>/<revno>
+    - url: /api/1/linkodes/<lid>/<revno>
 
-To get all the tree of a kilink:
+To get all the tree of a linkode:
 
     - type: GET
-    - url: /api/1/kilinks/<kid>
+    - url: /api/1/linkodes/<lid>
 
-As we don't know if the "get all the tree of a kilink" it's going to be used,
+As we don't know if the "get all the tree of a linkode" it's going to be used,
 it's not implemented yet. But will have the previous API ;-)
 
 
 How To Try It In Development
 ----------------------------
 
-    $ virtualenv kilink
-    $ cd kilink
-    $ git clone https://github.com/facundobatista/kilink.git
+    $ virtualenv linkode
+    $ cd linkode
+    $ git clone https://github.com/facundobatista/linkode.git
     $ source bin/activate
     $ pip install -r requirements.txt
     $ ./test
@@ -61,24 +69,24 @@ linux OS
 
 Definitions:
 
- - **Project path:** */var/kilink_home/*
- - **Application path:** */var/kilink_home/kilink_app*
- - **VirtualEnv Path:** */var/kilink_home/kilink_virtualenv*
+ - **Project path:** */var/linkode_home/*
+ - **Application path:** */var/linkode_home/linkode_app*
+ - **VirtualEnv Path:** */var/linkode_home/linkode_virtualenv*
  - **User:** *www-data*
 
 Create virtualenv and install the requirements:
 
-    $ cd /var/kilink_home
-    $ virtualenv kilink_virtualenv
-    $ cd kilink_virtualenv
+    $ cd /var/linkode_home
+    $ virtualenv linkode_virtualenv
+    $ cd linkode_virtualenv
     $ source bin/activate
     $ pip install -r requirements.txt
 
 Clone repository:
     
-    $ cd /var/kilink_home/
-    $ git clone https://github.com/facundobatista/kilink.git kilink_app
-    $ cd kilink_app
+    $ cd /var/linkode_home/
+    $ git clone https://github.com/facundobatista/linkode.git linkode_app
+    $ cd linkode_app
     
 The WSGI configuration file is already in the project, ready to use; for develop 
 or debuging you can add to it:
@@ -93,21 +101,21 @@ or debuging you can add to it:
 
 
 Create a virtual host configuration file in /etc/apache2/sites-enabled/
-with the name that you want, in this example "kilink"
+with the name that you want, in this example "linkode"
     
-    # vi /etc/apache2/sites-enabled/kilink
+    # vi /etc/apache2/sites-enabled/linkode
 
 And paste this:
 
     <VirtualHost *>
-        ServerName kilink.mydomain
+        ServerName linkode.mydomain
     
-        WSGIDaemonProcess kilink user=www-data group=www-data threads=5
-        WSGIScriptAlias / /var/kilink_home/kilink.wsgi
+        WSGIDaemonProcess linkode user=www-data group=www-data threads=5
+        WSGIScriptAlias / /var/linkode_home/linkode.wsgi
         WSGIScriptReloading On
     
-        <Directory /var/kilink_home/kilink_app/kilink/>
-            WSGIProcessGroup kilink
+        <Directory /var/linkode_home/linkode_app/linkode/>
+            WSGIProcessGroup linkode
             WSGIApplicationGroup %{GLOBAL}
             Order deny,allow
             Allow from all
@@ -117,8 +125,8 @@ And paste this:
         ServerSignature On
         LogLevel info
         
-        ErrorLog  /var/log/apache2/kilink-error.log
-        CustomLog /var/log/apache2/kilink-access.log combined
+        ErrorLog  /var/log/apache2/linkode-error.log
+        CustomLog /var/log/apache2/linkode-access.log combined
     
     </VirtualHost>
     

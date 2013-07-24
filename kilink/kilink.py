@@ -37,24 +37,24 @@ def index():
     """The base page."""
     render_dict = {
         'value': '',
-        'button_text': 'Create kilink',
-        'kid_info': 'k/',
+        'button_text': 'Create linkode',
+        'kid_info': 'l/',
         'tree_info': [],
     }
     return render_template('_new.html', **render_dict)
 
 
-@app.route('/k/', methods=['POST'])
+@app.route('/l/', methods=['POST'])
 def create():
     """Create a kilink."""
     content = request.form['content']
     klnk = kilinkbackend.create_kilink(content)
-    url = "/k/%s" % (klnk.kid,)
+    url = "/l/%s" % (klnk.kid,)
     return redirect(url, code=303)
 
 
-@app.route('/k/<kid>', methods=['POST'])
-@app.route('/k/<kid>/<parent>', methods=['POST'])
+@app.route('/l/<kid>', methods=['POST'])
+@app.route('/l/<kid>/<parent>', methods=['POST'])
 def update(kid, parent=None):
     """Update a kilink."""
     if parent is None:
@@ -63,12 +63,12 @@ def update(kid, parent=None):
 
     content = request.form['content']
     klnk = kilinkbackend.update_kilink(kid, parent, content)
-    new_url = "/k/%s/%s" % (kid, klnk.revno)
+    new_url = "/l/%s/%s" % (kid, klnk.revno)
     return redirect(new_url, code=303)
 
 
-@app.route('/k/<kid>')
-@app.route('/k/<kid>/<revno>')
+@app.route('/l/<kid>')
+@app.route('/l/<kid>/<revno>')
 def show(kid, revno=None):
     """Show the kilink content"""
     # get the content
@@ -82,7 +82,7 @@ def show(kid, revno=None):
     # tree info
     tree_info = []
     for treenode in kilinkbackend.get_kilink_tree(kid):
-        url = "/k/%s/%s" % (kid, treenode.revno)
+        url = "/l/%s/%s" % (kid, treenode.revno)
         parent = treenode.parent
         if parent is None:
             parent = -1
@@ -92,7 +92,7 @@ def show(kid, revno=None):
     render_dict = {
         'value': content,
         'button_text': 'Save new version',
-        'kid_info': "k/%s/%s" % (kid, revno),
+        'kid_info': "l/%s/%s" % (kid, revno),
         'tree_info': json.dumps(tree_info) if tree_info else [],
         'current_revno': revno,
     }
@@ -100,7 +100,7 @@ def show(kid, revno=None):
 
 
 #API
-@app.route('/api/1/kilinks', methods=['POST'])
+@app.route('/api/1/linkodes', methods=['POST'])
 @crossdomain(origin='*')
 def api_create():
     """Create a kilink."""
@@ -113,7 +113,7 @@ def api_create():
     return response, 201
 
 
-@app.route('/api/1/kilinks/<kid>', methods=['POST'])
+@app.route('/api/1/linkodes/<kid>', methods=['POST'])
 @crossdomain(origin='*')
 def api_update(kid):
     """Update a kilink."""
@@ -132,7 +132,7 @@ def api_update(kid):
     return response, 201
 
 
-@app.route('/api/1/kilinks/<kid>/<revno>', methods=['GET'])
+@app.route('/api/1/linkodes/<kid>/<revno>', methods=['GET'])
 @crossdomain(origin='*')
 def api_get(kid, revno):
     """Get the kilink and revno content"""

@@ -24,19 +24,19 @@ class BaseTestCase(TestCase):
 
     def api_create(self, data, code=201):
         """Helper to hit the api to create."""
-        r = self.app.post("/api/1/kilinks", data=data)
+        r = self.app.post("/api/1/linkodes", data=data)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
     def api_update(self, data, code=201):
         """Helper to hit the api to edit."""
-        r = self.app.post("/api/1/kilinks", data=data)
+        r = self.app.post("/api/1/linkodes", data=data)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
     def api_get(self, kid, revno, code=200):
         """Helper to hit the api to get."""
-        url = "/api/1/kilinks/%s/%s" % (kid, revno)
+        url = "/api/1/linkodes/%s/%s" % (kid, revno)
         r = self.app.get(url)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
