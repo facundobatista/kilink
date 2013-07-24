@@ -1,5 +1,5 @@
 # Kilink configuration for production environment
 
-server_host: kilink.com.ar
-db_engine: postgresql+psycopg2://{user}:{pass}@localhost/mydatabase
+server_host: linkode.org
+db_engine: postgresql+psycopg2://{user}:{pass}@localhost/kilink
 db_auth_config: configs/db_auth.txt

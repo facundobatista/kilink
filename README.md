@@ -80,59 +80,9 @@ Clone repository:
     $ git clone https://github.com/facundobatista/kilink.git kilink_app
     $ cd kilink_app
     
-Create WSGI configuration file
-    
-    $ vi /var/kilink_home/kilink.wsgi
+The WSGI configuration file is already in the project, ready to use; for develop 
+or debuging you can add to it:
 
-And paste this:
-    
-    activate_this = '/var/kilink_home/kilink_virtualenv/bin/activate_this.py'
-    execfile(activate_this, dict(__file__=activate_this))
-    
-    import sys
-    
-    sys.path.insert(0, "/var/kilink_home/")
-    sys.path.insert(0, "/var/kilink_home/kilink_app")
-    sys.path.insert(0, "/var/kilink_home/kilink_app/kilink")
-    
-    import backend
-    import kilink
-    from sqlalchemy import create_engine
-    from config import config 
-    
-    config.load_file("/var/kilink_home/config.yaml")
-    
-    # set up the backend
-    engine = create_engine(config["db_engine"])
-    kilink.kilinkbackend = backend.KilinkBackend(engine)
-    
-    application = kilink.app
-    
-
-for develop or debuging you can use something like this:
-
-    activate_this = '/var/kilink_home/kilink_virtualenv/bin/activate_this.py'
-    execfile(activate_this, dict(__file__=activate_this))
-    
-    import sys
-    
-    sys.stdout = sys.stderr
-    sys.path.insert(0, "/var/kilink_home/")
-    sys.path.insert(0, "/var/kilink_home/kilink_app")
-    sys.path.insert(0, "/var/kilink_home/kilink_app/kilink")
-    
-    import backend
-    import kilink
-    from sqlalchemy import create_engine
-    from config import config 
-    
-    config.load_file("/var/kilink_home/config.yaml")
-    
-    # set up the backend
-    engine = create_engine(config["db_engine"])
-    kilink.kilinkbackend = backend.KilinkBackend(engine)
-    
-    application = kilink.app
     application.debug = True
     
     # Needs install paste via pip "pip install paste"
