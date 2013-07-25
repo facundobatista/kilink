@@ -21,10 +21,14 @@
 }
 
 a.ecolink:visited {
-	text-decoration: none;	
+	text-decoration: none;
 	color: black;
 }
 
 a.ecolink:hover {
 	text-decoration: underline;
+}
+
+.node {
+   cursor: pointer;
 }
