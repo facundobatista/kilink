@@ -7,5 +7,17 @@
     margin-bottom: 1em;
 }
 
-.klk-tree-wrap {
+.link {
+    fill: none;
+    stroke: #3DA4EE;
+    stroke-width: 1.5px;
+    stroke-opacity:1;
+}
+
+.node-dot {
+    fill: #80B611;
+}
+
+.node-text {
+    fill: #fff;
 }

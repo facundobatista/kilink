@@ -48,16 +48,23 @@ class ServingTestCase(TestCase):
         k['value'] = ''
         k['button_text'] = 'Create linkode'
         k['kid_info'] = 'l/'
-        k['tree_info'] = []
+        k['tree_info'] = json.dumps(False)
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_serving_base(self):
         """Serving a kilink, base."""
         klnk = self.backend.create_kilink("content")
-        r = self.app.get("/l/%s" % (klnk.kid,))
+        self.app.get("/l/%s" % (klnk.kid,))
 
-        tree = [[1, -1, klnk.revno, "/l/%s/%s" % (klnk.kid, klnk.revno),
-                str(klnk.timestamp)]]
+        tree = dict(
+            contents=[],
+            order=1,
+            revno=klnk.revno,
+            parent=None,
+            url="/l/%s/%s" % (klnk.kid, klnk.revno),
+            timestamp=str(klnk.timestamp)
+        )
+
         k = {}
         k['value'] = 'content'
         k['button_text'] = 'Save new version'
@@ -71,8 +78,15 @@ class ServingTestCase(TestCase):
         klnk = self.backend.create_kilink("content")
         self.app.get("/l/%s/%s" % (klnk.kid, klnk.revno))
 
-        tree = [[1, -1, klnk.revno, "/l/%s/%s" % (klnk.kid, klnk.revno),
-                str(klnk.timestamp)]]
+        tree = dict(
+            contents=[],
+            order=1,
+            revno=klnk.revno,
+            parent=None,
+            url="/l/%s/%s" % (klnk.kid, klnk.revno),
+            timestamp=str(klnk.timestamp)
+        )
+
         k = {}
         k['value'] = 'content'
         k['button_text'] = 'Save new version'
