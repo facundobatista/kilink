@@ -46,8 +46,8 @@ editor.on("change", function() {
 
 var pending;
 function looksLike(contents) {
-  info = hljs.highlightAuto(contents);
-  clang = langLike(info.language)
+  var info = hljs.highlightAuto(contents.trim());
+  var clang = langLike(info.language)
   return clang;
 }
 
