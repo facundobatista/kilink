@@ -62,7 +62,8 @@ class ServingTestCase(TestCase):
             revno=klnk.revno,
             parent=None,
             url="/l/%s/%s" % (klnk.kid, klnk.revno),
-            timestamp=str(klnk.timestamp)
+            timestamp=str(klnk.timestamp),
+            selected=True,
         )
 
         k = {}
@@ -84,7 +85,8 @@ class ServingTestCase(TestCase):
             revno=klnk.revno,
             parent=None,
             url="/l/%s/%s" % (klnk.kid, klnk.revno),
-            timestamp=str(klnk.timestamp)
+            timestamp=str(klnk.timestamp),
+            selected=True,
         )
 
         k = {}
