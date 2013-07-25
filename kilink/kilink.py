@@ -31,6 +31,12 @@ def about():
     return render_template('_about.html')
 
 
+@app.route('/tools')
+def tools():
+    """Show the about page."""
+    return render_template('_tools.html')
+
+
 # views
 @app.route('/')
 def index():
@@ -145,7 +151,7 @@ def api_create():
     """Create a kilink."""
     content = request.form['content']
     klnk = kilinkbackend.create_kilink(content)
-    ret_json = jsonify(kilink_id=klnk.kid, revno=klnk.revno)
+    ret_json = jsonify(linkode_id=klnk.kid, revno=klnk.revno)
     response = make_response(ret_json)
     response.headers['Location'] = 'http://%s/%s/%s' % (
         config["server_host"], klnk.kid, klnk.revno)

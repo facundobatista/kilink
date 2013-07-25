@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block main %}
+<header id="overview">
+  <div class="row">
+    <div class="span12">
+      <h2>The API</h2>
+
+      This is the version 1 of the API.
+      <br>
+      <br>
+      <h4>To create a new linkode</h4>
+      <pre>
+- type: POST
+- url: /api/1/linkodes/
+- data: content="content"
+      </pre>
+
+      <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab1" data-toggle="tab">Python</a></li>
+          <li><a href="#tab2" data-toggle="tab">PHP</a></li>
+          <li><a href="#tab3" data-toggle="tab">Java</a></li>
+          <li><a href="#tab4" data-toggle="tab">...</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab1">
+            <pre>
+In [1]: import requests
+In [2]: datos = {'content': u'The content for your linkode'}
+In [3]: e = requests.post("http://linkode.org/api/1/linkodes", data=datos)
+In [4]: e.json()
+Out[4]:
+{u'linkode_id': u'557b9746-af4c-4131-aed3-7bdb2caed0d4',
+ u'revno': u'e594500e-00d8-4a20-b2b8-92508099b0a6'}
+In [5]: e.status_code
+Out[5]: 201
+            </pre>
+
+          </div>
+          <div class="tab-pane" id="tab2">
+            <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+          <div class="tab-pane" id="tab3">
+            <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+          <div class="tab-pane" id="tab4">
+            <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <h4>To create a child of an existing linkode node</h4>
+      <pre>
+ - type: POST
+ - url: /api/1/linkodes/<lid>
+ - data: content="content"&parent="parentrevno"
+      </pre>
+
+     <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab5" data-toggle="tab">Python</a></li>
+          <li><a href="#tab6" data-toggle="tab">PHP</a></li>
+          <li><a href="#tab7" data-toggle="tab">Java</a></li>
+          <li><a href="#tab8" data-toggle="tab">...</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab5">
+            <pre>
+In [1]: import requests
+In [2]: update = {'content': u'The content for your new linkode child', 'parent': 'e594500e-00d8-4a20-b2b8-92508099b0a6'} # 'parent' is the revno's parent
+In [3]: e = requests.post("http://linkode.org/api/1/linkodes", data=update)
+In [4]: e.json()
+Out[4]:
+{u'linkode_id': u'34f80eec-bf9a-4c75-ab54-23f958e9bf3f',
+ u'revno': u'9dca0df5-3291-42a8-a78e-5dba5a516f51'}
+In [5]: e.status_code
+Out[5]: 201
+            </pre>
+
+          </div>
+          <div class="tab-pane" id="tab6">
+            <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+          <div class="tab-pane" id="tab7">
+            <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+          <div class="tab-pane" id="tab8">
+            <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <h4>To get a specific linkode node</h4>
+      <pre>
+- type: GET
+- url: /api/1/linkodes/lid/revno
+      </pre>
+
+
+     <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab9" data-toggle="tab">Python</a></li>
+          <li><a href="#tab10" data-toggle="tab">PHP</a></li>
+          <li><a href="#tab11" data-toggle="tab">Java</a></li>
+          <li><a href="#tab12" data-toggle="tab">...</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab9">
+            <pre>
+In [1]: import requests
+In [2]: e = requests.get("http://linkode.org/api/1/linkodes/34f80eec-bf9a-4c75-ab54-23f958e9bf3f/9dca0df5-3291-42a8-a78e-5dba5a516f51")
+In [3]: e.json()
+Out[3]:
+{u'content': u'The content for your new linkode child'}
+In [4]: e.status_code
+Out[4]: 200
+            </pre>
+
+          </div>
+          <div class="tab-pane" id="tab10">
+            <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+          <div class="tab-pane" id="tab11">
+            <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+          <div class="tab-pane" id="tab12">
+            <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <h4>To get all the tree of a linkode</h4>
+      <pre>
+   - type: GET
+   - url: /api/1/linkodes/<lid>
+      </pre>
+      As we don't know if the "get all the tree of a linkode" it's going to be used, it's not implemented yet. But will have the previous API ;-)
+
+{% endblock %}
