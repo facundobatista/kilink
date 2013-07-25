@@ -75,12 +75,16 @@ $(document).ready(function(){
                 return d.order;
             })
             .on("click", function(node){
-                window.location = node.url;
+                if (!node.selected){
+                    window.location = node.url;
+                };
             });
 
         nodeGroup.selectAll(".node-dot")
             .on("click", function(node){
-                window.location = node.url;
+                if (!node.selected){
+                    window.location = node.url;
+                };
         });
     }
     if (node_list !== false) {
