@@ -52,7 +52,7 @@ function looksLike(contents) {
 }
 
 function langLike(lang) {
-  if (lang in {'cpp':0, 'c++':0, 'cs':0, 'c#':0, 'scala':0, 'java':0}){
+  if (lang in {'cpp':0, 'c++':0, 'cs':0, 'c#':0, 'c':0, 'scala':0, 'java':0}){
     lang = "clike";
   }
   else if (lang=="html"){
