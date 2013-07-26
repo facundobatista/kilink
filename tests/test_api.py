@@ -49,14 +49,14 @@ class ApiTestCase(BaseTestCase):
         """Simple create."""
         datos = {'content': u'Moñooo()?¿'}
         resp = self.api_create(data=datos)
-        self.assertTrue(u'kilink_id' in resp)
+        self.assertTrue(u'linkode_id' in resp)
         self.assertTrue(u'revno' in resp)
 
     def test_update_simple(self):
         """Update a kilink with new content."""
         parent_content = {'content': u'ÑOÑO'}
         resp = self.api_create(data=parent_content)
-        kid = resp['kilink_id']
+        kid = resp['linkode_id']
         revno0 = resp["revno"]
 
         child_content = {
@@ -82,5 +82,5 @@ class ApiTestCase(BaseTestCase):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO'}
         resp = self.api_create(data=content)
-        resp = self.api_get(resp['kilink_id'], resp['revno'])
+        resp = self.api_get(resp['linkode_id'], resp['revno'])
         self.assertEqual(resp["content"], u"ÑOÑO")
