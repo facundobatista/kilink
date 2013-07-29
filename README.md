@@ -19,32 +19,11 @@ Some awesome detailes:
 The API
 -------
 
-This is the version 1 of the API.
+Get the API details from the HTML file::
 
-To create a new linkode:
+    kilink/templates/_tools.html
 
-    - type: POST
-    - url: /api/1/linkodes/
-    - data: content=<content>
-
-To create a child of an existing linkode node:
-
-    - type: POST
-    - url: /api/1/linkodes/<lid>
-    - data: content=<content>&parent=<parentrevno>
-
-To get a specific linkode node:
-
-    - type: GET
-    - url: /api/1/linkodes/<lid>/<revno>
-
-To get all the tree of a linkode:
-
-    - type: GET
-    - url: /api/1/linkodes/<lid>
-
-As we don't know if the "get all the tree of a linkode" it's going to be used,
-it's not implemented yet. But will have the previous API ;-)
+In a future this will be in a Doc file (source of that HTML).
 
 
 How To Try It In Development

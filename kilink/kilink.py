@@ -54,7 +54,10 @@ def index():
 def create():
     """Create a kilink."""
     content = request.form['content']
-    klnk = kilinkbackend.create_kilink(content)
+    text_type = request.form['text_type']
+    if text_type[:6] == "auto: ":
+        text_type = text_type[6:]
+    klnk = kilinkbackend.create_kilink(content, text_type)
     url = "/l/%s" % (klnk.kid,)
     return redirect(url, code=303)
 
@@ -68,7 +71,8 @@ def update(kid, parent=None):
         parent = root.revno
 
     content = request.form['content']
-    klnk = kilinkbackend.update_kilink(kid, parent, content)
+    text_type = request.form['text_type']
+    klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
     new_url = "/l/%s/%s" % (kid, klnk.revno)
     return redirect(new_url, code=303)
 
@@ -79,11 +83,12 @@ def show(kid, revno=None):
     """Show the kilink content"""
     # get the content
     if revno is None:
-        root = kilinkbackend.get_root_node(kid)
-        revno = root.revno
-        content = root.content
+        klnk = kilinkbackend.get_root_node(kid)
+        revno = klnk.revno
     else:
-        content = kilinkbackend.get_content(kid, revno)
+        klnk = kilinkbackend.get_kilink(kid, revno)
+    content = klnk.content
+    text_type = klnk.text_type
 
     # node list
     node_list = []
@@ -108,6 +113,7 @@ def show(kid, revno=None):
         'kid_info': "l/%s/%s" % (kid, revno),
         'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': revno,
+        'text_type': text_type,
     }
     return render_template('_new.html', **render_dict)
 
@@ -150,7 +156,8 @@ def build_tree(tree, parent, nodes):
 def api_create():
     """Create a kilink."""
     content = request.form['content']
-    klnk = kilinkbackend.create_kilink(content)
+    text_type = request.form.get('text_type', "")
+    klnk = kilinkbackend.create_kilink(content, text_type)
     ret_json = jsonify(linkode_id=klnk.kid, revno=klnk.revno)
     response = make_response(ret_json)
     response.headers['Location'] = 'http://%s/%s/%s' % (
@@ -164,8 +171,9 @@ def api_update(kid):
     """Update a kilink."""
     content = request.form['content']
     parent = request.form['parent']
+    text_type = request.form['text_type']
     try:
-        klnk = kilinkbackend.update_kilink(kid, parent, content)
+        klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
     except backend.KilinkNotFoundError:
         response = make_response()
         return response, 404
@@ -182,12 +190,14 @@ def api_update(kid):
 def api_get(kid, revno):
     """Get the kilink and revno content"""
     try:
-        content = kilinkbackend.get_content(kid, revno)
-        ret_json = jsonify(content=content)
-        return ret_json
+        klnk = kilinkbackend.get_kilink(kid, revno)
     except backend.KilinkNotFoundError:
         response = make_response()
         return response, 404
+
+    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type)
+    return ret_json
+
 
 if __name__ == "__main__":
     # load config

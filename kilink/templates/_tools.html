@@ -12,7 +12,12 @@
       <pre>
 - type: POST
 - url: /api/1/linkodes/
-- data: content="content"
+- data: 
+    content: the content of the linkode (Unicode!)
+    text_type: the type of the content (plain text, Python, diff, C, etc.) [optional]
+- returns:
+    linkode_id: the unique id of the new linkode
+    revno: the revision number of it's root node
       </pre>
 
       <div class="tabbable"> <!-- Only required for left/right tabs -->
@@ -26,13 +31,13 @@
           <div class="tab-pane active" id="tab1">
             <pre>
 In [1]: import requests
-In [2]: datos = {'content': u'The content for your linkode'}
-In [3]: e = requests.post("http://linkode.org/api/1/linkodes", data=datos)
-In [4]: e.json()
+In [2]: data = {'content': u'The content for your linkode', 'text_type': 'python'}
+In [3]: r = requests.post("http://linkode.org/api/1/linkodes", data=data)
+In [4]: r.json()
 Out[4]:
 {u'linkode_id': u'557b9746-af4c-4131-aed3-7bdb2caed0d4',
  u'revno': u'e594500e-00d8-4a20-b2b8-92508099b0a6'}
-In [5]: e.status_code
+In [5]: r.status_code
 Out[5]: 201
             </pre>
 
@@ -54,8 +59,12 @@ Out[5]: 201
       <h4>To create a child of an existing linkode node</h4>
       <pre>
  - type: POST
- - url: /api/1/linkodes/<lid>
- - data: content="content"&parent="parentrevno"
+ - url: /api/1/linkodes/<linkode_id>
+ - data: 
+    content: the content of the new node (Unicode!)
+    parent: the revision number of the node that is parent to this new one
+- returns:
+    revno: the revision number of the new node
       </pre>
 
      <div class="tabbable"> <!-- Only required for left/right tabs -->
@@ -69,13 +78,12 @@ Out[5]: 201
           <div class="tab-pane active" id="tab5">
             <pre>
 In [1]: import requests
-In [2]: update = {'content': u'The content for your new linkode child', 'parent': 'e594500e-00d8-4a20-b2b8-92508099b0a6'} # 'parent' is the revno's parent
-In [3]: e = requests.post("http://linkode.org/api/1/linkodes", data=update)
-In [4]: e.json()
+In [2]: update = {'content': u'new content', 'text_type': 'python', 'parent': '796d0e80-a178-44a3-8226-2046768cf6f7'}
+In [3]: r = requests.post("http://linkode.org/api/1/linkodes/a5bdba03-82fd-4e89-a2db-1f4deb68d070", data=update)
+In [4]: r.json()
 Out[4]:
-{u'linkode_id': u'34f80eec-bf9a-4c75-ab54-23f958e9bf3f',
- u'revno': u'9dca0df5-3291-42a8-a78e-5dba5a516f51'}
-In [5]: e.status_code
+{u'revno': u'9dca0df5-3291-42a8-a78e-5dba5a516f51'}
+In [5]: r.status_code
 Out[5]: 201
             </pre>
 
@@ -97,7 +105,10 @@ Out[5]: 201
       <h4>To get a specific linkode node</h4>
       <pre>
 - type: GET
-- url: /api/1/linkodes/lid/revno
+- url: /api/1/linkodes/<linkode_id>/<revno>
+- returns:
+    linkode_id: the unique id of the new linkode
+    revno: the revision number of it's root node
       </pre>
 
 
@@ -112,11 +123,11 @@ Out[5]: 201
           <div class="tab-pane active" id="tab9">
             <pre>
 In [1]: import requests
-In [2]: e = requests.get("http://linkode.org/api/1/linkodes/34f80eec-bf9a-4c75-ab54-23f958e9bf3f/9dca0df5-3291-42a8-a78e-5dba5a516f51")
-In [3]: e.json()
+In [2]: r = requests.get("http://linkode.org/api/1/linkodes/a5bdba03-82fd-4e89-a2db-1f4deb68d070/ca8aa7a1-59e8-491c-9025-363f1fd7b908")
+In [3]: r.json()
 Out[3]:
-{u'content': u'The content for your new linkode child'}
-In [4]: e.status_code
+{u'content': u'The content for this linkode node'}
+In [4]: r.status_code
 Out[4]: 200
             </pre>
 
@@ -138,7 +149,7 @@ Out[4]: 200
       <h4>To get all the tree of a linkode</h4>
       <pre>
    - type: GET
-   - url: /api/1/linkodes/<lid>
+   - url: /api/1/linkodes/<linkode_id>
       </pre>
       As we don't know if the "get all the tree of a linkode" it's going to be used, it's not implemented yet. But will have the previous API ;-)
 

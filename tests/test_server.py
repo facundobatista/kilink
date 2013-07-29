@@ -53,7 +53,7 @@ class ServingTestCase(TestCase):
 
     def test_serving_base(self):
         """Serving a kilink, base."""
-        klnk = self.backend.create_kilink("content")
+        klnk = self.backend.create_kilink("content", "type1")
         self.app.get("/l/%s" % (klnk.kid,))
 
         tree = dict(
@@ -69,6 +69,7 @@ class ServingTestCase(TestCase):
         k = {}
         k['value'] = 'content'
         k['button_text'] = 'Save new version'
+        k['text_type'] = 'type1'
         k['kid_info'] = "l/%s/%s" % (klnk.kid, klnk.revno)
         k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
@@ -76,7 +77,7 @@ class ServingTestCase(TestCase):
 
     def test_serving_revno(self):
         """Serving a kilink with a revno."""
-        klnk = self.backend.create_kilink("content")
+        klnk = self.backend.create_kilink("content", "type2")
         self.app.get("/l/%s/%s" % (klnk.kid, klnk.revno))
 
         tree = dict(
@@ -92,6 +93,7 @@ class ServingTestCase(TestCase):
         k = {}
         k['value'] = 'content'
         k['button_text'] = 'Save new version'
+        k['text_type'] = 'type2'
         k['kid_info'] = "l/%s/%s" % (klnk.kid, klnk.revno)
         k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
@@ -99,22 +101,39 @@ class ServingTestCase(TestCase):
 
     def test_create(self):
         """Create a kilink."""
-        self.app.post("/l/", data=dict(content="content"))
+        self.app.post("/l/", data=dict(content="content", text_type="type1"))
 
         # get what was created, to compare
         session = self.backend.sm.get_session()
         created = session.query(backend.Kilink).one()
 
         # compare
+        self.assertEqual(created.content, "content")
+        self.assertEqual(created.text_type, "type1")
+        url = "/l/%s" % (created.kid,)
+        self.mocked_redirect.assert_called_once_with(url, code=303)
+
+    def test_create_auto_text(self):
+        """Create a kilink, sending data from autodetection."""
+        data = dict(content="content", text_type="auto: type1")
+        self.app.post("/l/", data=data)
+
+        # get what was created, to compare
+        session = self.backend.sm.get_session()
+        created = session.query(backend.Kilink).one()
+
+        # compare
+        self.assertEqual(created.content, "content")
+        self.assertEqual(created.text_type, "type1")
         url = "/l/%s" % (created.kid,)
         self.mocked_redirect.assert_called_once_with(url, code=303)
 
     def test_update_base(self):
         """Update a kilink from it's base node."""
-        klnk = self.backend.create_kilink("content")
+        klnk = self.backend.create_kilink("content", "")
 
         url = "/l/%s" % (klnk.kid,)
-        r = self.app.post(url, data=dict(content=u"moño"))
+        self.app.post(url, data=dict(content=u"moño", text_type="type1"))
 
         # get what was created, to compare
         session = self.backend.sm.get_session()
@@ -122,16 +141,18 @@ class ServingTestCase(TestCase):
             kid=klnk.kid, parent=klnk.revno).one()
 
         # compare
+        self.assertEqual(created.content, u"moño")
+        self.assertEqual(created.text_type, "type1")
         url = "/l/%s/%s" % (created.kid, created.revno)
         self.mocked_redirect.assert_called_once_with(url, code=303)
 
     def test_update_revno(self):
         """Update a kilink from it's base node."""
-        klnk = self.backend.create_kilink("content")
-        klnk = self.backend.update_kilink(klnk.kid, klnk.revno, "content2")
+        klnk = self.backend.create_kilink("content", "")
+        klnk = self.backend.update_kilink(klnk.kid, klnk.revno, "c2", "t2")
 
         url = "/l/%s/%s" % (klnk.kid, klnk.revno)
-        r = self.app.post(url, data=dict(content=u"moño"))
+        self.app.post(url, data=dict(content=u"moño", text_type="type2"))
 
         # get what was created, to compare
         session = self.backend.sm.get_session()
@@ -139,5 +160,7 @@ class ServingTestCase(TestCase):
             kid=klnk.kid, parent=klnk.revno).one()
 
         # compare
+        self.assertEqual(created.content, u"moño")
+        self.assertEqual(created.text_type, "type2")
         url = "/l/%s/%s" % (created.kid, created.revno)
         self.mocked_redirect.assert_called_once_with(url, code=303)

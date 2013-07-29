@@ -8,13 +8,14 @@
     var current_revno = "{{ current_revno }}";
 </script>
 
+
 <div class="row">
   <div class="span10">
     <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
       <textarea id='code' name='content' rows="8" cols="40">{{value}}</textarea>
 
       <div class='buttons' style="text-align:right">
-        Select a text type:&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success'>
+        Select a text type:&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
           <option selected>auto</option>
           <option>C</option>
           <option>C++</option>

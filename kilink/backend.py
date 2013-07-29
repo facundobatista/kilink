@@ -23,8 +23,8 @@ Base = declarative_base()
 class KilinkNotFoundError(Exception):
     """A kilink was specified, we couldn't find it."""
 
-TreeNode = collections.namedtuple("TreeNode",
-                                  "content parent order revno timestamp")
+TreeNode = collections.namedtuple(
+    "TreeNode", "content parent order revno timestamp text_type")
 
 
 class Kilink(Base, object):
@@ -36,6 +36,7 @@ class Kilink(Base, object):
     parent = Column(String, default=None)
     compressed = Column(LargeBinary)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    text_type = Column(String)
 
     def _get_content(self):
         """Return the content, uncompressed."""
@@ -79,28 +80,29 @@ class KilinkBackend(object):
         Base.metadata.create_all(db_engine)
         self.sm = SessionManager(db_engine)
 
-    def create_kilink(self, content):
+    def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
         session = self.sm.get_session()
-        klnk = Kilink(content=content)
+        klnk = Kilink(content=content, text_type=text_type)
         session.add(klnk)
         session.commit()
         return klnk
 
-    def update_kilink(self, kid, parent, new_content):
+    def update_kilink(self, kid, parent, new_content, text_type):
         """Add a new revision to a kilink."""
         session = self.sm.get_session()
         search = session.query(Kilink).filter_by(kid=kid, revno=parent)
         if not search.all():
             raise KilinkNotFoundError("Parent kilink not found")
 
-        klnk = Kilink(kid=kid, parent=parent, content=new_content)
+        klnk = Kilink(kid=kid, parent=parent,
+                      content=new_content, text_type=text_type)
         session.add(klnk)
         session.commit()
         return klnk
 
-    def get_content(self, kid, revno):
-        """Get content for a specific kilink and revision number."""
+    def get_kilink(self, kid, revno):
+        """Get a specific kilink and revision number."""
         session = self.sm.get_session()
         try:
             klnk = session.query(Kilink).filter_by(
@@ -109,7 +111,7 @@ class KilinkBackend(object):
             msg = "Data not found for kilink=%r revno=%r" % (kid, revno)
             raise KilinkNotFoundError(msg)
 
-        return klnk.content
+        return klnk
 
     def get_kilink_tree(self, kid):
         """Return all the information about the kilink."""
@@ -122,7 +124,7 @@ class KilinkBackend(object):
         for i, klnk in enumerate(klnk_tree, 1):
             tn = TreeNode(order=i, content=klnk.content,
                           revno=klnk.revno, parent=klnk.parent,
-                          timestamp=klnk.timestamp)
+                          timestamp=klnk.timestamp, text_type=klnk.text_type)
             result.append(tn)
         return result
 
