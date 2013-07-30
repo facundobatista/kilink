@@ -10,7 +10,17 @@ editor.setOption("theme", 'monokai');
 
 window.onload = function () {
   setTimeout(function () {
+    var backInput = document.getElementById("text_type");
+    var bmode = backInput.value;
+    if (bmode in {'':0, 'auto':0}){
+    autoDetection = 1;
     update();
+    }
+    else{
+    autoDetection = 0;
+    modeInput.value = bmode;
+    editor.setOption("mode", bmode);
+    }  
   },1)
 }
 
@@ -19,7 +29,11 @@ window.onload = function () {
 var modeInput = document.getElementById("seleclang");
 function selectMode() {
   var mode = modeInput.options[modeInput.selectedIndex].innerHTML;
-  var cmode = langLike(mode.toLowerCase());
+  forkMode(mode);
+}
+
+function forkMode(inmode) {
+  var cmode = langLike(inmode.toLowerCase());
   if (cmode=="auto"){
     autoDetection = 1;
     update();
