@@ -10,7 +10,14 @@ editor.setOption("theme", 'monokai');
 
 window.onload = function () {
   setTimeout(function () {
+    var backInput = document.getElementById("text_type");
+    var bmode = backInput.value;
+    if (bmode in {'':0, 'auto':0}){
     update();
+    }
+    else{
+    modeInput.value = bmode;
+    }  
   },1)
 }
 

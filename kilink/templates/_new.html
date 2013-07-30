@@ -16,44 +16,45 @@
 
       <div class='buttons' style="text-align:right">
         Select a text type:&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
-          <option selected>auto</option>
-          <option>C</option>
-          <option>C++</option>
-          <option>C#</option>
-          <option>Clojure</option>
-          <option>Coffeescript</option>
-          <option>Css</option>
-          <option>D</option>
-          <option>Diff</option>
-          <option>Erlang</option>
-          <option>Go</option>
-          <option>Haskell</option>
-          <option>Html</option>
-          <option>Htmlmixed</option>
-          <option>Http</option>
-          <option>Java</option>
-          <option>Javascript</option>
-          <option>Json</option>
-          <option>Lua</option>
-          <option>Markdown</option>
-          <option>Php</option>
-          <option>Perl</option>
-          <option>Plain text</option>
-          <option>Python</option>
-          <option>R</option>
-          <option>Ruby</option>
-          <option>Rust</option>
-          <option>Scala</option>
-          <option>Shell</option>
-          <option>Smalltalk</option>
-          <option>Sql</option>
-          <option>Stex</option>
-          <option>Tex</option>
-          <option>Vbscript</option>
-          <option>Xml</option>
+          <option value="auto" selected>auto</option>
+          <option value="c">C</option>
+          <option value="c++">C++</option>
+          <option value="c#">C#</option>
+          <option value="clojure">Clojure</option>
+          <option value="coffeescript">Coffeescript</option>
+          <option value="css">Css</option>
+          <option value="d">D</option>
+          <option value="diff">Diff</option>
+          <option value="erlang">Erlang</option>
+          <option value="go">Go</option>
+          <option value="haskell">Haskell</option>
+          <option value="html">Html</option>
+          <option value="htmlmixed">Htmlmixed</option>
+          <option value="http">Http</option>
+          <option value="java">Java</option>
+          <option value="javascript">Javascript</option>
+          <option value="json">Json</option>
+          <option value="lua">Lua</option>
+          <option value="markdown">Markdown</option>
+          <option value="php">Php</option>
+          <option value="perl">Perl</option>
+          <option value="plain text">Plain text</option>
+          <option value="python">Python</option>
+          <option value="r">R</option>
+          <option value="ruby">Ruby</option>
+          <option value="rust">Rust</option>
+          <option value="scala">Scala</option>
+          <option value="shell">Shell</option>
+          <option value="smalltalk">Smalltalk</option>
+          <option value="sql">Sql</option>
+          <option value="stex">Stex</option>
+          <option value="tex">Tex</option>
+          <option value="vbscript">Vbscript</option>
+          <option value="xml">Xml</option>
         </select>
         &nbsp; &nbsp;
         <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
+        <button id="text_type" value="{{text_type}}" style="display:none">{{text_type}}</button>
       </div>
     </form>
   </div>
