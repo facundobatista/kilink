@@ -27,12 +27,26 @@ TreeNode = collections.namedtuple(
     "TreeNode", "content parent order revno timestamp text_type")
 
 
+ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def _get_unique_id():
+    """Returns a unique ID everytime it's called."""
+    arr = []
+    base = len(ALPHABET)
+    num = uuid.uuid4().int
+    while num:
+        num, rem = divmod(num, base)
+        arr.append(ALPHABET[rem])
+    return ''.join(arr)
+
+
 class Kilink(Base, object):
     """Kilink data."""
     __tablename__ = 'kilink'
 
-    kid = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    revno = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    kid = Column(String, primary_key=True, default=_get_unique_id)
+    revno = Column(String, primary_key=True, default=_get_unique_id)
     parent = Column(String, default=None)
     compressed = Column(LargeBinary)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)

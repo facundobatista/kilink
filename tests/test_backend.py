@@ -13,7 +13,12 @@ from unittest import TestCase
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from kilink.backend import KilinkBackend, Kilink, KilinkNotFoundError
+from kilink.backend import (
+    Kilink,
+    KilinkBackend,
+    KilinkNotFoundError,
+    _get_unique_id,
+)
 
 
 class BaseTestCase(TestCase):
@@ -44,7 +49,7 @@ class ContentTestCase(BaseTestCase):
         klnk = self.session.query(Kilink).filter_by(
             kid=klnk.kid, revno=klnk.revno).one()
         self.assertEqual(klnk.content, content)
-        self.assertTrue(uuid.UUID(klnk.revno))
+        self.assertTrue(isinstance(klnk.revno.encode("ascii"), str))
         self.assertEqual(klnk.parent, None)
         self.assertEqual(klnk.text_type, text_type)
 
@@ -127,9 +132,9 @@ class DataRetrievalTestCase(BaseTestCase):
         self.assertEqual(tree[2].text_type, "t3")
         self.assertEqual(tree[3].text_type, "")
         for i, item in enumerate(tree, 1):
-            self.assertTrue(uuid.UUID(item.revno))
+            self.assertTrue(isinstance(item.revno.encode("ascii"), str))
             if item.parent is not None:
-                self.assertTrue(uuid.UUID(item.parent))
+                self.assertTrue(isinstance(item.parent.encode("ascii"), str))
             self.assertTrue(isinstance(item.timestamp, datetime.datetime))
             self.assertEqual(item.order, i)
         self.assertEqual(tree[0].parent, None)  # root node
@@ -170,3 +175,17 @@ class DataRetrievalTestCase(BaseTestCase):
     def test_findroot_tree_bad(self):
         """Get the root node for a kilink that does not exist."""
         self.assertRaises(KilinkNotFoundError, self.bkend.get_root_node, 'kid')
+
+
+class IDGenTestCase(TestCase):
+    """Test case for the id generator."""
+
+    def test_type(self):
+        """It must be a string."""
+        newid = _get_unique_id()
+        self.assertTrue(isinstance(newid, str))
+
+    def test_sanity(self):
+        """Stupid sanity check."""
+        ids = [_get_unique_id() for _ in xrange(100)]
+        self.assertEqual(len(set(ids)), 100)
