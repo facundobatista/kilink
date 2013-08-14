@@ -1,9 +1,11 @@
 Linkode
 =======
 
-Linkode is the useful pastebin!
+Linkode is the useful pastebin! 
 
 It's a kind of "short living collaboration space", a "dynamic pastebin".
+
+It's live right now in **`linkode.org`_**, give it a try!
 
 Some awesome detailes:
 
@@ -111,3 +113,4 @@ And paste this:
     
 Restart Apache and Enjoy!
 
+.. _linkode.org: http://linkode.org
