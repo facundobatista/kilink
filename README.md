@@ -5,7 +5,7 @@ Linkode is the useful pastebin!
 
 It's a kind of "short living collaboration space", a "dynamic pastebin".
 
-It's live right now in **`linkode.org`_**, give it a try!
+It's live right now in **http://linkode.org/**, give it a try!
 
 Some awesome detailes:
 
@@ -112,5 +112,3 @@ And paste this:
     </VirtualHost>
     
 Restart Apache and Enjoy!
-
-.. _linkode.org: http://linkode.org
