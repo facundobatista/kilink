@@ -1,3 +1,6 @@
+The project is Copyright from 2009 of Facundo Batista
+(facundo@taniquetil.com.ar) and Nico César (nico@nicocesar.com).
+
 These are the developers that most participated in the project
 (in alphabetical order):
 
