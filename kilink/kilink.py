@@ -151,7 +151,7 @@ def build_tree(tree, parent, nodes):
 
 
 #API
-@app.route('/api/1/linkodes', methods=['POST'])
+@app.route('/api/1/linkodes/', methods=['POST'])
 @crossdomain(origin='*')
 def api_create():
     """Create a kilink."""
