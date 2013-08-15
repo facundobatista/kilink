@@ -24,7 +24,7 @@ class BaseTestCase(TestCase):
 
     def api_create(self, data, code=201):
         """Helper to hit the api to create."""
-        r = self.app.post("/api/1/linkodes", data=data)
+        r = self.app.post("/api/1/linkodes/", data=data)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
