@@ -1,14 +1,27 @@
 {% extends "base.html" %}
 {% block main %}
+
 <header id="overview">
   <div class="row">
     <div class="span12">
-      <h2>The API</h2>
+      <h2>Table of Content</h2>
+        <ul>
+            <li><a href="#the_api">The API</a></li>
+            <ul>
+                <li><a href="#api-create">To create a new linkode</a></li>
+                <li><a href="#api-createchild">To create a child of an existing linkode node</a></li>
+                <li><a href="#api-get">To get a specific linkode node</a></li>
+                <li><a href="#api-gettree">To get all the tree of a linkode</a></li>
+            </ul>
+        </ul>
+      
+
+      <h2 id="api">The API</h2>
 
       This is the version 1 of the API.
       <br>
       <br>
-      <h4>To create a new linkode</h4>
+      <h4 id="api-create">To create a new linkode</h4>
       <pre>
 - type: POST
 - url: /api/1/linkodes/
@@ -56,7 +69,7 @@ Out[5]: 201
 
       <br>
       <br>
-      <h4>To create a child of an existing linkode node</h4>
+      <h4 id="api-createchild">To create a child of an existing linkode node</h4>
       <pre>
  - type: POST
  - url: /api/1/linkodes/<linkode_id>
@@ -102,7 +115,7 @@ Out[5]: 201
 
       <br>
       <br>
-      <h4>To get a specific linkode node</h4>
+      <h4 id="api-get">To get a specific linkode node</h4>
       <pre>
 - type: GET
 - url: /api/1/linkodes/<linkode_id>/<revno>
@@ -146,7 +159,7 @@ Out[4]: 200
 
       <br>
       <br>
-      <h4>To get all the tree of a linkode</h4>
+      <h4 id="api-gettree">To get all the tree of a linkode</h4>
       <pre>
    - type: GET
    - url: /api/1/linkodes/<linkode_id>
