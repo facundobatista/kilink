@@ -104,8 +104,7 @@ def show(kid, revno=None):
             'selected': treenode.revno == revno,
         })
 
-    tree = {}
-    build_tree(tree, {}, node_list)
+    tree = build_tree(node_list)
 
     render_dict = {
         'value': content,
@@ -118,36 +117,19 @@ def show(kid, revno=None):
     return render_template('_new.html', **render_dict)
 
 
-def build_tree(tree, parent, nodes):
+def build_tree(nodes):
     """ Build tree for 3djs """
+    root = [n for n in nodes if n['parent'] is None][0]
+    fringe = [root,]
 
-    children = [
-        n for n in nodes
-        if n.get('parent', None) == parent.get('revno', None)
-    ]
+    while fringe:
+        node = fringe.pop()
+        children = [n for n in nodes if n['parent'] == node['revno']]
 
-    for child in children:
-        if tree == {}:
-            tree['contents'] = []
-            tree['order'] = child['order']
-            tree['revno'] = child['revno']
-            tree['parent'] = child['parent']
-            tree['url'] = child['url']
-            tree['timestamp'] = child['timestamp']
-            tree['selected'] = child['selected']
-            new_child = tree
-        else:
-            new_child = {
-                'contents': [],
-                'order': child['order'],
-                'revno': child['revno'],
-                'parent': child['parent'],
-                'url': child['url'],
-                'timestamp': child['timestamp'],
-                'selected': child['selected'],
-            }
-            tree['contents'].append(new_child)
-        build_tree(new_child, child, nodes)
+        node['contents'] = children
+        fringe.extend(children)
+
+    return root
 
 
 #API
