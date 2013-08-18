@@ -120,7 +120,7 @@ def show(kid, revno=None):
 def build_tree(nodes):
     """ Build tree for 3djs """
     root = [n for n in nodes if n['parent'] is None][0]
-    fringe = [root,]
+    fringe = [root, ]
 
     while fringe:
         node = fringe.pop()
