@@ -57,8 +57,8 @@ def create():
     text_type = request.form['text_type']
     if text_type[:6] == "auto: ":
         text_type = text_type[6:]
-    klnk = kilinkbackend.create_kilink(content, text_type)
-    url = "/l/%s" % (klnk.kid,)
+    kid = kilinkbackend.create_kilink(content, text_type)
+    url = "/l/%s" % (kid,)
     return redirect(url, code=303)
 
 
@@ -72,8 +72,8 @@ def update(kid, parent=None):
 
     content = request.form['content']
     text_type = request.form['text_type']
-    klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
-    new_url = "/l/%s/%s" % (kid, klnk.revno)
+    kid, revno = kilinkbackend.update_kilink(kid, parent, content, text_type)
+    new_url = "/l/%s/%s" % (kid, revno)
     return redirect(new_url, code=303)
 
 
@@ -202,8 +202,7 @@ def api_get(kid, revno):
 if __name__ == "__main__":
     # load config
     config.load_file("configs/development.yaml")
-
     # set up the backend
     engine = create_engine(config["db_engine"])
-    kilinkbackend = backend.KilinkBackend(engine)
+    kilinkbackend = backend.get_backend(engine)
     app.run(debug=True, host='0.0.0.0')

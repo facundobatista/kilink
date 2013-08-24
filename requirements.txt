@@ -13,3 +13,4 @@ logilab-common==0.59.1
 mock==1.0.1
 pylint==0.28.0
 wsgiref==0.1.2
+saw==0.1.2
