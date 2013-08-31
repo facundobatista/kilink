@@ -19,7 +19,7 @@ def exception_handler(exc_type, exc_value, tb):
     logger.error("Unhandled exception!\n%s", msg)
 
 
-def setup_logging(logdir, verbose):
+def setup_logging(logdir, verbose=False):
     """Set up the logging."""
     if not os.path.exists(logdir):
         os.makedirs(logdir)
