@@ -19,13 +19,13 @@ def exception_handler(exc_type, exc_value, tb):
     logger.error("Unhandled exception!\n%s", msg)
 
 
-def setup_logging(logdir):
+def setup_logging(logdir, verbose):
     """Set up the logging."""
     if not os.path.exists(logdir):
         os.makedirs(logdir)
 
     logger = logging.getLogger('kilink')
-    fname = os.path.join(logdir, 'linkode')
+    fname = os.path.join(logdir, 'linkode.log')
     handler = TRFHandler(fname, when='D', interval=1)
     logger.addHandler(handler)
     formatter = logging.Formatter("%(asctime)s  %(name)-22s  "
@@ -33,7 +33,7 @@ def setup_logging(logdir):
     handler.setFormatter(formatter)
     logger.setLevel(logging.DEBUG)
 
-    if False:#verbose:
+    if verbose:
         handler = logging.StreamHandler()
         logger.addHandler(handler)
         handler.setFormatter(formatter)
@@ -41,4 +41,3 @@ def setup_logging(logdir):
 
     # hook the exception handler
     sys.excepthook = exception_handler
-

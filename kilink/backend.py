@@ -7,6 +7,7 @@
 
 import collections
 import datetime
+import logging
 import operator
 import threading
 import uuid
@@ -18,6 +19,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 Base = declarative_base()
+
+# logger
+logger = logging.getLogger('kilink.backend')
 
 
 class KilinkNotFoundError(Exception):
@@ -75,6 +79,7 @@ class SessionManager(object):
     def get_session(self):
         """Return a session for this thread."""
         thread_id = threading.current_thread().ident
+        logger.debug("Getting session from thread %s", thread_id)
         try:
             return self._sessions[thread_id]
         except KeyError:

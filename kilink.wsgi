@@ -9,6 +9,7 @@ sys.path.insert(0, "/home/kilink/project/production/kilink/")
 
 import backend
 import kilink
+import loghelper
 from sqlalchemy import create_engine
 from config import config 
 
@@ -21,6 +22,9 @@ with open(auth_file) as fh:
     vals = [x.strip() for x in fh.readlines()]
 auth_data = dict(zip(("user", "pass"), vals))
 engine_data = config["db_engine"].format(**auth_data)
+
+# log setup
+loghelper.setup_logging(config['log_directory'])
 
 # set up the backend
 engine = create_engine(engine_data)
