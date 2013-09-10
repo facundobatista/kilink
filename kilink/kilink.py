@@ -89,6 +89,8 @@ def update(kid, parent=None):
 
 @app.route('/<kid>')
 @app.route('/<kid>/<revno>')
+@app.route('/l/<kid>')
+@app.route('/l/<kid>/<revno>')
 def show(kid, revno=None):
     """Show the kilink content"""
     # get the content
