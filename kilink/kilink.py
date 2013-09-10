@@ -38,7 +38,7 @@ def about():
 
 @app.route('/tools')
 def tools():
-    """Show the about page."""
+    """Show the tools page."""
     return render_template('_tools.html')
 
 
@@ -49,13 +49,13 @@ def index():
     render_dict = {
         'value': '',
         'button_text': 'Create linkode',
-        'kid_info': 'l/',
+        'kid_info': '',
         'tree_info': json.dumps(False),
     }
     return render_template('_new.html', **render_dict)
 
 
-@app.route('/l/', methods=['POST'])
+@app.route('/', methods=['POST'])
 def create():
     """Create a kilink."""
     content = request.form['content']
@@ -64,13 +64,13 @@ def create():
     if text_type[:6] == "auto: ":
         text_type = text_type[6:]
     klnk = kilinkbackend.create_kilink(content, text_type)
-    url = "/l/%s" % (klnk.kid,)
+    url = "/%s" % (klnk.kid,)
     logger.debug("Create done; kid=%s", klnk.kid)
     return redirect(url, code=303)
 
 
-@app.route('/l/<kid>', methods=['POST'])
-@app.route('/l/<kid>/<parent>', methods=['POST'])
+@app.route('/<kid>', methods=['POST'])
+@app.route('/<kid>/<parent>', methods=['POST'])
 def update(kid, parent=None):
     """Update a kilink."""
     content = request.form['content']
@@ -82,13 +82,13 @@ def update(kid, parent=None):
         parent = root.revno
 
     klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
-    new_url = "/l/%s/%s" % (kid, klnk.revno)
+    new_url = "/%s/%s" % (kid, klnk.revno)
     logger.debug("Update done; kid=%r revno=%r", klnk.kid, klnk.revno)
     return redirect(new_url, code=303)
 
 
-@app.route('/l/<kid>')
-@app.route('/l/<kid>/<revno>')
+@app.route('/<kid>')
+@app.route('/<kid>/<revno>')
 def show(kid, revno=None):
     """Show the kilink content"""
     # get the content
@@ -104,7 +104,7 @@ def show(kid, revno=None):
     # node list
     node_list = []
     for treenode in kilinkbackend.get_kilink_tree(kid):
-        url = "/l/%s/%s" % (kid, treenode.revno)
+        url = "/%s/%s" % (kid, treenode.revno)
         parent = treenode.parent
         node_list.append({
             'order': treenode.order,
@@ -120,7 +120,7 @@ def show(kid, revno=None):
     render_dict = {
         'value': content,
         'button_text': 'Save new version',
-        'kid_info': "l/%s/%s" % (kid, revno),
+        'kid_info': "%s/%s" % (kid, revno),
         'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': revno,
         'text_type': text_type,
