@@ -1,4 +1,4 @@
-# encoding: utf8
+#name encoding: utf8
 
 # Copyright 2011 Facundo Batista, Nicolás César
 # All Rigths Reserved
@@ -75,6 +75,10 @@ class ServingTestCase(TestCase):
         k['current_revno'] = klnk.revno
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
+        self.mocked_render.reset_mock()
+        self.app.get("/l/%s" % (klnk.kid,))
+        self.mocked_render.assert_called_once_with("_new.html", **k)
+
     def test_serving_revno(self):
         """Serving a kilink with a revno."""
         klnk = self.backend.create_kilink("content", "type2")
@@ -97,6 +101,10 @@ class ServingTestCase(TestCase):
         k['kid_info'] = "%s/%s" % (klnk.kid, klnk.revno)
         k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
+        self.mocked_render.assert_called_once_with("_new.html", **k)
+
+        self.mocked_render.reset_mock()
+        self.app.get("/l/%s/%s" % (klnk.kid, klnk.revno))
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_create(self):
