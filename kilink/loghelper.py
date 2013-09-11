@@ -3,9 +3,12 @@
 import logging
 import os
 import sys
+import threading
 import traceback
 
 from logging.handlers import TimedRotatingFileHandler as TRFHandler
+
+log_setup_lock = threading.Lock()
 
 
 def exception_handler(exc_type, exc_value, tb):
@@ -19,8 +22,8 @@ def exception_handler(exc_type, exc_value, tb):
     logger.error("Unhandled exception!\n%s", msg)
 
 
-def setup_logging(logdir, verbose=False):
-    """Set up the logging."""
+def _setup(logdir, verbose):
+    """Really do the setup, but not threading safe."""
     if not os.path.exists(logdir):
         os.makedirs(logdir)
 
@@ -41,3 +44,15 @@ def setup_logging(logdir, verbose=False):
 
     # hook the exception handler
     sys.excepthook = exception_handler
+
+
+def setup_logging(logdir, verbose=False):
+    """Set up the logging.
+
+    This is thread-safe; it will only call the setup if logger doesn't have
+    handlers already set.
+    """
+    with log_setup_lock:
+        logger = logging.getLogger('kilink')
+        if not logger.handlers:
+            _setup(logdir, verbose)
