@@ -1,4 +1,4 @@
-#name encoding: utf8
+# encoding: utf8
 
 # Copyright 2011 Facundo Batista, Nicolás César
 # All Rigths Reserved
