@@ -18,6 +18,20 @@ Some awesome detailes:
     - private URLs: because you can not guess UUIDs
 
 
+Collaboration
+-------------
+
+Code and issues is in GitHub:
+
+    https://github.com/facundobatista/kilink
+
+We also have a mailing list:
+
+    http://listas.python.org.ar/mailman/listinfo/kilink
+
+And you can also get help by IRC, in Freenode: #linkode
+
+
 The API
 -------
 
