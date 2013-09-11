@@ -21,6 +21,24 @@ class FakeRequest(object):
         self.__dict__.update(k)
 
 
+class UnmockedServingTestCase(TestCase):
+    """Tests for server not mocking anything."""
+
+    def setUp(self):
+        """Set up."""
+        super(UnmockedServingTestCase, self).setUp()
+        engine = create_engine("sqlite://")
+        self.backend = backend.KilinkBackend(engine)
+        kilink.kilinkbackend = self.backend
+        self.app = kilink.app.test_client()
+
+    def test_serving_base(self):
+        """Serving a kilink, base."""
+        klnk = self.backend.create_kilink("content", "type1")
+        resp = self.app.get("/l/%s" % (klnk.kid,))
+        self.assertEqual(resp.headers['Cache-Control'], "public, max-age=0")
+
+
 class ServingTestCase(TestCase):
     """Tests for server."""
 

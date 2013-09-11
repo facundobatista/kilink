@@ -3,6 +3,8 @@
 import json
 import logging
 
+from functools import update_wrapper
+
 from flask import (
     Flask,
     jsonify,
@@ -27,6 +29,16 @@ app.config["STATIC_ROOT"] = 'static'
 
 # logger
 logger = logging.getLogger('kilink.kilink')
+
+
+def nocache(f):
+    """Decorator to make a page un-cacheable."""
+    def new_func(*args, **kwargs):
+        """The new function."""
+        resp = make_response(f(*args, **kwargs))
+        resp.headers['Cache-Control'] = 'public, max-age=0'
+        return resp
+    return update_wrapper(new_func, f)
 
 
 # accesory pages
@@ -89,6 +101,7 @@ def update(kid, parent=None):
 
 @app.route('/l/<kid>')
 @app.route('/l/<kid>/<revno>')
+@nocache
 def show(kid, revno=None):
     """Show the kilink content"""
     # get the content
