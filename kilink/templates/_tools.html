@@ -72,7 +72,7 @@ Out[5]: 201
       <h4 id="api-createchild">To create a child of an existing linkode node</h4>
       <pre>
  - type: POST
- - url: /api/1/linkodes/<linkode_id>
+ - url: /api/1/linkodes/&lt;linkode_id&gt;
  - data: 
     content: the content of the new node (Unicode!)
     parent: the revision number of the node that is parent to this new one
@@ -118,7 +118,7 @@ Out[5]: 201
       <h4 id="api-get">To get a specific linkode node</h4>
       <pre>
 - type: GET
-- url: /api/1/linkodes/<linkode_id>/<revno>
+- url: /api/1/linkodes/&lt;linkode_id&gt;/<revno>
 - returns:
     linkode_id: the unique id of the new linkode
     revno: the revision number of it's root node
@@ -162,7 +162,7 @@ Out[4]: 200
       <h4 id="api-gettree">To get all the tree of a linkode</h4>
       <pre>
    - type: GET
-   - url: /api/1/linkodes/<linkode_id>
+   - url: /api/1/linkodes/&lt;linkode_id&gt;
       </pre>
       As we don't know if the "get all the tree of a linkode" it's going to be used, it's not implemented yet. But will have the previous API ;-)
 
