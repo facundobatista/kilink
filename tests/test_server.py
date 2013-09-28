@@ -130,8 +130,7 @@ class ServingTestCase(TestCase):
         self.app.post("/", data=dict(content="content", text_type="type1"))
 
         # get what was created, to compare
-        session = self.backend.sm.get_session()
-        created = session.query(backend.Kilink).one()
+        created = self.backend.session.query(backend.Kilink).one()
 
         # compare
         self.assertEqual(created.content, "content")
@@ -145,8 +144,7 @@ class ServingTestCase(TestCase):
         self.app.post("/", data=data)
 
         # get what was created, to compare
-        session = self.backend.sm.get_session()
-        created = session.query(backend.Kilink).one()
+        created = self.backend.session.query(backend.Kilink).one()
 
         # compare
         self.assertEqual(created.content, "content")
@@ -162,8 +160,7 @@ class ServingTestCase(TestCase):
         self.app.post(url, data=dict(content=u"moño", text_type="type1"))
 
         # get what was created, to compare
-        session = self.backend.sm.get_session()
-        created = session.query(backend.Kilink).filter_by(
+        created = self.backend.session.query(backend.Kilink).filter_by(
             kid=klnk.kid, parent=klnk.revno).one()
 
         # compare
@@ -181,8 +178,7 @@ class ServingTestCase(TestCase):
         self.app.post(url, data=dict(content=u"moño", text_type="type2"))
 
         # get what was created, to compare
-        session = self.backend.sm.get_session()
-        created = session.query(backend.Kilink).filter_by(
+        created = self.backend.session.query(backend.Kilink).filter_by(
             kid=klnk.kid, parent=klnk.revno).one()
 
         # compare

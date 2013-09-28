@@ -6,7 +6,6 @@
 """Backend tests."""
 
 import datetime
-import uuid
 
 from unittest import TestCase
 

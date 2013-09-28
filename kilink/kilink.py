@@ -226,6 +226,6 @@ if __name__ == "__main__":
     loghelper.setup_logging(config['log_directory'], verbose=True)
 
     # set up the backend
-    engine = create_engine(config["db_engine"])
+    engine = create_engine(config["db_engine"], echo=True)
     kilinkbackend = backend.KilinkBackend(engine)
     app.run(debug=True, host='0.0.0.0')

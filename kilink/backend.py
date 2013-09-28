@@ -9,15 +9,15 @@ import collections
 import datetime
 import logging
 import operator
-import threading
 import uuid
 import zlib
 
 from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.exc import NoResultFound
 
+# DB stuff
 Base = declarative_base()
 
 # logger
@@ -69,27 +69,19 @@ class Kilink(Base, object):
     content = property(_get_content, _set_content)
 
 
-class SessionManager(object):
-    """Handles the sessions in a multi-threaded environment."""
-
-    def __init__(self, engine):
-        self.engine = engine
-        self._sessions = {}
-
-    def get_session(self):
-        """Return a session for this thread."""
-        thread_id = threading.current_thread().ident
-        logger.debug("Getting session from thread %s", thread_id)
+def session_manager(orig_func):
+    """Decorator to wrap function with the session."""
+    def new_func(self, *a, **k):
+        """Wrappend function to manage DB session."""
+        self.session.begin()
         try:
-            return self._sessions[thread_id]
-        except KeyError:
-            pass
-
-        conn = self.engine.connect()
-        Session = sessionmaker()
-        session = Session(bind=conn)
-        self._sessions[thread_id] = session
-        return session
+            resp = orig_func(self, *a, **k)
+            self.session.commit()
+            return resp
+        except:
+            self.session.rollback()
+            raise
+    return new_func
 
 
 class KilinkBackend(object):
@@ -97,34 +89,33 @@ class KilinkBackend(object):
 
     def __init__(self, db_engine):
         Base.metadata.create_all(db_engine)
-        self.sm = SessionManager(db_engine)
+        Session = scoped_session(sessionmaker(autocommit=True))
+        self.session = Session(bind=db_engine)
 
+    @session_manager
     def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
-        session = self.sm.get_session()
         klnk = Kilink(content=content, text_type=text_type)
-        session.add(klnk)
-        session.commit()
+        self.session.add(klnk)
         return klnk
 
+    @session_manager
     def update_kilink(self, kid, parent, new_content, text_type):
         """Add a new revision to a kilink."""
-        session = self.sm.get_session()
-        search = session.query(Kilink).filter_by(kid=kid, revno=parent)
+        search = self.session.query(Kilink).filter_by(kid=kid, revno=parent)
         if not search.all():
             raise KilinkNotFoundError("Parent kilink not found")
 
         klnk = Kilink(kid=kid, parent=parent,
                       content=new_content, text_type=text_type)
-        session.add(klnk)
-        session.commit()
+        self.session.add(klnk)
         return klnk
 
+    @session_manager
     def get_kilink(self, kid, revno):
         """Get a specific kilink and revision number."""
-        session = self.sm.get_session()
         try:
-            klnk = session.query(Kilink).filter_by(
+            klnk = self.session.query(Kilink).filter_by(
                 kid=kid, revno=revno).one()
         except NoResultFound:
             msg = "Data not found for kilink=%r revno=%r" % (kid, revno)
@@ -132,10 +123,10 @@ class KilinkBackend(object):
 
         return klnk
 
+    @session_manager
     def get_kilink_tree(self, kid):
         """Return all the information about the kilink."""
-        session = self.sm.get_session()
-        klnk_tree = session.query(Kilink).filter_by(kid=kid).all()
+        klnk_tree = self.session.query(Kilink).filter_by(kid=kid).all()
         if len(klnk_tree) == 0:
             raise KilinkNotFoundError("Kilink id not found: %r" % (kid,))
         klnk_tree.sort(key=operator.attrgetter("timestamp", "revno"))
@@ -147,11 +138,11 @@ class KilinkBackend(object):
             result.append(tn)
         return result
 
+    @session_manager
     def get_root_node(self, kid):
         """Return the root node of the kilink."""
-        session = self.sm.get_session()
         try:
-            klnk = session.query(Kilink).filter_by(kid=kid).order_by(
+            klnk = self.session.query(Kilink).filter_by(kid=kid).order_by(
                 Kilink.timestamp).limit(1).one()
         except NoResultFound:
             raise KilinkNotFoundError("Kilink id not found: %r" % (kid,))
