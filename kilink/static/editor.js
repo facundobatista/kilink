@@ -54,6 +54,7 @@ window.onload = function () {
     autoDetection = 0;
     modeInput.value = bmode;
     editor.setOption("mode", bmode);
+    isPython(bmode);
     }
   },1)
 }
@@ -75,6 +76,7 @@ function forkMode(inmode) {
   else{
     autoDetection = 0;
     editor.setOption("mode", cmode);
+    isPython(cmode);
     modeInput.options[0].text = "auto";
   }
 }
@@ -136,10 +138,20 @@ function langLike(lang) {
 function update() {
   var langMode = looksLike(editor.getValue());
   editor.setOption("mode", langMode);
+  isPython(langMode);
   modeInput.options[modeInput.selectedIndex].text = "auto: " + capitalise(langMode);
 }
 
 function capitalise(string)
 {
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function isPython(imode) {
+  if (imode == "python") {
+    editor.setOption("indentUnit", 4);
+  }
+  else{
+    editor.setOption("indentUnit", 2);
+  }
 }
