@@ -8,6 +8,7 @@
         <ul>
             <li><a href="#the_api">The API</a></li>
             <ul>
+                <li><a href="#api-intro">Some introduction</a></li>
                 <li><a href="#api-create">To create a new linkode</a></li>
                 <li><a href="#api-createchild">To create a child of an existing linkode node</a></li>
                 <li><a href="#api-get">To get a specific linkode node</a></li>
@@ -21,6 +22,14 @@
       This is the version 1 of the API.
       <br>
       <br>
+
+<h4 id="api-intro">Some introduction</h4>
+<p>Before getting into the hard definitions, some words to understand better the rest.</p>
+
+<p>The basic idea is: each Linkode can have several revisions. When you create a linkode, and then you add a change, the linkode will be the same, different revisions. Specifically, you will have two nodes, with the same "linkode id", and different "revision numbers".</p>
+
+<p>Every linkode has a root node. When you "create" a new linkode, you'll receive the revision number of that root. After that basic creation, you will be able to add children to the different nodes, specifying the parent revno in the process.</p>
+
       <h4 id="api-create">To create a new linkode</h4>
       <pre>
 - type: POST
