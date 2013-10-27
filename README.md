@@ -53,6 +53,57 @@ How To Try It In Development
     $ ./test
     $ ./run
 
+
+How to traslate
+---------------
+
+Extract the traslations text
+
+    pybabel extract -F babel.cfg -o messages.pot translations
+
+
+Generate a language catalog
+
+    pybabel init -i messages.pot -d translations -l it
+
+
+The command create a .po file in the directory especified by "-d"
+
+    translations/it/LC_MESSAGES/messages.po
+
+You edit this messages.po file and then compile
+
+    pybabel compile -d translations
+
+
+If you add new text, you need to wrapp it with "_" function
+
+In templates:
+
+    <span>{{ _("Text to traslate") }}</span>
+
+In python files:
+
+    from flask.ext.base import gettext as _
+
+    def views():
+        flash( _("Text to traslate") )
+
+Updating translations
+
+    pybabel extract -F babel.cfg -o messages.pot translations
+
+
+Add the language code to available languages in the config.py file
+
+    LANGUAGES = {
+        …
+        'it': 'Italian',
+        …
+    }
+
+[Flask-Babel Tutorial](http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiv-i18n-and-l10n)
+
 How To Deploy With Apache
 -------------------------
 
