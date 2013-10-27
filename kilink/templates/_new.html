@@ -16,7 +16,7 @@
                 rows="8" cols="40">{{value}}</textarea>
 
       <div class='buttons' style="text-align:right">
-        Select a text type:&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
+        {{ _("Select a text type:") }}&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
           <option value="auto" selected>auto</option>
           <option value="c">C</option>
           <option value="c++">C++</option>

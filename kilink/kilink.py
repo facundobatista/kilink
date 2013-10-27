@@ -13,12 +13,15 @@ from flask import (
     render_template,
     request,
 )
+
+from flask_babel import Babel
+from flask_babel import gettext as _
 from sqlalchemy import create_engine
 
 import backend
 import loghelper
 
-from config import config
+from config import (config, LANGUAGES)
 from decorators import crossdomain
 
 # set up flask
@@ -26,6 +29,7 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
+babel = Babel(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
@@ -60,7 +64,7 @@ def index():
     """The base page."""
     render_dict = {
         'value': '',
-        'button_text': 'Create linkode',
+        'button_text': _('Create linkode'),
         'kid_info': '',
         'tree_info': json.dumps(False),
     }
@@ -134,7 +138,7 @@ def show(kid, revno=None):
 
     render_dict = {
         'value': content,
-        'button_text': 'Save new version',
+        'button_text': _('Save new version'),
         'kid_info': "%s/%s" % (kid, revno),
         'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': revno,
@@ -217,6 +221,11 @@ def api_get(kid, revno):
     ret_json = jsonify(content=klnk.content, text_type=klnk.text_type)
     return ret_json
 
+
+@babel.localeselector
+def get_locale():
+    """ Return the best matched language supported """
+    return request.accept_languages.best_match(LANGUAGES.keys())
 
 if __name__ == "__main__":
     # load config

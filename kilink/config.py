@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 """Config management."""
 
 import yaml
@@ -15,3 +17,8 @@ class Config(dict):
         self.update(cfg)
 
 config = Config()
+
+LANGUAGES = {
+    'en': 'English',
+    'es': 'Español',
+}
