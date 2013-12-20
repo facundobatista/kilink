@@ -19,6 +19,6 @@ class Config(dict):
 config = Config()
 
 LANGUAGES = {
-    'en': 'English',
-    'es': 'Español',
+    'en': u'English',
+    'es': u'Español',
 }

@@ -21,7 +21,7 @@ from sqlalchemy import create_engine
 import backend
 import loghelper
 
-from config import (config, LANGUAGES)
+from config import config, LANGUAGES
 from decorators import crossdomain
 
 # set up flask
@@ -224,7 +224,7 @@ def api_get(kid, revno):
 
 @babel.localeselector
 def get_locale():
-    """ Return the best matched language supported """
+    """Return the best matched language supported."""
     return request.accept_languages.best_match(LANGUAGES.keys())
 
 if __name__ == "__main__":
