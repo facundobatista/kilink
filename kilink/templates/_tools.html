@@ -44,13 +44,29 @@
 
       <div class="tabbable"> <!-- Only required for left/right tabs -->
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#tab1" data-toggle="tab">Python</a></li>
-          <li><a href="#tab2" data-toggle="tab">PHP</a></li>
-          <li><a href="#tab3" data-toggle="tab">Java</a></li>
-          <li><a href="#tab4" data-toggle="tab">...</a></li>
+          <li class="active"><a href="#tab11" data-toggle="tab">Python 3 (just stdlib)</a></li>
+          <li><a href="#tab12" data-toggle="tab">Python 2 (using requests)</a></li>
+          <li><a href="#tab17" data-toggle="tab">PHP</a></li>
+          <li><a href="#tab18" data-toggle="tab">Java</a></li>
+          <li><a href="#tab19" data-toggle="tab">...</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane active" id="tab1">
+          <div class="tab-pane active" id="tab11">
+            <pre>
+>>> import json
+>>> from urllib import parse, request
+>>> data = {'content': 'The content for your linkode', 'text_type': 'python'}
+>>> raw = parse.urlencode(data).encode("ascii")
+>>> u = request.urlopen("http://linkode.org/api/1/linkodes/", data=raw)
+>>> u.code
+201
+>>> raw = u.read()
+>>> json.loads(raw.decode("utf8"))
+{'revno': 'BEpK7XUDWluFuvFOmjdBQ2', 'linkode_id': 'RbWZRBGGV5kmmQFcpyX8i6'}
+            </pre>
+
+          </div>
+          <div class="tab-pane" id="tab12">
             <pre>
 In [1]: import requests
 In [2]: data = {'content': u'The content for your linkode', 'text_type': 'python'}
@@ -64,13 +80,13 @@ Out[5]: 201
             </pre>
 
           </div>
-          <div class="tab-pane" id="tab2">
+          <div class="tab-pane" id="tab17">
             <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
-          <div class="tab-pane" id="tab3">
+          <div class="tab-pane" id="tab18">
             <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
-          <div class="tab-pane" id="tab4">
+          <div class="tab-pane" id="tab19">
             <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
         </div>
@@ -91,13 +107,29 @@ Out[5]: 201
 
      <div class="tabbable"> <!-- Only required for left/right tabs -->
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#tab5" data-toggle="tab">Python</a></li>
-          <li><a href="#tab6" data-toggle="tab">PHP</a></li>
-          <li><a href="#tab7" data-toggle="tab">Java</a></li>
-          <li><a href="#tab8" data-toggle="tab">...</a></li>
+          <li class="active"><a href="#tab21" data-toggle="tab">Python 3 (just stdlib)</a></li>
+          <li><a href="#tab22" data-toggle="tab">Python 2 (using requests)</a></li>
+          <li><a href="#tab27" data-toggle="tab">PHP</a></li>
+          <li><a href="#tab28" data-toggle="tab">Java</a></li>
+          <li><a href="#tab29" data-toggle="tab">...</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane active" id="tab5">
+          <div class="tab-pane active" id="tab21">
+            <pre>
+>>> from urllib import parse, request
+>>> import json
+>>> update = {'content': 'new content', 'text_type': 'python', 'parent': 'BEpK7XUDWluFuvFOmjdBQ2'}
+>>> raw = parse.urlencode(update).encode("ascii")
+>>> u = request.urlopen("http://linkode.org/api/1/linkodes/RbWZRBGGV5kmmQFcpyX8i6", data=raw)
+>>> u.code
+201
+>>> raw = u.read()
+>>> json.loads(raw.decode("utf8"))
+{'revno': 'QRHIfvoaGdflbI0bAr6zN4'}
+            </pre>
+
+          </div>
+          <div class="tab-pane" id="tab22">
             <pre>
 In [1]: import requests
 In [2]: update = {'content': u'new content', 'text_type': 'python', 'parent': '796d0e80-a178-44a3-8226-2046768cf6f7'}
@@ -110,13 +142,13 @@ Out[5]: 201
             </pre>
 
           </div>
-          <div class="tab-pane" id="tab6">
+          <div class="tab-pane" id="tab27">
             <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
-          <div class="tab-pane" id="tab7">
+          <div class="tab-pane" id="tab28">
             <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
-          <div class="tab-pane" id="tab8">
+          <div class="tab-pane" id="tab29">
             <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
         </div>
@@ -136,13 +168,27 @@ Out[5]: 201
 
      <div class="tabbable"> <!-- Only required for left/right tabs -->
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#tab9" data-toggle="tab">Python</a></li>
-          <li><a href="#tab10" data-toggle="tab">PHP</a></li>
-          <li><a href="#tab11" data-toggle="tab">Java</a></li>
-          <li><a href="#tab12" data-toggle="tab">...</a></li>
+          <li class="active"><a href="#tab31" data-toggle="tab">Python 3 (just stdlib)</a></li>
+          <li><a href="#tab32" data-toggle="tab">Python 2 (using requests)</a></li>
+          <li><a href="#tab37" data-toggle="tab">PHP</a></li>
+          <li><a href="#tab38" data-toggle="tab">Java</a></li>
+          <li><a href="#tab39" data-toggle="tab">...</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane active" id="tab9">
+          <div class="tab-pane active" id="tab31">
+            <pre>
+>>> from urllib import request
+>>> import json
+>>> u = request.urlopen("http://linkode.org/api/1/linkodes/RbWZRBGGV5kmmQFcpyX8i6/QRHIfvoaGdflbI0bAr6zN4")
+>>> u.code
+200
+>>> raw = u.read()
+>>> json.loads(raw.decode("utf8"))
+{'text_type': 'python', 'content': 'new content'}
+            </pre>
+
+          </div>
+          <div class="tab-pane" id="tab32">
             <pre>
 In [1]: import requests
 In [2]: r = requests.get("http://linkode.org/api/1/linkodes/a5bdba03-82fd-4e89-a2db-1f4deb68d070/ca8aa7a1-59e8-491c-9025-363f1fd7b908")
@@ -154,13 +200,13 @@ Out[4]: 200
             </pre>
 
           </div>
-          <div class="tab-pane" id="tab10">
+          <div class="tab-pane" id="tab37">
             <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
-          <div class="tab-pane" id="tab11">
+          <div class="tab-pane" id="tab38">
             <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
-          <div class="tab-pane" id="tab12">
+          <div class="tab-pane" id="tab39">
             <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
         </div>
