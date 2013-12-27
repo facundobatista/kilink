@@ -1,11 +1,15 @@
 # encoding: utf8
 
+# Copyright 2011-2013 Facundo Batista, Nicolás César
+# All Rigths Reserved
+
 """API tests."""
 
 import json
 
 from unittest import TestCase
 
+from mock import patch
 from sqlalchemy import create_engine
 
 from kilink import kilink, backend
@@ -50,7 +54,10 @@ class ApiTestCase(BaseTestCase):
         content = u'Moñooo()?¿'
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
-        resp = self.api_create(data=datos)
+
+        with patch.object(kilink, "metrics"):
+            resp = self.api_create(data=datos)
+            kilink.metrics.count.assert_called_with("api.create", 1)
 
         klnk = self.backend.get_kilink(resp["linkode_id"], resp["revno"])
         self.assertEqual(klnk.content, content)
@@ -78,7 +85,9 @@ class ApiTestCase(BaseTestCase):
             'parent': revno0,
             'text_type': 'type2',
         }
-        resp = self.api_update(kid, data=child_content)
+        with patch.object(kilink, "metrics"):
+            resp = self.api_update(kid, data=child_content)
+            kilink.metrics.count.assert_called_with("api.update", 1)
         revno1 = resp["revno"]
 
         klnk = self.backend.get_kilink(kid, revno1)
@@ -104,6 +113,10 @@ class ApiTestCase(BaseTestCase):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
-        resp = self.api_get(resp['linkode_id'], resp['revno'])
+
+        with patch.object(kilink, "metrics"):
+            resp = self.api_get(resp['linkode_id'], resp['revno'])
+            kilink.metrics.count.assert_called_with("api.get", 1)
+
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")

@@ -1,6 +1,6 @@
 # encoding: utf8
 
-# Copyright 2011 Facundo Batista, Nicolás César
+# Copyright 2011-2013 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Some tests for the serving part."""
@@ -72,7 +72,9 @@ class ServingTestCase(TestCase):
     def test_serving_base(self):
         """Serving a kilink, base."""
         klnk = self.backend.create_kilink("content", "type1")
-        self.app.get("/%s" % (klnk.kid,))
+        with patch.object(kilink, "metrics"):
+            self.app.get("/%s" % (klnk.kid,))
+            kilink.metrics.count.assert_called_with("server.show", 1)
 
         tree = dict(
             contents=[],
@@ -127,7 +129,9 @@ class ServingTestCase(TestCase):
 
     def test_create(self):
         """Create a kilink."""
-        self.app.post("/", data=dict(content="content", text_type="type1"))
+        with patch.object(kilink, "metrics"):
+            self.app.post("/", data=dict(content="content", text_type="type1"))
+            kilink.metrics.count.assert_called_with("server.create", 1)
 
         # get what was created, to compare
         created = self.backend.session.query(backend.Kilink).one()
@@ -157,7 +161,9 @@ class ServingTestCase(TestCase):
         klnk = self.backend.create_kilink("content", "")
 
         url = "/%s" % (klnk.kid,)
-        self.app.post(url, data=dict(content=u"moño", text_type="type1"))
+        with patch.object(kilink, "metrics"):
+            self.app.post(url, data=dict(content=u"moño", text_type="type1"))
+            kilink.metrics.count.assert_called_with("server.update", 1)
 
         # get what was created, to compare
         created = self.backend.session.query(backend.Kilink).filter_by(

@@ -1,7 +1,11 @@
+# Copyright 2011-2013 Facundo Batista
+# All Rigths Reserved
+
 """The server and main app for kilink."""
 
 import json
 import logging
+import time
 
 from functools import update_wrapper
 
@@ -23,6 +27,7 @@ import loghelper
 
 from config import config, LANGUAGES
 from decorators import crossdomain
+from metrics import StatsdClient
 
 # set up flask
 app = Flask(__name__)
@@ -33,6 +38,9 @@ babel = Babel(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
+
+# metrics
+metrics = StatsdClient("linkode")
 
 
 def nocache(f):
@@ -45,14 +53,38 @@ def nocache(f):
     return update_wrapper(new_func, f)
 
 
+def measure(metric_name):
+    """Decorator generator to send metrics counting and with timing."""
+
+    def _decorator(oldf):
+        """The decorator itself."""
+
+        def newf(*args, **kwargs):
+            """The function to replace."""
+            tini = time.time()
+            result = oldf(*args, **kwargs)
+            tdelta = time.time() - tini
+
+            metrics.count(metric_name, 1)
+            metrics.timing(metric_name, tdelta)
+            return result
+
+        # need to fix the name because it's used by flask
+        newf.func_name = oldf.func_name
+        return newf
+    return _decorator
+
+
 # accesory pages
 @app.route('/about')
+@measure("about")
 def about():
     """Show the about page."""
     return render_template('_about.html')
 
 
 @app.route('/tools')
+@measure("tools")
 def tools():
     """Show the tools page."""
     return render_template('_tools.html')
@@ -60,6 +92,7 @@ def tools():
 
 # views
 @app.route('/')
+@measure("index")
 def index():
     """The base page."""
     render_dict = {
@@ -72,6 +105,7 @@ def index():
 
 
 @app.route('/', methods=['POST'])
+@measure("server.create")
 def create():
     """Create a kilink."""
     content = request.form['content']
@@ -87,6 +121,7 @@ def create():
 
 @app.route('/<kid>', methods=['POST'])
 @app.route('/<kid>/<parent>', methods=['POST'])
+@measure("server.update")
 def update(kid, parent=None):
     """Update a kilink."""
     content = request.form['content']
@@ -108,6 +143,7 @@ def update(kid, parent=None):
 @app.route('/l/<kid>')
 @app.route('/l/<kid>/<revno>')
 @nocache
+@measure("server.show")
 def show(kid, revno=None):
     """Show the kilink content"""
     # get the content
@@ -166,6 +202,7 @@ def build_tree(nodes):
 #API
 @app.route('/api/1/linkodes/', methods=['POST'])
 @crossdomain(origin='*')
+@measure("api.create")
 def api_create():
     """Create a kilink."""
     content = request.form['content']
@@ -182,6 +219,7 @@ def api_create():
 
 @app.route('/api/1/linkodes/<kid>', methods=['POST'])
 @crossdomain(origin='*')
+@measure("api.update")
 def api_update(kid):
     """Update a kilink."""
     content = request.form['content']
@@ -206,6 +244,7 @@ def api_update(kid):
 
 @app.route('/api/1/linkodes/<kid>/<revno>', methods=['GET'])
 @crossdomain(origin='*')
+@measure("api.get")
 def api_get(kid, revno):
     """Get the kilink and revno content"""
     logger.debug("API get; kid=%r revno=%r", kid, revno)
@@ -226,6 +265,7 @@ def api_get(kid, revno):
 def get_locale():
     """Return the best matched language supported."""
     return request.accept_languages.best_match(LANGUAGES.keys())
+
 
 if __name__ == "__main__":
     # load config
