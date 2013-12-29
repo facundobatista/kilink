@@ -62,12 +62,18 @@ def measure(metric_name):
         def newf(*args, **kwargs):
             """The function to replace."""
             tini = time.time()
-            result = oldf(*args, **kwargs)
-            tdelta = time.time() - tini
+            try:
+                result = oldf(*args, **kwargs)
+            except Exception, exc:
+                name = "%s.error.%s" % (metric_name, exc.__class__.__name__)
+                metrics.count(name, 1)
+                raise
+            else:
+                tdelta = time.time() - tini
 
-            metrics.count(metric_name, 1)
-            metrics.timing(metric_name, tdelta)
-            return result
+                metrics.count(metric_name + '.ok', 1)
+                metrics.timing(metric_name, tdelta)
+                return result
 
         # need to fix the name because it's used by flask
         newf.func_name = oldf.func_name

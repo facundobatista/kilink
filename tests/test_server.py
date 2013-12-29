@@ -74,7 +74,7 @@ class ServingTestCase(TestCase):
         klnk = self.backend.create_kilink("content", "type1")
         with patch.object(kilink, "metrics"):
             self.app.get("/%s" % (klnk.kid,))
-            kilink.metrics.count.assert_called_with("server.show", 1)
+            kilink.metrics.count.assert_called_with("server.show.ok", 1)
 
         tree = dict(
             contents=[],
@@ -131,7 +131,7 @@ class ServingTestCase(TestCase):
         """Create a kilink."""
         with patch.object(kilink, "metrics"):
             self.app.post("/", data=dict(content="content", text_type="type1"))
-            kilink.metrics.count.assert_called_with("server.create", 1)
+            kilink.metrics.count.assert_called_with("server.create.ok", 1)
 
         # get what was created, to compare
         created = self.backend.session.query(backend.Kilink).one()
@@ -163,7 +163,7 @@ class ServingTestCase(TestCase):
         url = "/%s" % (klnk.kid,)
         with patch.object(kilink, "metrics"):
             self.app.post(url, data=dict(content=u"moño", text_type="type1"))
-            kilink.metrics.count.assert_called_with("server.update", 1)
+            kilink.metrics.count.assert_called_with("server.update.ok", 1)
 
         # get what was created, to compare
         created = self.backend.session.query(backend.Kilink).filter_by(
