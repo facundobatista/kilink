@@ -24,7 +24,7 @@
       <br>
 
 <h4 id="api-intro">Some introduction</h4>
-<p>Before getting into the hard definitions, some words to understand better the rest.</p>
+<p>Before getting into the hard definitions, here are some words to help you understand the rest better.</p>
 
 <p>The basic idea is: each Linkode can have several revisions. When you create a linkode, and then you add a change, the linkode will be the same, different revisions. Specifically, you will have two nodes, with the same "linkode id", and different "revision numbers".</p>
 
@@ -39,7 +39,7 @@
     text_type: the type of the content (plain text, Python, diff, C, etc.) [optional]
 - returns:
     linkode_id: the unique id of the new linkode
-    revno: the revision number of it's root node
+    revno: the revision number of its root node
       </pre>
 
       <div class="tabbable"> <!-- Only required for left/right tabs -->
@@ -162,7 +162,7 @@ Out[5]: 201
 - url: /api/1/linkodes/&lt;linkode_id&gt;/<revno>
 - returns:
     linkode_id: the unique id of the new linkode
-    revno: the revision number of it's root node
+    revno: the revision number of its root node
       </pre>
 
 
@@ -219,6 +219,6 @@ Out[4]: 200
    - type: GET
    - url: /api/1/linkodes/&lt;linkode_id&gt;
       </pre>
-      As we don't know if the "get all the tree of a linkode" it's going to be used, it's not implemented yet. But will have the previous API ;-)
+      As we don't know if the "get all the tree of a linkode" is going to be used, it has not been implemented yet, but it will have the API above ;-)
 
 {% endblock %}
