@@ -206,13 +206,16 @@ def build_tree(nodes):
 
 
 #API
-@app.route('/api/1/linkodes/', methods=['POST'])
-@crossdomain(origin='*')
+@app.route('/api/1/linkodes/', methods=['POST', 'OPTIONS'])
+@crossdomain(origin='*', headers="Content-Type")
 @measure("api.create")
 def api_create():
     """Create a kilink."""
-    content = request.form['content']
+    content = request.form.get('content', "")
     text_type = request.form.get('text_type', "")
+    print ">> %s" % (content)
+    print ">> %s" % (text_type)
+    print request.data
     logger.debug("API create start; type=%r size=%d", text_type, len(content))
     klnk = kilinkbackend.create_kilink(content, text_type)
     ret_json = jsonify(linkode_id=klnk.kid, revno=klnk.revno)
@@ -223,8 +226,8 @@ def api_create():
     return response, 201
 
 
-@app.route('/api/1/linkodes/<kid>', methods=['POST'])
-@crossdomain(origin='*')
+@app.route('/api/1/linkodes/', methods=['POST', 'OPTIONS'])
+@crossdomain(origin='*', headers="Content-Type")
 @measure("api.update")
 def api_update(kid):
     """Update a kilink."""
@@ -248,7 +251,7 @@ def api_update(kid):
     return response, 201
 
 
-@app.route('/api/1/linkodes/<kid>/<revno>', methods=['GET'])
+@app.route('/api/1/linkodes/<kid>/<revno>', methods=['GET', 'OPTIONS'])
 @crossdomain(origin='*')
 @measure("api.get")
 def api_get(kid, revno):
@@ -261,9 +264,24 @@ def api_get(kid, revno):
         response = make_response()
         return response, 404
 
+    node_list = []
+    for treenode in kilinkbackend.get_kilink_tree(kid):
+        url = "/%s/%s" % (kid, treenode.revno)
+        parent = treenode.parent
+        node_list.append({
+            'order': treenode.order,
+            'parent': parent,
+            'revno': treenode.revno,
+            'url': url,
+            'timestamp': str(treenode.timestamp),
+            'selected': treenode.revno == revno,
+        })
+
+    tree = build_tree(node_list)
+
     logger.debug("API get done; type=%r size=%d",
                  klnk.text_type, len(klnk.content))
-    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type)
+    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type, node_tree=tree)
     return ret_json
 
 
