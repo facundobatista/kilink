@@ -39,9 +39,12 @@ class BaseTestCase(TestCase):
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
-    def api_get(self, kid, revno, code=200):
+    def api_get(self, kid, revno=None, code=200):
         """Helper to hit the api to get."""
-        url = "/api/1/linkodes/%s/%s" % (kid, revno)
+        if revno is None:
+            url = "/api/1/linkodes/%s" % (kid,)
+        else:
+            url = "/api/1/linkodes/%s/%s" % (kid, revno)
         r = self.app.get(url)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
@@ -132,6 +135,18 @@ class ApiTestCase(BaseTestCase):
 
         with patch.object(kilink, "metrics"):
             resp = self.api_get(resp['linkode_id'], resp['revno'])
+            kilink.metrics.count.assert_called_with("api.get.ok", 1)
+
+        self.assertEqual(resp["content"], u"ÑOÑO")
+        self.assertEqual(resp["text_type"], u"type")
+
+    def test_get_norevno(self):
+        """Get a kilink and revno content."""
+        content = {'content': u'ÑOÑO', 'text_type': 'type'}
+        resp = self.api_create(data=content)
+
+        with patch.object(kilink, "metrics"):
+            resp = self.api_get(resp['linkode_id'])
             kilink.metrics.count.assert_called_with("api.get.ok", 1)
 
         self.assertEqual(resp["content"], u"ÑOÑO")

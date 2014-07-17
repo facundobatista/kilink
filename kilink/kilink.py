@@ -249,11 +249,15 @@ def api_update(kid):
 
 
 @app.route('/api/1/linkodes/<kid>/<revno>', methods=['GET'])
+@app.route('/api/1/linkodes/<kid>', methods=['GET'])
 @crossdomain(origin='*')
 @measure("api.get")
-def api_get(kid, revno):
+def api_get(kid, revno=None):
     """Get the kilink and revno content"""
     logger.debug("API get; kid=%r revno=%r", kid, revno)
+    if revno is None:
+        klnk = kilinkbackend.get_root_node(kid)
+        revno = klnk.revno
     try:
         klnk = kilinkbackend.get_kilink(kid, revno)
     except backend.KilinkNotFoundError:
