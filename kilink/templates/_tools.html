@@ -46,6 +46,7 @@
         <ul class="nav nav-tabs">
           <li class="active"><a href="#tab11" data-toggle="tab">Python 3 (just stdlib)</a></li>
           <li><a href="#tab12" data-toggle="tab">Python 2 (using requests)</a></li>
+          <li><a href="#tab13" data-toggle="tab">Javascript (with jQuery)</a></li>
           <li><a href="#tab17" data-toggle="tab">PHP</a></li>
           <li><a href="#tab18" data-toggle="tab">Java</a></li>
           <li><a href="#tab19" data-toggle="tab">...</a></li>
@@ -80,6 +81,22 @@ Out[5]: 201
             </pre>
 
           </div>
+          <div class="tab-pane" id="tab13">
+            <div class="tab-pane" id="tab13">
+                <pre>
+$.post(
+    'http://linkode.org/api/1/linkodes/',
+    {
+        'content': 'The content for your linkode',
+        'text_type': 'javascript'
+    },
+    function(data) {
+        console.log(data);
+});
+>> Object { linkode_id="etGrenFvoib6HLY2jnkQr4", revno="JNxQG6PIJyqlrcjHdYtgt3"}
+                </pre>
+            </div>
+          </div>
           <div class="tab-pane" id="tab17">
             <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
           </div>
@@ -109,6 +126,7 @@ Out[5]: 201
         <ul class="nav nav-tabs">
           <li class="active"><a href="#tab21" data-toggle="tab">Python 3 (just stdlib)</a></li>
           <li><a href="#tab22" data-toggle="tab">Python 2 (using requests)</a></li>
+          <li><a href="#tab23" data-toggle="tab">Javascript (with jQuery)</a></li>
           <li><a href="#tab27" data-toggle="tab">PHP</a></li>
           <li><a href="#tab28" data-toggle="tab">Java</a></li>
           <li><a href="#tab29" data-toggle="tab">...</a></li>
@@ -140,7 +158,23 @@ Out[4]:
 In [5]: r.status_code
 Out[5]: 201
             </pre>
-
+          </div>
+          <div class="tab-pane" id="tab23">
+            <div class="tab-pane" id="tab23">
+                <pre>
+$.post(
+    'http://linkode.org/api/1/linkodes/etGrenFvoib6HLY2jnkQr4',
+    {
+        'content': 'New Content',
+        'text_type': 'javascript',
+        'parent': 'JNxQG6PIJyqlrcjHdYtgt3'
+    },
+    function(data) {
+        console.log(data);
+});
+>> Object { revno="dB5VdK2n212ilyOr5tmFq7"}
+                </pre>
+            </div>
           </div>
           <div class="tab-pane" id="tab27">
             <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
@@ -170,6 +204,7 @@ Out[5]: 201
         <ul class="nav nav-tabs">
           <li class="active"><a href="#tab31" data-toggle="tab">Python 3 (just stdlib)</a></li>
           <li><a href="#tab32" data-toggle="tab">Python 2 (using requests)</a></li>
+          <li><a href="#tab33" data-toggle="tab">Javascript (with jQuery)</a></li>
           <li><a href="#tab37" data-toggle="tab">PHP</a></li>
           <li><a href="#tab38" data-toggle="tab">Java</a></li>
           <li><a href="#tab39" data-toggle="tab">...</a></li>
@@ -199,6 +234,17 @@ In [4]: r.status_code
 Out[4]: 200
             </pre>
 
+          </div>
+          <div class="tab-pane" id="tab33">
+            <pre>
+$.get(
+    'http://linkode.org/api/1/linkodes/etGrenFvoib6HLY2jnkQr4/dB5VdK2n212ilyOr5tmFq7',
+    function(data) {
+        console.log(data);
+    }
+);
+>> Object { content="New Content", text_type="javascript"}
+            </pre>
           </div>
           <div class="tab-pane" id="tab37">
             <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
