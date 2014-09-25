@@ -177,3 +177,10 @@ And paste this:
     </VirtualHost>
     
 Restart Apache and Enjoy!
+
+
+Clients
+-------
+
+- **GUI**, Graphical/Grafico: https://github.com/juancarlospaco/linkode-gui#linkode-gui
+- **CLI**, Command Line/Linea de Comando: https://github.com/humitos/linkodeit#linkodeit
