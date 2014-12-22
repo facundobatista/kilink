@@ -16,6 +16,21 @@ from kilink import kilink, backend
 from kilink.config import config
 
 
+class _ANY(object):
+    "A helper object that compares equal to everything."
+
+    def __eq__(self, other):
+        return True
+
+    def __ne__(self, other):
+        return False
+
+    def __repr__(self):
+        return '<ANY>'
+
+anything = _ANY()
+
+
 class BaseTestCase(TestCase):
     """Base for all test using a API."""
     def setUp(self):
@@ -52,6 +67,7 @@ class BaseTestCase(TestCase):
 
 class ApiTestCase(BaseTestCase):
     """Tests for API kilink creation and updating."""
+    maxDiff = None
 
     def test_create_simple(self):
         """Simple create."""
@@ -133,21 +149,95 @@ class ApiTestCase(BaseTestCase):
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
 
+        kid = resp['linkode_id']
+        revno = resp['revno']
         with patch.object(kilink, "metrics"):
-            resp = self.api_get(resp['linkode_id'], resp['revno'])
+            resp = self.api_get(kid, revno)
             kilink.metrics.count.assert_called_with("api.get.ok", 1)
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
+        self.assertEqual(resp['tree'], {
+            u'revno': revno,
+            u'timestamp': anything,
+            u'parent': None,
+            u'url': "/{}/{}".format(kid, revno),
+            u'selected': True,
+            u'order': 1,
+            u'contents': [],
+        })
 
     def test_get_norevno(self):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
+        kid = resp['linkode_id']
+        revno = resp['revno']
 
         with patch.object(kilink, "metrics"):
-            resp = self.api_get(resp['linkode_id'])
+            resp = self.api_get(kid)
             kilink.metrics.count.assert_called_with("api.get.ok", 1)
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
+        self.assertEqual(resp['tree'], {
+            u'revno': revno,
+            u'timestamp': anything,
+            u'parent': None,
+            u'url': "/{}/{}".format(kid, revno),
+            u'selected': True,
+            u'order': 1,
+            u'contents': [],
+        })
+
+    def test_tree(self):
+        """Get a good tree when getting a node."""
+
+        resp = self.api_create(data={'content': "content 0", 'text_type': ''})
+        kid = resp['linkode_id']
+        root_revno = resp['revno']
+
+        resp = self.api_update(kid=kid, data={'content': "content 1", 'text_type': '', 'parent': root_revno})
+        child1_revno = resp['revno']
+
+        resp = self.api_update(kid=kid, data={'content': "content 11", 'text_type': '', 'parent': child1_revno})
+        child11_revno = resp['revno']
+
+        resp = self.api_update(kid=kid, data={'content': "content 2", 'text_type': '', 'parent': root_revno})
+        child2_revno = resp['revno']
+
+        # get the info
+        resp = self.api_get(kid)
+        self.assertEqual(resp['tree'], {
+            u'revno': root_revno,
+            u'parent': None,
+            u'url': "/{}/{}".format(kid, root_revno),
+            u'timestamp': anything,
+            u'selected': True,
+            u'order': 1,
+            u'contents': [{
+                u'revno': child1_revno,
+                u'parent': root_revno,
+                u'url': "/{}/{}".format(kid, child1_revno),
+                u'timestamp': anything,
+                u'selected': False,
+                u'order': 2,
+                u'contents': [{
+                    u'revno': child11_revno,
+                    u'parent': child1_revno,
+                    u'url': "/{}/{}".format(kid, child11_revno),
+                    u'timestamp': anything,
+                    u'selected': False,
+                    u'order': 3,
+                    u'contents': []
+                }],
+            }, {
+                u'revno': child2_revno,
+                u'parent': root_revno,
+                u'url': "/{}/{}".format(kid, child2_revno),
+                u'timestamp': anything,
+                u'selected': False,
+                u'order': 4,
+                u'contents': [],
+            }]
+        })

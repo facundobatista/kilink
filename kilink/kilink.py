@@ -162,21 +162,8 @@ def show(kid, revno=None):
     content = klnk.content
     text_type = klnk.text_type
 
-    # node list
-    node_list = []
-    for treenode in kilinkbackend.get_kilink_tree(kid):
-        url = "/%s/%s" % (kid, treenode.revno)
-        parent = treenode.parent
-        node_list.append({
-            'order': treenode.order,
-            'parent': parent,
-            'revno': treenode.revno,
-            'url': url,
-            'timestamp': str(treenode.timestamp),
-            'selected': treenode.revno == revno,
-        })
-
-    tree = build_tree(node_list)
+    # get the tree
+    tree, nodeq = build_tree(kid, revno)
 
     render_dict = {
         'value': content,
@@ -186,12 +173,25 @@ def show(kid, revno=None):
         'current_revno': revno,
         'text_type': text_type,
     }
-    logger.debug("Show done; quantity=%d", len(node_list))
+    logger.debug("Show done; quantity=%d", nodeq)
     return render_template('_new.html', **render_dict)
 
 
-def build_tree(nodes):
-    """ Build tree for 3djs """
+def build_tree(kid, revno):
+    """Build the tree for a given kilink id."""
+    nodes = []
+    for treenode in kilinkbackend.get_kilink_tree(kid):
+        url = "/%s/%s" % (kid, treenode.revno)
+        parent = treenode.parent
+        nodes.append({
+            'order': treenode.order,
+            'parent': parent,
+            'revno': treenode.revno,
+            'url': url,
+            'timestamp': str(treenode.timestamp),
+            'selected': treenode.revno == revno,
+        })
+
     root = [n for n in nodes if n['parent'] is None][0]
     fringe = [root, ]
 
@@ -202,7 +202,7 @@ def build_tree(nodes):
         node['contents'] = children
         fringe.extend(children)
 
-    return root
+    return root, len(nodes)
 
 
 #API
@@ -265,9 +265,13 @@ def api_get(kid, revno=None):
         response = make_response()
         return response, 404
 
-    logger.debug("API get done; type=%r size=%d",
-                 klnk.text_type, len(klnk.content))
-    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type)
+    # get the tree
+    tree, nodeq = build_tree(kid, revno)
+
+    logger.debug("API get done; type=%r size=%d len_tree=%d",
+                 klnk.text_type, len(klnk.content), nodeq)
+    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
+                       tree=tree)
     return ret_json
 
 
