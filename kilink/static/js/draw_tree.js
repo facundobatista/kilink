@@ -90,4 +90,10 @@ $(document).ready(function(){
     if (node_list !== false) {
         create_tree();
     }
+    $.each($('g .node'), function() {
+        $(this).tooltipster({
+            content:"See the version number " + $(this).find('text').text(),
+            trigger: 'hover',
+        });
+    });
 })
