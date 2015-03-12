@@ -28,6 +28,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   tabMode: "indent",
   autofocus: true,
+  viewportMargin: Infinity,
   extraKeys: {
         "F11": function(cm) {
           setFullScreen(cm, !isFullScreen(cm));
