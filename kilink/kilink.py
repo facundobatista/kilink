@@ -34,6 +34,7 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
+app.config["PROPAGATE_EXCEPTIONS"] = False
 babel = Babel(app)
 
 # logger
@@ -286,7 +287,11 @@ if __name__ == "__main__":
     config.load_file("configs/development.yaml")
 
     # log setup
-    loghelper.setup_logging(config['log_directory'], verbose=True)
+    handlers = loghelper.setup_logging(config['log_directory'], verbose=True)
+    for h in handlers:
+        app.logger.addHandler(h)
+        h.setLevel(logging.DEBUG)
+    app.logger.setLevel(logging.DEBUG)
 
     # set up the backend
     engine = create_engine(config["db_engine"], echo=True)

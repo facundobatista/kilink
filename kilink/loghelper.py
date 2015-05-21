@@ -56,3 +56,4 @@ def setup_logging(logdir, verbose=False):
         logger = logging.getLogger('kilink')
         if not logger.handlers:
             _setup(logdir, verbose)
+    return logger.handlers
