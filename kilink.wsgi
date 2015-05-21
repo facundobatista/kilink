@@ -24,7 +24,7 @@ auth_data = dict(zip(("user", "pass"), vals))
 engine_data = config["db_engine"].format(**auth_data)
 
 # log setup
-helpers = loghelper.setup_logging(config['log_directory'])
+handlers = loghelper.setup_logging(config['log_directory'])
 for h in handlers:
     kilink.app.logger.addHandler(h)
 
