@@ -192,3 +192,11 @@ class ServingTestCase(TestCase):
         self.assertEqual(created.text_type, "type2")
         url = "/%s/%s" % (created.kid, created.revno)
         self.mocked_redirect.assert_called_once_with(url, code=303)
+
+    def test_invalid_base(self):
+        self.app.get('/invalid')
+        self.mocked_render.assert_called_once_with("_404.html")
+
+    def test_invalid_klnk(self):
+        self.app.get('/invalid/123')
+        self.mocked_render.assert_called_once_with("_404.html")

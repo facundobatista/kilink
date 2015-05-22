@@ -259,12 +259,8 @@ def api_get(kid, revno=None):
     if revno is None:
         klnk = kilinkbackend.get_root_node(kid)
         revno = klnk.revno
-    try:
+    else:
         klnk = kilinkbackend.get_kilink(kid, revno)
-    except backend.KilinkNotFoundError:
-        logger.debug("API get; kid %r not found", kid)
-        response = make_response()
-        return response, 404
 
     # get the tree
     tree, nodeq = build_tree(kid, revno)
@@ -274,6 +270,17 @@ def api_get(kid, revno=None):
     ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
                        tree=tree)
     return ret_json
+
+
+@app.errorhandler(backend.KilinkNotFoundError)
+def handle_not_found_error(error):
+    """Return 404 on kilink not found"""
+    if request.url_rule.endpoint.startswith('api_'):
+        response = jsonify({'message': error.message})
+    else:
+        response = render_template('_404.html')
+
+    return response, 404
 
 
 @babel.localeselector
