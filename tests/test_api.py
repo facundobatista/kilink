@@ -241,3 +241,10 @@ class ApiTestCase(BaseTestCase):
                 u'contents': [],
             }]
         })
+
+    def test_invalid_kilink(self):
+        resp_klnk = self.api_get('invalid', revno=1, code=404)
+        resp_base = self.api_get('invalid', code=404)
+
+        self.assertIn('message', resp_base)
+        self.assertIn('message', resp_klnk)
