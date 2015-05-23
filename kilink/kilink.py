@@ -280,6 +280,7 @@ def handle_not_found_error(error):
     else:
         response = render_template('_404.html')
 
+    logger.debug(error.message)
     return response, 404
 
 
