@@ -1,7 +1,7 @@
 Kilink
 ======
 
-Kilink is the useful pastebin! 
+Linkode is the useful pastebin!
 
 It's a kind of "short living collaboration space", a "dynamic pastebin".
 
