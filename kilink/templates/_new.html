@@ -65,41 +65,41 @@
   </div>
 </div>
 
-
-    <script src="{{ url_for('static', filename='lib/d3.min.js') }}"></script>
-    <script src="/static/lib/codemirror.js"></script>
-    <script src="{{ url_for('static', filename='js/placeholder.js') }}"></script>
-    <script src='/static/mode/clike/clike.js'></script>
-    <script src='/static/mode/clojure/clojure.js'></script>
-    <script src='/static/mode/coffeescript/coffeescript.js'></script>
-    <script src='/static/mode/css/css.js'></script>
-    <script src='/static/mode/d/d.js'></script>
-    <script src='/static/mode/diff/diff.js'></script>
-    <script src='/static/mode/erlang/erlang.js'></script>
-    <script src='/static/mode/go/go.js'></script>
-    <script src='/static/mode/haskell/haskell.js'></script>
-    <script src='/static/mode/htmlmixed/htmlmixed.js'></script>
-    <script src='/static/mode/http/http.js'></script>
-    <script src='/static/mode/javascript/javascript.js'></script>
-    <script src='/static/mode/lua/lua.js'></script>
-    <script src='/static/mode/markdown/markdown.js'></script>
-    <script src='/static/mode/php/php.js'></script>
-    <script src='/static/mode/perl/perl.js'></script>
-    <script src='/static/mode/python/python.js'></script>
-    <script src='/static/mode/r/r.js'></script>
-    <script src='/static/mode/ruby/ruby.js'></script>
-    <script src='/static/mode/rust/rust.js'></script>
-    <script src='/static/mode/shell/shell.js'></script>
-    <script src='/static/mode/smalltalk/smalltalk.js'></script>
-    <script src='/static/mode/sql/sql.js'></script>
-    <script src='/static/mode/stex/stex.js'></script>
-    <script src='/static/mode/vbscript/vbscript.js'></script>
-    <script src='/static/mode/xml/xml.js'></script>
-    <script src="/static/js/highlight.js/highlight.pack.js"></script>
-    <script src='/static/editor.js'></script>
-
-    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static',
-        filename='js/draw_tree.js') }}"></script>
+{% assets filters="jsmin", output="js/bundle-new.js",
+          "lib/d3.min.js",
+          "lib/codemirror.js",
+          "js/placeholder.js",
+          "mode/clike/clike.js",
+          "mode/clojure/clojure.js",
+          "mode/coffeescript/coffeescript.js",
+          "mode/css/css.js",
+          "mode/d/d.js",
+          "mode/diff/diff.js",
+          "mode/erlang/erlang.js",
+          "mode/go/go.js",
+          "mode/haskell/haskell.js",
+          "mode/htmlmixed/htmlmixed.js",
+          "mode/http/http.js",
+          "mode/javascript/javascript.js",
+          "mode/lua/lua.js",
+          "mode/markdown/markdown.js",
+          "mode/php/php.js",
+          "mode/perl/perl.js",
+          "mode/python/python.js",
+          "mode/r/r.js",
+          "mode/ruby/ruby.js",
+          "mode/rust/rust.js",
+          "mode/shell/shell.js",
+          "mode/smalltalk/smalltalk.js",
+          "mode/sql/sql.js",
+          "mode/stex/stex.js",
+          "mode/vbscript/vbscript.js",
+          "mode/xml/xml.js",
+          "js/highlight.js/highlight.pack.js",
+          "editor.js",
+          "js/main.js",
+          "js/draw_tree.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 
 {% endblock %}
