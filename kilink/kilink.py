@@ -18,6 +18,7 @@ from flask import (
     request,
 )
 
+from flask.ext.assets import Environment
 from flask_babel import Babel
 from flask_babel import gettext as _
 from sqlalchemy import create_engine
@@ -36,6 +37,10 @@ app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
 babel = Babel(app)
+
+# flask-assets
+assets = Environment(app)
+assets.init_app(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
