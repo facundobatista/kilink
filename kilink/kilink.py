@@ -33,14 +33,10 @@ from metrics import StatsdClient
 # set up flask
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config["STATIC_URL"] = 'static'
-app.config["STATIC_ROOT"] = 'static'
-app.config["PROPAGATE_EXCEPTIONS"] = False
 babel = Babel(app)
 
 # flask-assets
 assets = Environment(app)
-assets.init_app(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
@@ -297,7 +293,7 @@ def get_locale():
 
 if __name__ == "__main__":
     # load config
-    config.load_file("configs/development.yaml")
+    config.load()
 
     # log setup
     handlers = loghelper.setup_logging(config['log_directory'], verbose=True)

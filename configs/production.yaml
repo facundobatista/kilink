@@ -1,6 +1,14 @@
-# Kilink configuration for production environment
+# Sample Kilink configuration for production environments
+extends: base.yaml
 
 server_host: linkode.org
-db_engine: postgresql+psycopg2://{user}:{pass}@localhost/kilink
-db_auth_config: configs/db_auth.txt
+db_user: override_me
+db_pass: override_me
+db_host: localhost
+db_name: kilink
+db_engine: postgresql+psycopg2://{{ db_user }}:{{ db_pass }}@{{ db_host }}/{{ db_name }}
 log_directory: /home/kilink/logs/production/
+
+# Flask-Assets settings:
+ASSETS_DEBUG: False
+ASSETS_CACHE: False

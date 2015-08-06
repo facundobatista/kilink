@@ -1,0 +1,18 @@
+# This file contains base Kilink configuration
+
+server_host: localhost
+db_user: override_me
+db_pass: override_me
+db_host: localhost
+db_name: kilink
+db_engine: sqlite:///tmp/{{ db_name }}.db
+log_directory: tmp/logs/
+
+# Flask settings:
+STATIC_URL: static
+STATIC_ROOT: static
+PROPAGATE_EXCEPTIONS: False
+
+# Flask-Assets settings:
+ASSETS_DEBUG: True
+ASSETS_CACHE: True

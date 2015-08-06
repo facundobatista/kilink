@@ -1,6 +1,4 @@
-# Kilink configuration for development environment
+# Sample Kilink configuration for development environments
+# Not really much to do, base.yaml already has all.
 
-server_host: localhost
-db_engine: sqlite:///tmp/kilink.db
-db_auth_config:
-log_directory: tmp/logs/
+extends: base.yaml

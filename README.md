@@ -51,9 +51,36 @@ cd kilink
 git clone https://github.com/facundobatista/kilink.git
 source bin/activate
 pip install -r requirements.txt
+cp configs/{development,active}.yaml
 ./test
 ./run
 ```
+
+Customization
+-------------
+
+The file `active.yaml` inside the `config/` folder is the entry point for
+configuration customization. It's not versioned, so you will have to create it
+after installing the site (it's omitted from the repo).
+
+This file can extend another yaml file by adding to it (preferably at the top):
+```
+extends: some-other-file.yaml
+```
+The files `development.yaml` and
+`production.yaml` are examples your active.yaml can copy or actually extend.
+In turn, both files extend `base.html`.
+
+Configuration files are interpolated, so you can refer to some other setting
+(whether it is defined in your file or in any file in the extend chain) using
+Jinja syntax, e.g.:
+
+    db_name: kilink
+    db_engine: sqlite:///tmp/{{ db_name }}.db
+
+In fact, if you are extending `production.yaml` make sure your `active.yaml`
+file includes your database's real user and password.
+
 
 How to Translate
 ----------------
