@@ -31,3 +31,7 @@
 .node-text {
     fill: #fff;
 }
+
+#wrap{
+    vertical-align: sub;
+}
