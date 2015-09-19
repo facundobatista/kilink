@@ -278,17 +278,20 @@ def api_get(kid, revno=None):
     return ret_json
 
 
-@app.route('/api/1/linkodes/nodes/<client_nodeq>/<kid>/<revno>', methods=['GET'])
+@app.route('/api/1/linkodes/nodes/<client_nodeq>/<kid>/<revno>',
+           methods=['GET'])
 @app.route('/api/1/linkodes/nodes/<client_nodeq>/<kid>', methods=['GET'])
 @measure("api.get_nodes")
 def api_get_nodes(client_nodeq, kid, revno=None):
+    """ Get the nodes if need the update"""
     try:
         client_nodeq = int(client_nodeq)
     except ValueError:
         client_nodeq = 0
     tree, nodeq = build_tree(kid, revno)
     if(client_nodeq != nodeq):
-        ret_json = jsonify(tree=tree if tree != {} else False, client_nodeq=nodeq,
+        ret_json = jsonify(tree=tree if tree != {} else False,
+                           client_nodeq=nodeq,
                            change=True)
         logger.debug("Get done; update tree to quantity=%d", nodeq)
     else:
