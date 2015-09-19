@@ -16,9 +16,11 @@ from flask import (
     redirect,
     render_template,
     request,
+    Response
 )
 
-from flask.ext.assets import Environment
+#from flask.ext.assets import Environment
+from flask_assets import Environment
 from flask_babel import Babel
 from flask_babel import gettext as _
 from sqlalchemy import create_engine
@@ -145,6 +147,7 @@ def update(kid, parent=None):
         parent = root.revno
 
     klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
+    # avisar cambio
     new_url = "/%s/%s" % (kid, klnk.revno)
     logger.debug("Update done; kid=%r revno=%r", klnk.kid, klnk.revno)
     return redirect(new_url, code=303)
@@ -211,7 +214,12 @@ def build_tree(kid, revno):
     return root, len(nodes)
 
 
-#API
+def event_stream():
+    while True:
+        yield "Hola"
+
+
+# API
 @app.route('/api/1/linkodes/', methods=['POST'])
 @crossdomain(origin='*')
 @measure("api.create")
@@ -277,6 +285,20 @@ def api_get(kid, revno=None):
     return ret_json
 
 
+@app.route('/api/1/linkodes/nodes/<kid>/<revno>', methods=['GET'])
+@app.route('/api/1/linkodes/nodes/<kid>', methods=['GET'])
+@measure("api.get_nodes")
+def api_get_nodes(kid, revno=None):
+    tree, nodeq = build_tree(kid, revno)
+    ret_json = jsonify(tree=tree if tree != {} else False)
+    return ret_json
+
+
+@app.route('/api/1/linkodes/stream')
+def stream():
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
 @app.errorhandler(backend.KilinkNotFoundError)
 def handle_not_found_error(error):
     """Return 404 on kilink not found"""
@@ -309,4 +331,4 @@ if __name__ == "__main__":
     # set up the backend
     engine = create_engine(config["db_engine"], echo=True)
     kilinkbackend = backend.KilinkBackend(engine)
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', threaded=True)

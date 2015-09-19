@@ -1,13 +1,33 @@
+var source = new EventSource('/api/1/linkodes/stream');
 $(document).ready(function(){
+    get_node_list()
+    source.onmessage = function (event) {
+         console.log(event.data);
+    };
+})
 
-    function create_tree(){
+
+function get_node_list(){
+    if(kid_info != ""){
+        $.get("/api/1/linkodes/nodes/" + kid_info, function(data) {
+            if (data !== false) {
+                node_list = data.tree
+                create_tree();
+            }
+        });
+    }
+
+
+}
+
+function create_tree(){
         var tree_size = {};
         var layout_size = {};
         tree_size.width = 200;
         tree_size.height = 200;
         layout_size.width = 200;
         layout_size.height = 400;
-
+        $(".klk-tree").empty();
         var tree = d3.layout.tree()
             .sort(null)
             .size([tree_size.width, tree_size.height])
@@ -87,7 +107,3 @@ $(document).ready(function(){
                 };
         });
     }
-    if (node_list !== false) {
-        create_tree();
-    }
-})
