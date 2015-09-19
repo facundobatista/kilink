@@ -167,6 +167,7 @@ def show(kid, revno=None):
         klnk = kilinkbackend.get_kilink(kid, revno)
     content = klnk.content
     text_type = klnk.text_type
+    timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # get the tree
     tree, nodeq = build_tree(kid, revno)
@@ -178,6 +179,7 @@ def show(kid, revno=None):
         'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': revno,
         'text_type': text_type,
+        'timestamp': timestamp,
     }
     logger.debug("Show done; quantity=%d", nodeq)
     return render_template('_new.html', **render_dict)
