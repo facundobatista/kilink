@@ -16,8 +16,6 @@ from flask import (
     redirect,
     render_template,
     request,
-    Response,
-    stream_with_context,
 )
 
 #from flask.ext.assets import Environment
@@ -214,10 +212,6 @@ def build_tree(kid, revno):
 
     return root, len(nodes)
 
-
-def event_stream():
-    while True:
-        yield "data: Hola"
 
 
 # API
