@@ -1854,8 +1854,7 @@ function isPython(imode){if(imode=="python"){editor.setOption("indentUnit",4);}
 else{editor.setOption("indentUnit",2);}}
 $(document).ready(function(){jQuery('textarea').bind('keydown','ctrl+return',function(e){$('#pasteform').submit();});});var client_nodeq=0;$(document).ready(function(){update_node_tree()
 setInterval(update_node_tree,60000)})
-function update_node_tree(){if(kid_info!=""){$.get("/api/1/linkodes/nodes/"+client_nodeq+'/'+kid_info,function(data){console.log(data)
-if(data!==false&&data.change==true){node_list=data.tree
+function update_node_tree(){if(kid_info!=""){$.get("/api/1/linkodes/nodes/"+client_nodeq+'/'+kid_info,function(data){if(data!==false&&data.change==true){node_list=data.tree
 client_nodeq=parseInt(data.client_nodeq)
 create_tree();}});}}
 function create_tree(){var tree_size={};var layout_size={};tree_size.width=200;tree_size.height=200;layout_size.width=200;layout_size.height=400;$(".klk-tree").empty();var tree=d3.layout.tree().sort(null).size([tree_size.width,tree_size.height]).children(function(d)
