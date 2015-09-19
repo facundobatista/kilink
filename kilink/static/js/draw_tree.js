@@ -1,17 +1,19 @@
-var source = new EventSource('/api/1/linkodes/stream');
+
+var client_nodeq = 0;
 $(document).ready(function(){
-    get_node_list()
-    source.onmessage = function (event) {
-         console.log(event.data);
-    };
+    update_node_tree()
+
+    setInterval(update_node_tree,60000)
+
 })
 
 
-function get_node_list(){
+function update_node_tree(){
     if(kid_info != ""){
-        $.get("/api/1/linkodes/nodes/" + kid_info, function(data) {
-            if (data !== false) {
+        $.get("/api/1/linkodes/nodes/"+ client_nodeq + '/' + kid_info, function(data) {
+            if (data !== false && data.change == true) {
                 node_list = data.tree
+                client_nodeq = parseInt(data.client_nodeq)
                 create_tree();
             }
         });

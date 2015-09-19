@@ -16,7 +16,8 @@ from flask import (
     redirect,
     render_template,
     request,
-    Response
+    Response,
+    stream_with_context,
 )
 
 #from flask.ext.assets import Environment
@@ -216,7 +217,7 @@ def build_tree(kid, revno):
 
 def event_stream():
     while True:
-        yield "Hola"
+        yield "data: Hola"
 
 
 # API
@@ -285,18 +286,21 @@ def api_get(kid, revno=None):
     return ret_json
 
 
-@app.route('/api/1/linkodes/nodes/<kid>/<revno>', methods=['GET'])
-@app.route('/api/1/linkodes/nodes/<kid>', methods=['GET'])
+@app.route('/api/1/linkodes/nodes/<client_nodeq>/<kid>/<revno>', methods=['GET'])
+@app.route('/api/1/linkodes/nodes/<client_nodeq>/<kid>', methods=['GET'])
 @measure("api.get_nodes")
-def api_get_nodes(kid, revno=None):
+def api_get_nodes(client_nodeq, kid, revno=None):
+    try:
+        client_nodeq = int(client_nodeq)
+    except ValueError:
+        client_nodeq = 0
     tree, nodeq = build_tree(kid, revno)
-    ret_json = jsonify(tree=tree if tree != {} else False)
+    if(client_nodeq != nodeq):
+        ret_json = jsonify(tree=tree if tree != {} else False, client_nodeq=nodeq,
+                           change=True)
+    else:
+        ret_json = jsonify(change=False)
     return ret_json
-
-
-@app.route('/api/1/linkodes/stream')
-def stream():
-    return Response(event_stream(), mimetype="text/event-stream")
 
 
 @app.errorhandler(backend.KilinkNotFoundError)
@@ -331,4 +335,4 @@ if __name__ == "__main__":
     # set up the backend
     engine = create_engine(config["db_engine"], echo=True)
     kilinkbackend = backend.KilinkBackend(engine)
-    app.run(debug=True, host='0.0.0.0', threaded=True)
+    app.run(debug=True, host='0.0.0.0')
