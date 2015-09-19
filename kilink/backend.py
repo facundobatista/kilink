@@ -11,10 +11,11 @@ import logging
 import operator
 import uuid
 import zlib
+from config import config
 
-from sqlalchemy import Column, DateTime, String, LargeBinary
+from sqlalchemy import Column, DateTime, LargeBinary, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 # DB stuff
@@ -27,11 +28,18 @@ logger = logging.getLogger('kilink.backend')
 class KilinkNotFoundError(Exception):
     """A kilink was specified, we couldn't find it."""
 
+
+class KilinkMaxLenExcededError(Exception):
+    """Try to create or update a kilink with lot of lines."""
+
+
 TreeNode = collections.namedtuple(
     "TreeNode", "content parent order revno timestamp text_type")
 
 
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+MAX_LINES = 10000
+MAX_CHARS = 100000
 
 
 def _get_unique_id():
@@ -92,9 +100,36 @@ class KilinkBackend(object):
         Session = scoped_session(sessionmaker(autocommit=True))
         self.session = Session(bind=db_engine)
 
+    def check_content_len(self, content, max_lines=False, max_chars=False):
+        """Check content length."""
+        max_chars = max_chars or config.get("max_chars", False) or MAX_CHARS
+        max_lines = max_lines or config.get("max_lines", False) or MAX_LINES
+        dbg_msg = "Content: {}, max chars: {}, max lines: {}".format(content,
+                                                                     max_chars,
+                                                                     max_lines)
+        logger.debug(dbg_msg)
+        err_msgs = []
+        if len(content) > max_chars:
+            err = "Content len exeded chars maximun: {}".format(len(content))
+            err_msgs.append(err)
+        lines = content.split("\n")
+        if len(lines) <= max_lines:
+            err = "Content len exeded lines maximun: {}".format(len(lines))
+            err_msgs.append(err)
+
+        if err_msgs:
+            err = " and ".join(err_msgs)
+            raise KilinkMaxLenExcededError(err)
+
+        return True
+
     @session_manager
     def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
+        if not self.check_content_len(content, 100):
+            raise KilinkMaxLenExcededError("Content len exeded: %s" % 10)
+
+        self.check_content_len(content)
         klnk = Kilink(content=content, text_type=text_type)
         self.session.add(klnk)
         return klnk
@@ -106,6 +141,7 @@ class KilinkBackend(object):
         if not search.all():
             raise KilinkNotFoundError("Parent kilink not found")
 
+        self.check_content_len(new_content)
         klnk = Kilink(kid=kid, parent=parent,
                       content=new_content, text_type=text_type)
         self.session.add(klnk)

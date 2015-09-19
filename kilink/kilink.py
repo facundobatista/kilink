@@ -18,7 +18,7 @@ from flask import (
     request,
 )
 
-from flask.ext.assets import Environment
+from flask_assets import Environment
 from flask_babel import Babel
 from flask_babel import gettext as _
 from sqlalchemy import create_engine
@@ -107,11 +107,14 @@ def tools():
 @measure("index")
 def index():
     """The base page."""
+    logger.debug(config["max_chars"], config["max_lines"])
     render_dict = {
         'value': '',
         'button_text': _('Create linkode'),
         'kid_info': '',
         'tree_info': json.dumps(False),
+        'max_chars': config['max_chars'],
+        'max_lines': config['max_lines'],
     }
     return render_template('_new.html', **render_dict)
 
@@ -178,6 +181,8 @@ def show(kid, revno=None):
         'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': revno,
         'text_type': text_type,
+        'max_chars': config['max_chars'],
+        'max_lines': config['max_lines'],
     }
     logger.debug("Show done; quantity=%d", nodeq)
     return render_template('_new.html', **render_dict)
@@ -211,7 +216,7 @@ def build_tree(kid, revno):
     return root, len(nodes)
 
 
-#API
+# API
 @app.route('/api/1/linkodes/', methods=['POST'])
 @crossdomain(origin='*')
 @measure("api.create")
