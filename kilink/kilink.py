@@ -146,7 +146,6 @@ def update(kid, parent=None):
         parent = root.revno
 
     klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
-    # avisar cambio
     new_url = "/%s/%s" % (kid, klnk.revno)
     logger.debug("Update done; kid=%r revno=%r", klnk.kid, klnk.revno)
     return redirect(new_url, code=303)
