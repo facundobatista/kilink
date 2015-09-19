@@ -6,16 +6,24 @@
 <script type="text/javascript">
     var current_revno = "{{ current_revno }}";
     var kid_info = "{{ kid_info }}";
+
+    {% if timestamp %}
+        var timestamp = new Date("{{ timestamp }}").toString();
+        var text_timestamp = "{{ _('Created on') }} " + timestamp;
+        $(document).ready(function(){
+            $(".kilink-timestamp").text(text_timestamp);
+        });
+    {% endif %}
 </script>
 
 
-<div class="row">
-  <div class="span10">
+<div class="row-fluid">
+  <div class="span11">
     <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
       <textarea id='code' name='content' placeholder="Write (or paste) your text here and click on Create linkode."
                 rows="8" cols="40">{{value}}</textarea>
-
-      <div class='buttons' style="text-align:right">
+      <div class='kilink-timestamp'></div>
+      <div class='kilink-buttons buttons'>
         {{ _("Select a text type:") }}&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
           <option value="auto" selected>auto</option>
           <option value="c">C</option>
@@ -59,7 +67,7 @@
       </div>
     </form>
   </div>
-  <div class='span2'>
+  <div class='span1' id="kilink-tree-span">
     <div class="klk-tree">
     </div>
   </div>
