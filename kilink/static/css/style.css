@@ -17,6 +17,22 @@
     z-index: 9999 !important;
 }
 
+.kilink-buttons.buttons {
+    text-align:right;
+    display: inline-block;
+    width: 73%;
+}
+.kilink-timestamp {
+    display: inline-block;
+    font-size: 12px;
+    margin-left: 5px;
+    width: 25%;
+}
+
+#kilink-tree-span {
+    margin-left: 5px;
+}
+
 .link {
     fill: none;
     stroke: #3DA4EE;

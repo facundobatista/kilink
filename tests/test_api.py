@@ -64,6 +64,16 @@ class BaseTestCase(TestCase):
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
+    def api_get_nodes(self, client_nodeq, kid, revno=None, code=200):
+        """Helper to hit the api to get the nodes."""
+        if revno is None:
+            url = "/api/1/linkodes/nodes/%s/%s" % (client_nodeq, kid,)
+        else:
+            url = "/api/1/linkodes/nodes/%s/%s/%s" % (client_nodeq, kid, revno)
+        r = self.app.get(url)
+        self.assertEqual(r.status_code, code)
+        return json.loads(r.data)
+
 
 class ApiTestCase(BaseTestCase):
     """Tests for API kilink creation and updating."""
@@ -189,6 +199,26 @@ class ApiTestCase(BaseTestCase):
             u'order': 1,
             u'contents': [],
         })
+
+    def test_get_tree(self):
+        """Get info for a kilink tree """
+        resp = self.api_create(data={'content': "content 0", 'text_type': ''})
+        kid = resp['linkode_id']
+        root_revno = resp['revno']
+
+        resp = self.api_update(kid=kid, data={'content': "content 1", 'text_type': '', 'parent': root_revno})
+        child1_revno = resp['revno']
+
+        resp = self.api_update(kid=kid, data={'content': "content 11", 'text_type': '', 'parent': child1_revno})
+        child11_revno = resp['revno']
+
+        resp = self.api_update(kid=kid, data={'content': "content 2", 'text_type': '', 'parent': root_revno})
+        child2_revno = resp['revno']
+
+        resp = self.api_get_nodes(0, kid)
+        self.assertTrue(resp['change'])
+        self.assertEqual(int(resp["client_nodeq"]), 4)
+
 
     def test_tree(self):
         """Get a good tree when getting a node."""

@@ -91,8 +91,9 @@ class ServingTestCase(TestCase):
         k['button_text'] = 'Save new version'
         k['text_type'] = 'type1'
         k['kid_info'] = "%s/%s" % (klnk.kid, klnk.revno)
-        k['tree_info'] = json.dumps(tree)
+        # k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
+        k['timestamp'] = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
         self.mocked_render.reset_mock()
@@ -119,8 +120,9 @@ class ServingTestCase(TestCase):
         k['button_text'] = 'Save new version'
         k['text_type'] = 'type2'
         k['kid_info'] = "%s/%s" % (klnk.kid, klnk.revno)
-        k['tree_info'] = json.dumps(tree)
+        #k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
+        k['timestamp'] = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
         self.mocked_render.reset_mock()
