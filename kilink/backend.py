@@ -104,16 +104,14 @@ class KilinkBackend(object):
         """Check content length."""
         max_chars = max_chars or config.get("max_chars", False) or MAX_CHARS
         max_lines = max_lines or config.get("max_lines", False) or MAX_LINES
-        dbg_msg = "Content: {}, max chars: {}, max lines: {}".format(content,
-                                                                     max_chars,
-                                                                     max_lines)
+        dbg_msg = "max chars: {}, max lines: {}".format(max_chars, max_lines)
         logger.debug(dbg_msg)
         err_msgs = []
         if len(content) > max_chars:
             err = "Content len exeded chars maximun: {}".format(len(content))
             err_msgs.append(err)
         lines = content.split("\n")
-        if len(lines) <= max_lines:
+        if len(lines) > max_lines:
             err = "Content len exeded lines maximun: {}".format(len(lines))
             err_msgs.append(err)
 
@@ -126,9 +124,6 @@ class KilinkBackend(object):
     @session_manager
     def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
-        if not self.check_content_len(content, 100):
-            raise KilinkMaxLenExcededError("Content len exeded: %s" % 10)
-
         self.check_content_len(content)
         klnk = Kilink(content=content, text_type=text_type)
         self.session.add(klnk)

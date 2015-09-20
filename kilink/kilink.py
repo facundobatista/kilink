@@ -18,14 +18,8 @@ from flask import (
     request,
 )
 
-<<<<<<< HEAD
-from flask_assets import Environment
-||||||| merged common ancestors
-from flask.ext.assets import Environment
-=======
 #from flask.ext.assets import Environment
 from flask_assets import Environment
->>>>>>> 4ea4b9e9a93cf52a8140a29c175162d3f8dc5eab
 from flask_babel import Babel
 from flask_babel import gettext as _
 from sqlalchemy import create_engine
@@ -114,7 +108,6 @@ def tools():
 @measure("index")
 def index():
     """The base page."""
-    logger.debug(config["max_chars"], config["max_lines"])
     render_dict = {
         'value': '',
         'button_text': _('Create linkode'),
@@ -188,13 +181,9 @@ def show(kid, revno=None):
         'kid_info': "%s/%s" % (kid, revno),
         'current_revno': revno,
         'text_type': text_type,
-<<<<<<< HEAD
         'max_chars': config['max_chars'],
         'max_lines': config['max_lines'],
-||||||| merged common ancestors
-=======
         'timestamp': timestamp,
->>>>>>> 4ea4b9e9a93cf52a8140a29c175162d3f8dc5eab
     }
     logger.debug("Show done")
     return render_template('_new.html', **render_dict)
@@ -228,14 +217,7 @@ def build_tree(kid, revno):
     return root, len(nodes)
 
 
-<<<<<<< HEAD
 # API
-||||||| merged common ancestors
-#API
-=======
-
-# API
->>>>>>> 4ea4b9e9a93cf52a8140a29c175162d3f8dc5eab
 @app.route('/api/1/linkodes/', methods=['POST'])
 @crossdomain(origin='*')
 @measure("api.create")
@@ -312,7 +294,7 @@ def api_get_nodes(client_nodeq, kid, revno=None):
     except ValueError:
         client_nodeq = 0
     tree, nodeq = build_tree(kid, revno)
-    if(client_nodeq != nodeq):
+    if client_nodeq != nodeq:
         ret_json = jsonify(tree=tree if tree != {} else False,
                            client_nodeq=nodeq,
                            change=True)
