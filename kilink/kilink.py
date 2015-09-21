@@ -113,6 +113,8 @@ def index():
         'button_text': _('Create linkode'),
         'kid_info': '',
         'tree_info': json.dumps(False),
+        'max_chars': config['max_chars'],
+        'max_lines': config['max_lines'],
     }
     return render_template('_new.html', **render_dict)
 
@@ -179,6 +181,8 @@ def show(kid, revno=None):
         'kid_info': "%s/%s" % (kid, revno),
         'current_revno': revno,
         'text_type': text_type,
+        'max_chars': config['max_chars'],
+        'max_lines': config['max_lines'],
         'timestamp': timestamp,
     }
     logger.debug("Show done")
@@ -211,7 +215,6 @@ def build_tree(kid, revno):
         fringe.extend(children)
 
     return root, len(nodes)
-
 
 
 # API
@@ -291,7 +294,7 @@ def api_get_nodes(client_nodeq, kid, revno=None):
     except ValueError:
         client_nodeq = 0
     tree, nodeq = build_tree(kid, revno)
-    if(client_nodeq != nodeq):
+    if client_nodeq != nodeq:
         ret_json = jsonify(tree=tree if tree != {} else False,
                            client_nodeq=nodeq,
                            change=True)

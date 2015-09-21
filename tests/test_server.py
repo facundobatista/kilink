@@ -67,6 +67,8 @@ class ServingTestCase(TestCase):
         k['button_text'] = 'Create linkode'
         k['kid_info'] = ''
         k['tree_info'] = json.dumps(False)
+        k['max_chars'] = 5000
+        k['max_lines'] = 2000
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_serving_base(self):
@@ -94,6 +96,8 @@ class ServingTestCase(TestCase):
         # k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
         k['timestamp'] = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+        k['max_chars'] = 5000
+        k['max_lines'] = 2000
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
         self.mocked_render.reset_mock()
@@ -123,6 +127,8 @@ class ServingTestCase(TestCase):
         #k['tree_info'] = json.dumps(tree)
         k['current_revno'] = klnk.revno
         k['timestamp'] = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+        k['max_chars'] = 5000
+        k['max_lines'] = 2000
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
         self.mocked_render.reset_mock()

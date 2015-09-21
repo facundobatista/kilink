@@ -1836,7 +1836,10 @@ var modeInput=document.getElementById("seleclang");function selectMode(){var mod
 function forkMode(inmode){var cmode=langLike(inmode.toLowerCase());if(cmode=="auto"){autoDetection=1;update();}
 else{autoDetection=0;editor.setOption("mode",cmode);isPython(cmode);modeInput.options[0].text="auto";}}
 var autoDetection=1;editor.on("change",function(){if(autoDetection){clearTimeout(pending);setTimeout(update,400);}
-else{}});var pending;function looksLike(contents){var info=hljs.highlightAuto(contents.trim());var clang=langLike(info.language)
+else{}});function getDocSize(){var firstLine=editor.doc.firstLine();var docSize=0;var lineCount=editor.doc.lineCount();for(i=firstLine;i<=lineCount;i++){currentLine=editor.doc.getLine(i);if(currentLine){docSize+=currentLine.length;}}
+return docSize;}
+editor.on("beforeChange",function(cm,change){var docSize=getDocSize();var lineCount=editor.doc.lineCount();console.log(change.text);console.log(max_chars,max_lines);if((docSize<=max_chars&&lineCount<=max_lines)||(change.text.length==1&&change.text[0]=="")){change.update(change.from,change.to);}
+else{change.cancel();}});var pending;function looksLike(contents){var info=hljs.highlightAuto(contents.trim());var clang=langLike(info.language)
 return clang;}
 function langLike(lang){if(lang in{'cpp':0,'c++':0,'cs':0,'c#':0,'c':0,'scala':0,'java':0}){lang="clike";}
 else if(lang=="bash"){lang="shell";}
