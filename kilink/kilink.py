@@ -40,6 +40,7 @@ babel = Babel(app)
 
 # flask-assets
 assets = Environment(app)
+assets.cache = "/tmp/"
 assets.init_app(app)
 
 # logger
