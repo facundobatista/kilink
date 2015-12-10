@@ -4,3 +4,5 @@ server_host: localhost
 db_engine: sqlite:///tmp/kilink.db
 db_auth_config:
 log_directory: tmp/logs/
+max_lines: 2000
+max_chars: 5000
