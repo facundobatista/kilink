@@ -18,6 +18,7 @@ from flask import (
     request,
 )
 
+from flask.ext.assets import Environment
 from flask_babel import Babel
 from flask_babel import gettext as _
 from sqlalchemy import create_engine
@@ -34,7 +35,13 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
+app.config["PROPAGATE_EXCEPTIONS"] = False
 babel = Babel(app)
+
+# flask-assets
+assets = Environment(app)
+assets.cache = "/tmp/"
+assets.init_app(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
@@ -161,22 +168,10 @@ def show(kid, revno=None):
         klnk = kilinkbackend.get_kilink(kid, revno)
     content = klnk.content
     text_type = klnk.text_type
+    timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # node list
-    node_list = []
-    for treenode in kilinkbackend.get_kilink_tree(kid):
-        url = "/%s/%s" % (kid, treenode.revno)
-        parent = treenode.parent
-        node_list.append({
-            'order': treenode.order,
-            'parent': parent,
-            'revno': treenode.revno,
-            'url': url,
-            'timestamp': str(treenode.timestamp),
-            'selected': treenode.revno == revno,
-        })
-
-    tree = build_tree(node_list)
+    # get the tree
+    tree, nodeq = build_tree(kid, revno)
 
     render_dict = {
         'value': content,
@@ -185,13 +180,27 @@ def show(kid, revno=None):
         'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': revno,
         'text_type': text_type,
+        'timestamp': timestamp,
     }
-    logger.debug("Show done; quantity=%d", len(node_list))
+    logger.debug("Show done; quantity=%d", nodeq)
     return render_template('_new.html', **render_dict)
 
 
-def build_tree(nodes):
-    """ Build tree for 3djs """
+def build_tree(kid, revno):
+    """Build the tree for a given kilink id."""
+    nodes = []
+    for treenode in kilinkbackend.get_kilink_tree(kid):
+        url = "/%s/%s" % (kid, treenode.revno)
+        parent = treenode.parent
+        nodes.append({
+            'order': treenode.order,
+            'parent': parent,
+            'revno': treenode.revno,
+            'url': url,
+            'timestamp': str(treenode.timestamp),
+            'selected': treenode.revno == revno,
+        })
+
     root = [n for n in nodes if n['parent'] is None][0]
     fringe = [root, ]
 
@@ -202,7 +211,7 @@ def build_tree(nodes):
         node['contents'] = children
         fringe.extend(children)
 
-    return root
+    return root, len(nodes)
 
 
 #API
@@ -258,17 +267,29 @@ def api_get(kid, revno=None):
     if revno is None:
         klnk = kilinkbackend.get_root_node(kid)
         revno = klnk.revno
-    try:
+    else:
         klnk = kilinkbackend.get_kilink(kid, revno)
-    except backend.KilinkNotFoundError:
-        logger.debug("API get; kid %r not found", kid)
-        response = make_response()
-        return response, 404
 
-    logger.debug("API get done; type=%r size=%d",
-                 klnk.text_type, len(klnk.content))
-    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type)
+    # get the tree
+    tree, nodeq = build_tree(kid, revno)
+
+    logger.debug("API get done; type=%r size=%d len_tree=%d",
+                 klnk.text_type, len(klnk.content), nodeq)
+    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
+                       tree=tree)
     return ret_json
+
+
+@app.errorhandler(backend.KilinkNotFoundError)
+def handle_not_found_error(error):
+    """Return 404 on kilink not found"""
+    if request.url_rule.endpoint.startswith('api_'):
+        response = jsonify({'message': error.message})
+    else:
+        response = render_template('_404.html')
+
+    logger.debug(error.message)
+    return response, 404
 
 
 @babel.localeselector
@@ -282,7 +303,11 @@ if __name__ == "__main__":
     config.load_file("configs/development.yaml")
 
     # log setup
-    loghelper.setup_logging(config['log_directory'], verbose=True)
+    handlers = loghelper.setup_logging(config['log_directory'], verbose=True)
+    for h in handlers:
+        app.logger.addHandler(h)
+        h.setLevel(logging.DEBUG)
+    app.logger.setLevel(logging.DEBUG)
 
     # set up the backend
     engine = create_engine(config["db_engine"], echo=True)

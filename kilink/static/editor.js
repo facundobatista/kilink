@@ -28,6 +28,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   tabMode: "indent",
   autofocus: true,
+  viewportMargin: Infinity,
   extraKeys: {
         "F11": function(cm) {
           setFullScreen(cm, !isFullScreen(cm));
@@ -53,7 +54,7 @@ window.onload = function () {
     else{
     autoDetection = 0;
     modeInput.value = bmode;
-    editor.setOption("mode", bmode);
+    editor.setOption("mode", langLike(bmode));
     isPython(bmode);
     }
   },1)

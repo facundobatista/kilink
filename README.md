@@ -1,21 +1,21 @@
-Linkode
-=======
+Kilink
+======
 
-Linkode is the useful pastebin! 
+Linkode is the useful pastebin!
 
 It's a kind of "short living collaboration space", a "dynamic pastebin".
 
 It's live right now in **http://linkode.org/**, give it a try!
 
-Some awesome detailes:
+Some awesome details:
 
-    - you can create linkodes anywhere, whenever, and effortesly.
-    - editable texts, not static!
-    - every new edition creates a child: you have a tree
-    - code/text type autodetection (and coloring!)
-    - permantent linkodes (but still the owner can remove them)
-    - absolutely anonymous (unless you login, which is dead simple)
-    - private URLs: because you can not guess UUIDs
+* you can create linkodes anywhere, whenever, and effortlessly.
+* editable texts, not static!
+* every new edition creates a child: you have a tree
+* code/text type automatic detection (and coloring!)
+* permanent linkodes (the owner can still remove them)
+* absolutely anonymous (unless you login, which is dead simple)
+* private URLs: because you can not guess UUIDs
 
 
 Collaboration
@@ -23,11 +23,11 @@ Collaboration
 
 Code and issues is in GitHub:
 
-    https://github.com/facundobatista/kilink
+`https://github.com/facundobatista/kilink`
 
 We also have a mailing list:
 
-    http://listas.python.org.ar/mailman/listinfo/kilink
+`http://listas.python.org.ar/mailman/listinfo/kilink`
 
 And you can also get help by IRC, in Freenode: #linkode
 
@@ -37,7 +37,7 @@ The API
 
 Get the API details from the HTML file::
 
-    kilink/templates/_tools.html
+`kilink/templates/_tools.html`
 
 In a future this will be in a Doc file (source of that HTML).
 
@@ -45,64 +45,73 @@ In a future this will be in a Doc file (source of that HTML).
 How To Try It In Development
 ----------------------------
 
-    $ virtualenv linkode
-    $ cd linkode
-    $ git clone https://github.com/facundobatista/linkode.git
-    $ source bin/activate
-    $ pip install -r requirements.txt
-    $ ./test
-    $ ./run
+```bash
+virtualenv kilink
+cd kilink
+git clone https://github.com/facundobatista/kilink.git
+source bin/activate
+pip install -r requirements.txt
+./test
+./run
+```
 
+How to Translate
+----------------
 
-How to traslate
----------------
+When including translatable text in the code, make sure to always wrap it in the
+`gettext` function. Within templates it's already available and bound to `_`,
+e.g.:
 
-Extract the traslations text
+`<span>{{ _("Text to translate") }}</span>`
 
-    pybabel extract -F babel.cfg -o messages.pot translations
+In Python files you need to import it from Flask, e.g.:
+```python
+from flask.ext.base import gettext as _
 
+def views():
+    flash( _("Text to translate") )
+```
 
-Generate a language catalog
+Later, to produce language catalogs:
 
-    pybabel init -i messages.pot -d translations -l it
+1. Extract the translation texts:
 
+   ```
+   cd kilink
+   pybabel extract -F babel.cfg -o messages.pot translations
+   ```
 
-The command create a .po file in the directory especified by "-d"
+2. Generate an individual language message catalog. E.g. for Italian (it) you
+   would do:
 
-    translations/it/LC_MESSAGES/messages.po
+   `pybabel init -i messages.pot -d translations -l it`
 
-You edit this messages.po file and then compile
+   That should leave a `messages.po` file nested under the directory specified
+   by the given `-d` argument (e.g.: `translations/it/LC_MESSAGES/messages.po`);
 
-    pybabel compile -d translations
+3. Open it in your favorite text editor and translate the collected messages;
 
+4. Repeat steps 1-3 for each target language;
 
-If you add new text, you need to wrapp it with "_" function
+4. When finished, compile with:
 
-In templates:
+   `pybabel compile -d translations`
 
-    <span>{{ _("Text to traslate") }}</span>
+5. Finally, add the newly available languages to the `config.py` file, as
+   follows:
 
-In python files:
-
-    from flask.ext.base import gettext as _
-
-    def views():
-        flash( _("Text to traslate") )
-
-Updating translations
-
-    pybabel extract -F babel.cfg -o messages.pot translations
-
-
-Add the language code to available languages in the config.py file
-
-    LANGUAGES = {
-        …
+   ```
+   LANGUAGES = {
+        ...
         'it': 'Italian',
-        …
+        ...
     }
+    ```
 
-[Flask-Babel Tutorial](http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiv-i18n-and-l10n)
+You'll need to follow again these steps each time you add or change some text in
+the code. See the [Flask-Babel Tutorial](http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiv-i18n-and-l10n)
+for more on this subject.
+
 
 How To Deploy With Apache
 -------------------------
@@ -115,72 +124,84 @@ linux OS
 
 Definitions:
 
- - **Project path:** */var/linkode_home/*
- - **Application path:** */var/linkode_home/linkode_app*
- - **VirtualEnv Path:** */var/linkode_home/linkode_virtualenv*
- - **User:** *www-data*
+ * **Project path:** */var/linkode_home/*
+ * **Application path:** */var/linkode_home/linkode_app*
+ * **VirtualEnv Path:** */var/linkode_home/linkode_virtualenv*
+ * **User:** *www-data*
 
-Create virtualenv and install the requirements:
+Create virtualenv:
 
-    $ cd /var/linkode_home
-    $ virtualenv linkode_virtualenv
-    $ cd linkode_virtualenv
-    $ source bin/activate
-    $ pip install -r requirements.txt
+```
+cd /var/linkode_home
+virtualenv linkode_virtualenv
+cd linkode_virtualenv
+source bin/activate
+```
 
 Clone repository:
-    
-    $ cd /var/linkode_home/
-    $ git clone https://github.com/facundobatista/linkode.git linkode_app
-    $ cd linkode_app
+
+```
+cd /var/linkode_home/
+git clone https://github.com/facundobatista/kilink.git linkode_app
+```
+
+Install the requirements:
+
+```
+cd linkode_app
+pip install -r requirements.txt
+```
+
     
 The WSGI configuration file is already in the project, ready to use; for develop 
-or debuging you can add to it:
+or debugging you can add to it:
 
-    application.debug = True
-    
-    # Needs install paste via pip "pip install paste"
-    # For More information:
-    # http://code.google.com/p/modwsgi/wiki/DebuggingTechniques#Browser_Based_Debugger
-    from paste.evalexception.middleware import EvalException
-    application = EvalException(application)
-
+```
+application.debug = True
+# Needs install paste via pip "pip install paste"
+# For More information:
+# http://code.google.com/p/modwsgi/wiki/DebuggingTechniques#Browser_Based_Debugger
+from paste.evalexception.middleware import EvalException
+application = EvalException(application)
+```
 
 Create a virtual host configuration file in /etc/apache2/sites-enabled/
-with the name that you want, in this example "linkode"
+with the name that you want, in this case "linkode"
     
-    # vi /etc/apache2/sites-enabled/linkode
+`sudo vi /etc/apache2/sites-enabled/linkode`
 
 And paste this:
 
-    <VirtualHost *>
-        ServerName linkode.mydomain
-    
-        WSGIDaemonProcess linkode user=www-data group=www-data threads=5
-        WSGIScriptAlias / /var/linkode_home/linkode.wsgi
-        WSGIScriptReloading On
-    
-        <Directory /var/linkode_home/linkode_app/linkode/>
-            WSGIProcessGroup linkode
-            WSGIApplicationGroup %{GLOBAL}
-            Order deny,allow
-            Allow from all
-        </Directory>
-    
-        AddDefaultCharset utf-8
-        ServerSignature On
-        LogLevel info
-        
-        ErrorLog  /var/log/apache2/linkode-error.log
-        CustomLog /var/log/apache2/linkode-access.log combined
-    
-    </VirtualHost>
-    
-Restart Apache and Enjoy!
+```
+<VirtualHost *>
+    ServerName linkode.mydomain
+
+    WSGIDaemonProcess linkode user=www-data group=www-data threads=5
+    WSGIScriptAlias / /var/linkode_home/linkode.wsgi
+    WSGIScriptReloading On
+
+    <Directory /var/linkode_home/linkode_app/kilink/>
+        WSGIProcessGroup linkode
+        WSGIApplicationGroup %{GLOBAL}
+        Order deny,allow
+        Allow from all
+    </Directory>
+
+    AddDefaultCharset utf-8
+    ServerSignature On
+    LogLevel info
+
+    ErrorLog  /var/log/apache2/linkode-error.log
+    CustomLog /var/log/apache2/linkode-access.log combined
+
+</VirtualHost>
+```
+
+Restart Apache and enjoy!
 
 
 Clients
 -------
 
-- **GUI**, Graphical/Grafico: https://github.com/juancarlospaco/linkode-gui#linkode-gui
-- **CLI**, Command Line/Linea de Comando: https://github.com/humitos/linkodeit#linkodeit
+* **GUI**, Graphical: https://github.com/juancarlospaco/linkode-gui#linkode-gui
+* **CLI**, Command Line: https://github.com/humitos/linkodeit#linkodeit

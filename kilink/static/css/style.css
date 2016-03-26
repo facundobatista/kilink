@@ -1,5 +1,5 @@
 .main {
-    margin-top: 60px;
+    margin-top: 53px;
 }
 
 .CodeMirror {
@@ -15,6 +15,22 @@
     width: 100% !important;
     height: 100% !important;
     z-index: 9999 !important;
+}
+
+.kilink-buttons.buttons {
+    text-align:right;
+    display: inline-block;
+    width: 73%;
+}
+.kilink-timestamp {
+    display: inline-block;
+    font-size: 12px;
+    margin-left: 5px;
+    width: 25%;
+}
+
+#kilink-tree-span {
+    margin-left: 5px;
 }
 
 .link {

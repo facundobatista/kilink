@@ -29,6 +29,10 @@ msgstr "Nueva versión"
 msgid "Select a text type:"
 msgstr "Selecciona un lenguaje"
 
+#: templates/_new.html:11
+msgid "Created on"
+msgstr "Creado en"
+
 #: templates/base.html:50
 msgid "New"
 msgstr "Nuevo"
