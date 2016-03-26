@@ -4,3 +4,5 @@ server_host: linkode.org
 db_engine: postgresql+psycopg2://{user}:{pass}@localhost/kilink
 db_auth_config: configs/db_auth.txt
 log_directory: /home/kilink/logs/production/
+max_lines: 10000
+max_chars: 100000

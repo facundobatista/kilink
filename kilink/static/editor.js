@@ -95,6 +95,37 @@ editor.on("change", function() {
   }
 });
 
+function getDocSize() {
+  var firstLine = editor.doc.firstLine();
+  var docSize = 0;
+  var lineCount = editor.doc.lineCount();
+  for (i=firstLine; i <= lineCount; i++) {
+    currentLine = editor.doc.getLine(i);
+    if (currentLine) { docSize += currentLine.length; }
+  }
+  return docSize;
+}
+
+editor.on("beforeChange", function(cm, change) {
+  var docSize = getDocSize();
+  var lineCount = editor.doc.lineCount();
+  console.log(change.text);
+  //backspace is represented as [""], newline is ["", ""]
+  console.log(max_chars, max_lines);
+  if ((docSize <= max_chars && lineCount <= max_lines) || (change.text.length == 1 && change.text[0] == "")) {
+    if (lineCount == max_lines && change.text.length == 2 && change.text[0] == "" && change.text[1] == "") {
+      //if we don't check this the user can enter max_lines+1 lines!
+      change.cancel();
+    }
+    else {
+      change.update(change.from, change.to);
+    }
+  } 
+  else {
+    change.cancel();
+  }
+});
+
 var pending;
 function looksLike(contents) {
   var info = hljs.highlightAuto(contents.trim());

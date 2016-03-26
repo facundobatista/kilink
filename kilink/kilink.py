@@ -18,7 +18,8 @@ from flask import (
     request,
 )
 
-from flask.ext.assets import Environment
+#from flask.ext.assets import Environment
+from flask_assets import Environment
 from flask_babel import Babel
 from flask_babel import gettext as _
 from sqlalchemy import create_engine
@@ -113,6 +114,8 @@ def index():
         'button_text': _('Create linkode'),
         'kid_info': '',
         'tree_info': json.dumps(False),
+        'max_chars': config['max_chars'],
+        'max_lines': config['max_lines'],
     }
     return render_template('_new.html', **render_dict)
 
@@ -171,18 +174,19 @@ def show(kid, revno=None):
     timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # get the tree
-    tree, nodeq = build_tree(kid, revno)
+    # tree, nodeq = build_tree(kid, revno)
 
     render_dict = {
         'value': content,
         'button_text': _('Save new version'),
         'kid_info': "%s/%s" % (kid, revno),
-        'tree_info': json.dumps(tree) if tree != {} else False,
         'current_revno': revno,
         'text_type': text_type,
+        'max_chars': config['max_chars'],
+        'max_lines': config['max_lines'],
         'timestamp': timestamp,
     }
-    logger.debug("Show done; quantity=%d", nodeq)
+    logger.debug("Show done")
     return render_template('_new.html', **render_dict)
 
 
@@ -214,7 +218,7 @@ def build_tree(kid, revno):
     return root, len(nodes)
 
 
-#API
+# API
 @app.route('/api/1/linkodes/', methods=['POST'])
 @crossdomain(origin='*')
 @measure("api.create")
@@ -277,6 +281,28 @@ def api_get(kid, revno=None):
                  klnk.text_type, len(klnk.content), nodeq)
     ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
                        tree=tree)
+    return ret_json
+
+
+@app.route('/api/1/linkodes/nodes/<client_nodeq>/<kid>/<revno>',
+           methods=['GET'])
+@app.route('/api/1/linkodes/nodes/<client_nodeq>/<kid>', methods=['GET'])
+@measure("api.get_nodes")
+def api_get_nodes(client_nodeq, kid, revno=None):
+    """ Get the nodes if need the update"""
+    try:
+        client_nodeq = int(client_nodeq)
+    except ValueError:
+        client_nodeq = 0
+    tree, nodeq = build_tree(kid, revno)
+    if client_nodeq != nodeq:
+        ret_json = jsonify(tree=tree if tree != {} else False,
+                           client_nodeq=nodeq,
+                           change=True)
+        logger.debug("Get done; update tree to quantity=%d", nodeq)
+    else:
+        ret_json = jsonify(change=False)
+        logger.debug("Get done; no update")
     return ret_json
 
 
