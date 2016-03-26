@@ -1,4 +1,4 @@
-# Copyright 2011-2013 Facundo Batista
+# Copyright 2011-2016 Facundo Batista
 # All Rigths Reserved
 
 """The server and main app for kilink."""
@@ -71,7 +71,7 @@ def measure(metric_name):
             tini = time.time()
             try:
                 result = oldf(*args, **kwargs)
-            except Exception, exc:
+            except Exception as exc:
                 name = "%s.error.%s" % (metric_name, exc.__class__.__name__)
                 metrics.count(name, 1)
                 raise
@@ -101,6 +101,13 @@ def about():
 def tools():
     """Show the tools page."""
     return render_template('_tools.html')
+
+
+@app.route('/version')
+@measure("version")
+def version():
+    """Show the project version, very very simple, just for developers/admin help."""
+    return kilinkbackend.get_version()
 
 
 # views
@@ -214,7 +221,7 @@ def build_tree(kid, revno):
     return root, len(nodes)
 
 
-#API
+# API
 @app.route('/api/1/linkodes/', methods=['POST'])
 @crossdomain(origin='*')
 @measure("api.create")

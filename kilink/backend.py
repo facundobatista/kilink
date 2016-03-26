@@ -1,6 +1,6 @@
 # encoding: utf8
 
-# Copyright 2011 Facundo Batista, Nicolás César
+# Copyright 2011-2016 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Backend functionality for Kilink."""
@@ -16,6 +16,8 @@ from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.exc import NoResultFound
+
+from config import config
 
 # DB stuff
 Base = declarative_base()
@@ -91,6 +93,17 @@ class KilinkBackend(object):
         Base.metadata.create_all(db_engine)
         Session = scoped_session(sessionmaker(autocommit=True))
         self.session = Session(bind=db_engine)
+        self._cached_version = None
+
+    def get_version(self):
+        """Return the version, reading it from a file (cached)."""
+        if self._cached_version is None:
+            try:
+                with open(config['version_file'], 'rt') as fh:
+                    self._cached_version = fh.read()
+            except:
+                self._cached_version = '?'
+        return self._cached_version
 
     @session_manager
     def create_kilink(self, content, text_type):

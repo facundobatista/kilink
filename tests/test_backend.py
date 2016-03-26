@@ -1,11 +1,13 @@
 # encoding: utf8
 
-# Copyright 2011 Facundo Batista, Nicolás César
+# Copyright 2011-2016 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Backend tests."""
 
 import datetime
+import os
+import tempfile
 
 from unittest import TestCase
 
@@ -18,6 +20,7 @@ from kilink.backend import (
     KilinkNotFoundError,
     _get_unique_id,
 )
+from kilink.config import config
 
 
 class BaseTestCase(TestCase):
@@ -186,5 +189,37 @@ class IDGenTestCase(TestCase):
 
     def test_sanity(self):
         """Stupid sanity check."""
-        ids = [_get_unique_id() for _ in xrange(100)]
+        ids = [_get_unique_id() for _ in range(100)]
         self.assertEqual(len(set(ids)), 100)
+
+
+class HelpersTestCase(BaseTestCase):
+    """Tests for some random helpers."""
+
+    def setUp(self):
+        super(HelpersTestCase, self).setUp()
+        _, self.tempfile = tempfile.mkstemp(prefix="test-temp-file")
+        self.addCleanup(lambda: os.path.exists(self.tempfile) and os.remove(self.tempfile))
+        config['version_file'] = self.tempfile
+
+    def test_version_there(self):
+        with open(self.tempfile, "wt") as fh:
+            fh.write("test version")
+        resp = self.bkend.get_version()
+        self.assertEqual(resp, "test version")
+
+    def test_version_missing(self):
+        os.remove(self.tempfile)
+        resp = self.bkend.get_version()
+        self.assertEqual(resp, "?")
+
+    def test_version_assure_cached(self):
+        with open(self.tempfile, "wt") as fh:
+            fh.write("test version")
+        resp = self.bkend.get_version()
+        self.assertEqual(resp, "test version")
+
+        # now remove the file, and response shouldn't change (it's cached!)
+        os.remove(self.tempfile)
+        resp = self.bkend.get_version()
+        self.assertEqual(resp, "test version")
