@@ -46,7 +46,7 @@ How To Try It In Development
 ----------------------------
 
 ```bash
-virtualenv kilink
+virtualenv kilink #With Python 2
 cd kilink
 git clone https://github.com/facundobatista/kilink.git
 source bin/activate
