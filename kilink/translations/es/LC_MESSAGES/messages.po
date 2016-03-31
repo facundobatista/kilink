@@ -33,6 +33,15 @@ msgstr "Que es Linkode?"
 msgid "Linkode is the useful pastebin!"
 msgstr "Linkode es un Pastebin útil!"
 
+#: templates/_new.html:11
+msgid "Created on"
+msgstr "Creado en"
+
+#: templates/base.html:50
+msgid "New"
+msgstr "Nuevo"
+>>>>>>> kilink/master
+
 #: templates/_about.html:13
 msgid "Really, what?"
 msgstr "De veras, qué?"
