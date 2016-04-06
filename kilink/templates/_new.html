@@ -19,11 +19,11 @@
 <div class="row-fluid">
   <div class="span11">
     <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
-      <textarea id='code' name='content' placeholder="Write (or paste) your text here and click on Create linkode."
+      <textarea id='code' name='content' placeholder={{ _("Write (or paste) your text here and click on Create linkode.") }}
                 rows="8" cols="40">{{value}}</textarea>
       <div class='kilink-timestamp'></div>
       <div class='kilink-buttons buttons'>
-        {{ _("Select a text type:") }}&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
+        {{ _("Select a text type:") }}&nbsp;<select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
           <option value="auto" selected>auto</option>
           <option value="c">C</option>
           <option value="c++">C++</option>
