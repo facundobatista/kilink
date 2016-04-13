@@ -13,7 +13,7 @@ from flask import (
     current_app
 )
 
-from ..decorators import crossdomain, measure
+from decorators import crossdomain, measure
 
 api = Blueprint('api', __name__)
 logger = logging.getLogger('kilink.kilink')

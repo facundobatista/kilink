@@ -14,9 +14,10 @@ from flask import (
     current_app
 )
 
-from ..decorators import measure, nocache
+from decorators import measure, nocache
 
-webclient = Blueprint('webclient', __name__)
+webclient = Blueprint('webclient', __name__,
+                      template_folder="templates")
 logger = logging.getLogger('kilink.kilink')
 
 
