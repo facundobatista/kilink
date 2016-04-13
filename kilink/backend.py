@@ -27,6 +27,7 @@ logger = logging.getLogger('kilink.backend')
 
 
 class KilinkNotFoundError(Exception):
+
     """A kilink was specified, we couldn't find it."""
 
 TreeNode = collections.namedtuple(
@@ -48,6 +49,7 @@ def _get_unique_id():
 
 
 class Kilink(Base, object):
+
     """Kilink data."""
     __tablename__ = 'kilink'
 
@@ -73,6 +75,7 @@ class Kilink(Base, object):
 
 def session_manager(orig_func):
     """Decorator to wrap function with the session."""
+
     def new_func(self, *a, **k):
         """Wrappend function to manage DB session."""
         self.session.begin()
@@ -87,6 +90,7 @@ def session_manager(orig_func):
 
 
 class KilinkBackend(object):
+
     """Backend for Kilink."""
 
     def __init__(self, db_engine):
@@ -160,3 +164,31 @@ class KilinkBackend(object):
         except NoResultFound:
             raise KilinkNotFoundError("Kilink id not found: %r" % (kid,))
         return klnk
+
+    def build_tree(self, kid, revno):
+        """Build the tree for a given kilink id."""
+        nodes = []
+        for treenode in self.get_kilink_tree(kid):
+            url = "/%s/%s" % (kid, treenode.revno)
+            parent = treenode.parent
+            nodes.append({
+                'order': treenode.order,
+                'parent': parent,
+                'revno': treenode.revno,
+                'url': url,
+                'timestamp': str(treenode.timestamp),
+                'selected': treenode.revno == revno,
+            })
+
+        root = [n for n in nodes if n['parent'] is None][0]
+        fringe = [root, ]
+
+        while fringe:
+            node = fringe.pop()
+            children = [n for n in nodes if n['parent'] == node['revno']]
+
+            node['contents'] = children
+            fringe.extend(children)
+
+        return root, len(nodes)
+

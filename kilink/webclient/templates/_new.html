@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+
+<script type="text/javascript">
+    var node_list = {{ tree_info|safe }};
+    var current_revno = "{{ current_revno }}";
+    {% if timestamp %}
+        var timestamp = new Date("{{ timestamp }}").toString();
+        var text_timestamp = "{{ _('Created on') }} " + timestamp;
+        $(document).ready(function(){
+            $(".kilink-timestamp").text(text_timestamp);
+        });
+    {% endif %}
+</script>
+
+
+<div class="row-fluid">
+  <div class="span11">
+    <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
+      <textarea id='code' name='content' placeholder={{ _("Write (or paste) your text here and click on Create linkode.") }}
+                rows="8" cols="40">{{value}}</textarea>
+      <div class='kilink-timestamp'></div>
+      <div class='kilink-buttons buttons'>
+        {{ _("Select a text type:") }}&nbsp;<select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
+          <option value="auto" selected>auto</option>
+          <option value="c">C</option>
+          <option value="c++">C++</option>
+          <option value="c#">C#</option>
+          <option value="clojure">Clojure</option>
+          <option value="coffeescript">Coffeescript</option>
+          <option value="css">Css</option>
+          <option value="d">D</option>
+          <option value="diff">Diff</option>
+          <option value="erlang">Erlang</option>
+          <option value="go">Go</option>
+          <option value="haskell">Haskell</option>
+          <option value="html">Html</option>
+          <option value="htmlmixed">Htmlmixed</option>
+          <option value="http">Http</option>
+          <option value="java">Java</option>
+          <option value="javascript">Javascript</option>
+          <option value="json">Json</option>
+          <option value="lua">Lua</option>
+          <option value="markdown">Markdown</option>
+          <option value="php">Php</option>
+          <option value="perl">Perl</option>
+          <option value="plain text">Plain text</option>
+          <option value="python">Python</option>
+          <option value="r">R</option>
+          <option value="ruby">Ruby</option>
+          <option value="rust">Rust</option>
+          <option value="scala">Scala</option>
+          <option value="shell">Shell</option>
+          <option value="smalltalk">Smalltalk</option>
+          <option value="sql">Sql</option>
+          <option value="stex">Stex</option>
+          <option value="tex">Tex</option>
+          <option value="vbscript">Vbscript</option>
+          <option value="xml">Xml</option>
+        </select>
+        &nbsp; &nbsp;
+        <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
+        <button id="text_type" value="{{text_type}}" style="display:none">{{text_type}}</button>
+      </div>
+    </form>
+  </div>
+  <div class='span1' id="kilink-tree-span">
+    <div class="klk-tree">
+    </div>
+  </div>
+</div>
+
+{% assets filters="jsmin", output="js/bundle-new.js",
+          "lib/d3.min.js",
+          "lib/codemirror.js",
+          "js/placeholder.js",
+          "mode/clike/clike.js",
+          "mode/clojure/clojure.js",
+          "mode/coffeescript/coffeescript.js",
+          "mode/css/css.js",
+          "mode/d/d.js",
+          "mode/diff/diff.js",
+          "mode/erlang/erlang.js",
+          "mode/go/go.js",
+          "mode/haskell/haskell.js",
+          "mode/htmlmixed/htmlmixed.js",
+          "mode/http/http.js",
+          "mode/javascript/javascript.js",
+          "mode/lua/lua.js",
+          "mode/markdown/markdown.js",
+          "mode/php/php.js",
+          "mode/perl/perl.js",
+          "mode/python/python.js",
+          "mode/r/r.js",
+          "mode/ruby/ruby.js",
+          "mode/rust/rust.js",
+          "mode/shell/shell.js",
+          "mode/smalltalk/smalltalk.js",
+          "mode/sql/sql.js",
+          "mode/stex/stex.js",
+          "mode/vbscript/vbscript.js",
+          "mode/xml/xml.js",
+          "js/highlight.js/highlight.pack.js",
+          "editor.js",
+          "js/main.js",
+          "js/draw_tree.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% endblock %}
