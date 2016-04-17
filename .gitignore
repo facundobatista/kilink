@@ -7,3 +7,4 @@ _trial_temp
 # bundle-*.js
 .webassets-cache/
 tmp/
+.fuse*
