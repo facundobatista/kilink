@@ -15,7 +15,7 @@ from flask import (
 from flask.ext.assets import Environment
 # from flask_assets import Environment
 from flask_babel import Babel
-# from flask_babel import gettext as _
+from flask_babel import gettext as _
 from sqlalchemy import create_engine
 
 import backend

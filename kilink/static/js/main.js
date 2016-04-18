@@ -1,5 +1,7 @@
 $(document).ready(function(){
-    jQuery('textarea').bind('keydown', 'ctrl+return', function(e) {
+    $('textarea').bind('keydown', 'ctrl+return', function(e) {
         $('#pasteform').submit();
     });
+
+    $(".kilink-timestamp").text(text_timestamp);
 });

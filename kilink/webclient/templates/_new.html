@@ -9,17 +9,14 @@
     {% if timestamp %}
         var timestamp = new Date("{{ timestamp }}").toString();
         var text_timestamp = "{{ _('Created on') }} " + timestamp;
-        $(document).ready(function(){
-            $(".kilink-timestamp").text(text_timestamp);
-        });
     {% endif %}
 </script>
-
 
 <div class="row-fluid">
   <div class="span11">
     <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
-      <textarea id='code' name='content' placeholder={{ _("Write (or paste) your text here and click on Create linkode.") }}
+      <textarea id='code' name='content' 
+                placeholder={{ _("Write (or paste) your text here and click on Create linkode.") }}
                 rows="8" cols="40">{{value}}</textarea>
       <div class='kilink-timestamp'></div>
       <div class='kilink-buttons buttons'>
@@ -62,7 +59,7 @@
         </select>
         &nbsp; &nbsp;
         <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
-        <button id="text_type" value="{{text_type}}" style="display:none">{{text_type}}</button>
+        <input type="hidden" id="text_type" value="{{text_type}}" /> 
       </div>
     </form>
   </div>
@@ -74,38 +71,42 @@
 
 {% assets filters="jsmin", output="js/bundle-new.js",
           "lib/d3.min.js",
-          "lib/codemirror.js",
+          "lib/codemirror.min.js",
           "js/placeholder.js",
-          "mode/clike/clike.js",
-          "mode/clojure/clojure.js",
-          "mode/coffeescript/coffeescript.js",
-          "mode/css/css.js",
-          "mode/d/d.js",
-          "mode/diff/diff.js",
-          "mode/erlang/erlang.js",
-          "mode/go/go.js",
-          "mode/haskell/haskell.js",
-          "mode/htmlmixed/htmlmixed.js",
-          "mode/http/http.js",
-          "mode/javascript/javascript.js",
-          "mode/lua/lua.js",
-          "mode/markdown/markdown.js",
-          "mode/php/php.js",
-          "mode/perl/perl.js",
-          "mode/python/python.js",
-          "mode/r/r.js",
-          "mode/ruby/ruby.js",
-          "mode/rust/rust.js",
-          "mode/shell/shell.js",
-          "mode/smalltalk/smalltalk.js",
-          "mode/sql/sql.js",
-          "mode/stex/stex.js",
-          "mode/vbscript/vbscript.js",
-          "mode/xml/xml.js",
           "js/highlight.js/highlight.pack.js",
-          "editor.js",
-          "js/main.js",
-          "js/draw_tree.js" %}
+          "js/editor.js",
+          "js/draw_tree.js",
+          "js/main.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% assets filters="jsmin", output="js/bundle-mode.js",
+          "mode/clike/clike.min.js",
+          "mode/clojure/clojure.min.js",
+          "mode/coffeescript/coffeescript.min.js",
+          "mode/css/css.min.js",
+          "mode/d/d.min.js",
+          "mode/diff/diff.min.js",
+          "mode/erlang/erlang.min.js",
+          "mode/go/go.min.js",
+          "mode/haskell/haskell.min.js",
+          "mode/htmlmixed/htmlmixed.min.js",
+          "mode/http/http.min.js",
+          "mode/javascript/javascript.min.js",
+          "mode/lua/lua.min.js",
+          "mode/markdown/markdown.min.js",
+          "mode/php/php.min.js",
+          "mode/perl/perl.min.js",
+          "mode/python/python.min.js",
+          "mode/r/r.min.js",
+          "mode/ruby/ruby.min.js",
+          "mode/rust/rust.min.js",
+          "mode/shell/shell.min.js",
+          "mode/smalltalk/smalltalk.min.js",
+          "mode/sql/sql.min.js",
+          "mode/stex/stex.min.js",
+          "mode/vbscript/vbscript.min.js",
+          "mode/xml/xml.min.js" %}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
