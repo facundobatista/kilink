@@ -80,6 +80,14 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
+<!-- <script type="text/javascript" src="static/lib/d3.min.js"></script>
+<script type="text/javascript" src="static/lib/codemirror.min.js"></script>
+<script type="text/javascript" src="static/js/placeholder.js"></script>
+<script type="text/javascript" src="static/js/highlight.js/highlight.pack.js"></script>
+<script type="text/javascript" src="static/js/editor.js"></script>
+<script type="text/javascript" src="static/js/draw_tree.js"></script>
+<script type="text/javascript" src="static/js/main.js"></script> -->
+
 {% assets filters="jsmin", output="js/bundle-mode.js",
           "mode/clike/clike.min.js",
           "mode/clojure/clojure.min.js",
@@ -110,4 +118,31 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
+<!-- <script type="text/javascript" src="static/mode/clike/clike.min.js"></script>
+<script type="text/javascript" src="static/mode/clojure/clojure.min.js"></script>
+<script type="text/javascript" src="static/mode/coffeescript/coffeescript.min.js"></script>
+<script type="text/javascript" src="static/mode/css/css.min.js"></script>
+<script type="text/javascript" src="static/mode/d/d.min.js"></script>
+<script type="text/javascript" src="static/mode/diff/diff.min.js"></script>
+<script type="text/javascript" src="static/mode/erlang/erlang.min.js"></script>
+<script type="text/javascript" src="static/mode/go/go.min.js"></script>
+<script type="text/javascript" src="static/mode/haskell/haskell.min.js"></script>
+<script type="text/javascript" src="static/mode/htmlmixed/htmlmixed.min.js"></script>
+<script type="text/javascript" src="static/mode/http/http.min.js"></script>
+<script type="text/javascript" src="static/mode/javascript/javascript.min.js"></script>
+<script type="text/javascript" src="static/mode/lua/lua.min.js"></script>
+<script type="text/javascript" src="static/mode/markdown/markdown.min.js"></script>
+<script type="text/javascript" src="static/mode/php/php.min.js"></script>
+<script type="text/javascript" src="static/mode/perl/perl.min.js"></script>
+<script type="text/javascript" src="static/mode/python/python.min.js"></script>
+<script type="text/javascript" src="static/mode/r/r.min.js"></script>
+<script type="text/javascript" src="static/mode/ruby/ruby.min.js"></script>
+<script type="text/javascript" src="static/mode/rust/rust.min.js"></script>
+<script type="text/javascript" src="static/mode/shell/shell.min.js"></script>
+<script type="text/javascript" src="static/mode/smalltalk/smalltalk.min.js"></script>
+<script type="text/javascript" src="static/mode/sql/sql.min.js"></script>
+<script type="text/javascript" src="static/mode/stex/stex.min.js"></script>
+<script type="text/javascript" src="static/mode/vbscript/vbscript.min.js"></script>
+<script type="text/javascript" src="static/mode/xml/xml.min.js"></script>
+ -->
 {% endblock %}
