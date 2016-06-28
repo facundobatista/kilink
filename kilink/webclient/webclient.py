@@ -16,6 +16,8 @@ from flask import (
 
 from decorators import measure, nocache
 
+import api
+
 webclient = Blueprint('webclient', __name__,
                       template_folder="templates")
 logger = logging.getLogger('kilink.kilink')
@@ -103,26 +105,33 @@ def show(kid, revno=None):
     """Show the kilink content"""
     # get the content
     logger.debug("Show start; kid=%r revno=%r", kid, revno)
-    if revno is None:
-        klnk = current_app.kilinkbackend.get_root_node(kid)
-        revno = klnk.revno
-    else:
-        klnk = current_app.kilinkbackend.get_kilink(kid, revno)
-    content = klnk.content
-    text_type = klnk.text_type
-    timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+    # if revno is None:
+    #     klnk = current_app.kilinkbackend.get_root_node(kid)
+    #     revno = klnk.revno
+    # else:
+    #     klnk = current_app.kilinkbackend.get_kilink(kid, revno)
+    # content = klnk.content
+    # text_type = klnk.text_type
+    # timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # get the tree
-    tree, nodeq = current_app.kilinkbackend.build_tree(kid, revno)
+    # # get the tree
+    # tree, nodeq = current_app.kilinkbackend.build_tree(kid, revno)
 
-    render_dict = {
-        'value': content,
-        'button_text': ('Save new version'),
-        'kid_info': "%s/%s" % (kid, revno),
-        'tree_info': json.dumps(tree) if tree != {} else False,
-        'current_revno': revno,
-        'text_type': text_type,
-        'timestamp': timestamp,
-    }
-    logger.debug("Show done; quantity=%d", nodeq)
+    render_dict = api.api.api_get(kid, revno)._original
+
+    render_dict['tree_info'] = json.dumps(
+        render_dict['tree']) if render_dict['tree'] != {} else False
+    render_dict.pop('tree', None)
+    render_dict['button_text'] = ('Save new version')
+    render_dict['current_revno'] = revno
+    # render_dict = {
+    #     'value': content,
+    #     'button_text': ('Save new version'),
+    #     'kid_info': "%s/%s" % (kid, revno),
+    #     'tree_info': json.dumps(tree) if tree != {} else False,
+    #     'current_revno': revno,
+    #     'text_type': text_type,
+    #     'timestamp': timestamp,
+    # }
+    logger.debug("Show done; quantity=%d", render_dict['nodeq'])
     return render_template('_new.html', **render_dict)

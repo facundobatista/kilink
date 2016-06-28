@@ -8,3 +8,4 @@ _trial_temp
 .webassets-cache/
 tmp/
 .fuse*
+.directory

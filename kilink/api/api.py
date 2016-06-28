@@ -13,7 +13,7 @@ from flask import (
     current_app
 )
 
-from decorators import crossdomain, measure
+from decorators import crossdomain, measure, json_return
 
 api = Blueprint('api', __name__)
 logger = logging.getLogger('kilink.kilink')
@@ -67,6 +67,7 @@ def api_update(kid):
 @api.route('/api/1/linkodes/<kid>', methods=['GET'])
 @crossdomain(origin='*')
 @measure("api.get")
+@json_return
 def api_get(kid, revno=None):
     """Get the kilink and revno content"""
     logger.debug("API get; kid=%r revno=%r", kid, revno)
@@ -76,12 +77,29 @@ def api_get(kid, revno=None):
     else:
         klnk = current_app.kilinkbackend.get_kilink(kid, revno)
 
+    content = klnk.content
+    text_type = klnk.text_type
+    timestamp = klnk.timestamp
+
     # get the tree
     tree, nodeq = current_app.kilinkbackend.build_tree(kid, revno)
 
     logger.debug("API get done; type=%r size=%d len_tree=%d",
-                 klnk.text_type, len(klnk.content), nodeq)
-    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
-                       tree=tree)
-    return ret_json
+                 text_type, len(content), nodeq)
 
+    ret_dict = {
+        'content': content,
+        'text_type': text_type,
+        'tree': tree,
+        'nodeq': nodeq,
+        'timestamp': timestamp,
+        'kid_info': "%s/%s" % (kid, revno)
+    }
+
+    return ret_dict
+    # ret_json = jsonify(content=content,
+    #                    text_type=text_type,
+    #                    tree=tree,
+    #                    timestamp=timestamp,
+    #                    kid_info="%s/%s" % (kid, revno))
+    # return ret_json

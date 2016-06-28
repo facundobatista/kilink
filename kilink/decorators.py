@@ -4,7 +4,7 @@ from datetime import timedelta
 import time
 from functools import update_wrapper
 
-from flask import make_response, request, current_app
+from flask import make_response, request, current_app, jsonify
 
 from metrics import StatsdClient
 
@@ -93,3 +93,25 @@ def crossdomain(origin=None, methods=None, headers=None,
         f.provide_automatic_options = False
         return update_wrapper(wrapped_function, f)
     return decorator
+
+
+def include_original(dec):
+    """ Decorator to make decorators include original function """
+    def meta_decorator(f):
+        decorated = dec(f)
+        decorated._original = f
+        return decorated
+    return meta_decorator
+
+
+def json_return(f):
+    def response(*args, **kwargs):
+        resp = f(*args, **kwargs)
+        response = jsonify(**resp)
+        response._original = resp
+        return response
+    return response
+
+
+def flask_response(f):
+    pass
