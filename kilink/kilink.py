@@ -12,7 +12,7 @@ from flask import (
     request,
 )
 
-from flask.ext.assets import Environment
+# from flask.ext.assets import Environment
 # from flask_assets import Environment
 from flask_babel import Babel
 from flask_babel import gettext as _
@@ -38,9 +38,9 @@ app.register_blueprint(api)
 babel = Babel(app)
 
 # flask-assets
-assets = Environment(app)
-assets.cache = "/tmp/"
-assets.init_app(app)
+# assets = Environment(app)
+# assets.cache = "/tmp/"
+# assets.init_app(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
