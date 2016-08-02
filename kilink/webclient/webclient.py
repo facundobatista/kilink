@@ -117,7 +117,7 @@ def show(kid, revno=None):
     # # get the tree
     # tree, nodeq = current_app.kilinkbackend.build_tree(kid, revno)
 
-    render_dict = api.api.api_get(kid, revno)._original
+    render_dict = api.api.api_get(kid, revno).original
 
     render_dict['tree_info'] = json.dumps(
         render_dict['tree']) if render_dict['tree'] != {} else False

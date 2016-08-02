@@ -95,23 +95,12 @@ def crossdomain(origin=None, methods=None, headers=None,
     return decorator
 
 
-def include_original(dec):
-    """ Decorator to make decorators include original function """
-    def meta_decorator(f):
-        decorated = dec(f)
-        decorated._original = f
-        return decorated
-    return meta_decorator
-
-
 def json_return(f):
+    """Parse response to json and keep original"""
     def response(*args, **kwargs):
+        """The wrapped function."""
         resp = f(*args, **kwargs)
         response = jsonify(**resp)
-        response._original = resp
+        response.original = resp
         return response
     return response
-
-
-def flask_response(f):
-    pass
