@@ -16,7 +16,7 @@ from flask import (
 
 from decorators import measure, nocache
 
-import api
+from api import api_get
 
 webclient = Blueprint('webclient', __name__,
                       template_folder="templates")
@@ -106,18 +106,18 @@ def show(kid, revno=None):
     # get the content
     logger.debug("Show start; kid=%r revno=%r", kid, revno)
     # if revno is None:
-    #     klnk = current_app.kilinkbackend.get_root_node(kid)
+    #     klnk = backend.get_root_node(kid)
     #     revno = klnk.revno
     # else:
-    #     klnk = current_app.kilinkbackend.get_kilink(kid, revno)
+    #     klnk = backend.get_kilink(kid, revno)
     # content = klnk.content
     # text_type = klnk.text_type
     # timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # # get the tree
-    # tree, nodeq = current_app.kilinkbackend.build_tree(kid, revno)
+    # tree, nodeq = backend.build_tree(kid, revno)
 
-    render_dict = api.api.api_get(kid, revno).original
+    render_dict = api_get(kid, revno).original
 
     render_dict['tree_info'] = json.dumps(
         render_dict['tree']) if render_dict['tree'] != {} else False

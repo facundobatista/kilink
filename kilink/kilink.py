@@ -10,6 +10,7 @@ from flask import (
     jsonify,
     render_template,
     request,
+    redirect
 )
 
 # from flask.ext.assets import Environment
@@ -22,9 +23,10 @@ import backend
 import loghelper
 
 from config import config, LANGUAGES
+from metrics import StatsdClient
 
-from webclient.webclient import webclient
-from api.api import api
+from webclient import webclient
+from api import api
 # set up flask
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -32,10 +34,10 @@ app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
 
+babel = Babel(app)
+
 app.register_blueprint(webclient)
 app.register_blueprint(api)
-
-babel = Babel(app)
 
 # flask-assets
 # assets = Environment(app)
@@ -44,6 +46,8 @@ babel = Babel(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
+
+metrics = StatsdClient("linkode")
 
 
 @app.errorhandler(backend.KilinkNotFoundError)
@@ -77,6 +81,5 @@ if __name__ == "__main__":
 
     # set up the backend
     engine = create_engine(config["db_engine"], echo=True)
-    app.kilinkbackend = backend.KilinkBackend(engine)
-    app.kilinkNotFoundError = backend.KilinkNotFoundError
+    kilinkbackend = app.kilinkbackend = backend.KilinkBackend(engine)
     app.run(debug=True, host='0.0.0.0')

@@ -13,6 +13,7 @@ from flask import (
     current_app
 )
 
+from config import config
 from decorators import crossdomain, measure, json_return
 
 api = Blueprint('api', __name__)
@@ -31,7 +32,7 @@ def api_create():
     ret_json = jsonify(linkode_id=klnk.kid, revno=klnk.revno)
     response = make_response(ret_json)
     response.headers['Location'] = 'http://%s/%s/%s' % (
-        current_app.config["server_host"], klnk.kid, klnk.revno)
+        config["server_host"], klnk.kid, klnk.revno)
     logger.debug("API create done; kid=%s", klnk.kid)
     return response, 201
 
@@ -50,7 +51,7 @@ def api_update(kid):
         klnk = current_app.kilinkbackend.update_kilink(kid,
                                                        parent, content,
                                                        text_type)
-    except current_app.kilinkNotFoundError:
+    except current_app.kilinkbackend.kilinkNotFoundError:
         logger.debug("API update done; kid %r not found", kid)
         response = make_response()
         return response, 404
@@ -59,7 +60,7 @@ def api_update(kid):
     ret_json = jsonify(revno=klnk.revno)
     response = make_response(ret_json)
     response.headers['Location'] = 'http://%s/%s/%s' % (
-        current_app.config["server_host"], klnk.kid, klnk.revno)
+        config["server_host"], klnk.kid, klnk.revno)
     return response, 201
 
 
