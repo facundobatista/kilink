@@ -55,6 +55,13 @@ pip install -r requirements.txt
 ./run
 ```
 
+or if you prefer to use Docker
+
+```
+docker build -t kilink .
+docker run -it -p 5000:5000 kilink
+```
+
 How to Translate
 ----------------
 
