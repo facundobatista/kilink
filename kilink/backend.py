@@ -191,4 +191,3 @@ class KilinkBackend(object):
             fringe.extend(children)
 
         return root, len(nodes)
-

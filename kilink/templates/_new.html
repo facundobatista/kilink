@@ -7,7 +7,8 @@
     var current_revno = "{{ current_revno }}";
     var text_timestamp;
     {% if timestamp %}
-        var timestamp = new Date("{{ timestamp.strftime("%Y-%m-%dT%H:%M:%SZ") }}").toString();
+        // .strftime("%Y-%m-%dT%H:%M:%SZ")
+        var timestamp = new Date("{{ timestamp }}").toString();
         text_timestamp = "{{ _('Created on') }} " + timestamp;
     {% endif %}
 </script>
