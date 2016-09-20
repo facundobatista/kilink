@@ -1,10 +1,10 @@
 # Copyright 2011-2016 Facundo Batista
 # All Rigths Reserved
 
-"""The server and main app for kilink."""
+"""The server for kilink."""
 
-import json
 import logging
+import json
 import time
 
 from functools import update_wrapper
@@ -12,13 +12,14 @@ from functools import update_wrapper
 from flask import (
     Flask,
     jsonify,
-    make_response,
-    redirect,
     render_template,
     request,
+    redirect,
+    make_response
 )
 
-from flask.ext.assets import Environment
+# from flask.ext.assets import Environment
+# from flask_assets import Environment
 from flask_babel import Babel
 from flask_babel import gettext as _
 from sqlalchemy import create_engine
@@ -27,8 +28,8 @@ import backend
 import loghelper
 
 from config import config, LANGUAGES
-from decorators import crossdomain
 from metrics import StatsdClient
+from decorators import crossdomain
 
 # set up flask
 app = Flask(__name__)
@@ -36,12 +37,13 @@ app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
+
 babel = Babel(app)
 
 # flask-assets
-assets = Environment(app)
-assets.cache = "/tmp/"
-assets.init_app(app)
+# assets = Environment(app)
+# assets.cache = "/tmp/"
+# assets.init_app(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
@@ -88,6 +90,24 @@ def measure(metric_name):
     return _decorator
 
 
+@app.errorhandler(backend.KilinkNotFoundError)
+def handle_not_found_error(error):
+    """Return 404 on kilink not found"""
+    if request.url_rule.endpoint.startswith('api_'):
+        response = jsonify({'message': error.message})
+    else:
+        response = render_template('_404.html')
+
+    logger.debug(error.message)
+    return response, 404
+
+
+@babel.localeselector
+def get_locale():
+    """Return the best matched language supported."""
+    return request.accept_languages.best_match(LANGUAGES.keys())
+
+
 # accesory pages
 @app.route('/about')
 @measure("about")
@@ -116,7 +136,7 @@ def version():
 def index():
     """The base page."""
     render_dict = {
-        'value': '',
+        'content': '',
         'button_text': _('Create linkode'),
         'kid_info': '',
         'tree_info': json.dumps(False),
@@ -178,10 +198,10 @@ def show(kid, revno=None):
     timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # get the tree
-    tree, nodeq = build_tree(kid, revno)
+    tree, nodeq = kilinkbackend.build_tree(kid, revno)
 
     render_dict = {
-        'value': content,
+        'content': content,
         'button_text': _('Save new version'),
         'kid_info': "%s/%s" % (kid, revno),
         'tree_info': json.dumps(tree) if tree != {} else False,
@@ -191,34 +211,6 @@ def show(kid, revno=None):
     }
     logger.debug("Show done; quantity=%d", nodeq)
     return render_template('_new.html', **render_dict)
-
-
-def build_tree(kid, revno):
-    """Build the tree for a given kilink id."""
-    nodes = []
-    for treenode in kilinkbackend.get_kilink_tree(kid):
-        url = "/%s/%s" % (kid, treenode.revno)
-        parent = treenode.parent
-        nodes.append({
-            'order': treenode.order,
-            'parent': parent,
-            'revno': treenode.revno,
-            'url': url,
-            'timestamp': str(treenode.timestamp),
-            'selected': treenode.revno == revno,
-        })
-
-    root = [n for n in nodes if n['parent'] is None][0]
-    fringe = [root, ]
-
-    while fringe:
-        node = fringe.pop()
-        children = [n for n in nodes if n['parent'] == node['revno']]
-
-        node['contents'] = children
-        fringe.extend(children)
-
-    return root, len(nodes)
 
 
 # API
@@ -278,31 +270,13 @@ def api_get(kid, revno=None):
         klnk = kilinkbackend.get_kilink(kid, revno)
 
     # get the tree
-    tree, nodeq = build_tree(kid, revno)
+    tree, nodeq = kilinkbackend.build_tree(kid, revno)
 
     logger.debug("API get done; type=%r size=%d len_tree=%d",
                  klnk.text_type, len(klnk.content), nodeq)
     ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
                        tree=tree)
     return ret_json
-
-
-@app.errorhandler(backend.KilinkNotFoundError)
-def handle_not_found_error(error):
-    """Return 404 on kilink not found"""
-    if request.url_rule.endpoint.startswith('api_'):
-        response = jsonify({'message': error.message})
-    else:
-        response = render_template('_404.html')
-
-    logger.debug(error.message)
-    return response, 404
-
-
-@babel.localeselector
-def get_locale():
-    """Return the best matched language supported."""
-    return request.accept_languages.best_match(LANGUAGES.keys())
 
 
 if __name__ == "__main__":

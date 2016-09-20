@@ -63,7 +63,7 @@ class ServingTestCase(TestCase):
         kilink.index()
 
         k = {}
-        k['value'] = ''
+        k['content'] = ''
         k['button_text'] = 'Create linkode'
         k['kid_info'] = ''
         k['tree_info'] = json.dumps(False)
@@ -87,7 +87,7 @@ class ServingTestCase(TestCase):
         )
 
         k = {}
-        k['value'] = 'content'
+        k['content'] = 'content'
         k['button_text'] = 'Save new version'
         k['text_type'] = 'type1'
         k['kid_info'] = "%s/%s" % (klnk.kid, klnk.revno)
@@ -116,7 +116,7 @@ class ServingTestCase(TestCase):
         )
 
         k = {}
-        k['value'] = 'content'
+        k['content'] = 'content'
         k['button_text'] = 'Save new version'
         k['text_type'] = 'type2'
         k['kid_info'] = "%s/%s" % (klnk.kid, klnk.revno)

@@ -3,7 +3,7 @@
 from datetime import timedelta
 from functools import update_wrapper
 
-from flask import make_response, request, current_app
+from flask import make_response, request, current_app, jsonify
 
 
 def crossdomain(origin=None, methods=None, headers=None,
@@ -50,3 +50,14 @@ def crossdomain(origin=None, methods=None, headers=None,
         f.provide_automatic_options = False
         return update_wrapper(wrapped_function, f)
     return decorator
+
+
+def json_return(f):
+    """Parse response to json and keep original"""
+    def wrapped_function(*args, **kwargs):
+        """The wrapped function."""
+        resp = f(*args, **kwargs)
+        response = jsonify(**resp)
+        response.original = resp
+        return response
+    return wrapped_function
