@@ -1,0 +1,46 @@
+{% macro text_options(current=None) %}
+    {% set options = {
+        "auto": "auto",
+        "c": "C",
+        "c++": "C++",
+        "c#": "C#",
+        "clojure": "Clojure",
+        "coffeescript": "Coffeescript",
+        "css": "Css",
+        "d": "D",
+        "diff": "Diff",
+        "erlang": "Erlang",
+        "go": "Go",
+        "haskell": "Haskell",
+        "html": "Html",
+        "htmlmixed": "Htmlmixed",
+        "http": "Http",
+        "java": "Java",
+        "javascript": "Javascript",
+        "json": "Json",
+        "lua": "Lua",
+        "markdown": "Markdown",
+        "php": "Php",
+        "perl": "Perl",
+        "plain tex": "Plain text",
+        "python": "Python",
+        "r": "R",
+        "ruby": "Ruby",
+        "scala": "Scala",
+        "shell": "Shell",
+        "smalltalk": "Smalltalk",
+        "sql": "Sql",
+        "stex": "Stex",
+        "tex": "Tex",
+        "vbscript": "Vbscript",
+        "xml": "Xml",
+    } %}
+      {% for value in options %}
+          {% if value != current%}
+            <option value="{{value}}">{{options[value]}}</option>
+          {% else %}
+            <option value="{{value}}" selected>{{options[value]}}</option>
+          {% endif %}
+      {% endfor %}
+    }
+{% endmacro %}

@@ -179,7 +179,6 @@ class KilinkBackend(object):
                 'timestamp': str(treenode.timestamp),
                 'selected': treenode.revno == revno,
             })
-
         root = [n for n in nodes if n['parent'] is None][0]
         fringe = [root, ]
 
