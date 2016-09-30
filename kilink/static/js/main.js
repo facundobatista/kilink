@@ -47,7 +47,6 @@ var linkode = (function (){
                 return (!d.contents || d.contents.length === 0) ? null : d.contents;
             });
 
-        console.log(node_list);
         var nodes = tree.nodes(node_list);
         var links = tree.links(nodes);
 
