@@ -24,6 +24,7 @@
 }
 .kilink-timestamp {
     display: inline-block;
+    /*text-align:right;*/
     font-size: 12px;
     margin-left: 5px;
     width: 25%;

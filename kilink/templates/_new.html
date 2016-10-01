@@ -2,88 +2,92 @@
 {% from "helpers.html" import text_options%}
 {% block main %}
 
-<script type="text/javascript">
-    // var node_list = {{ tree_info|safe }};
-    var current_revno = "{{ current_revno }}";
-    var text_timestamp;
-    {% if timestamp %}
-        // .strftime("%Y-%m-%dT%H:%M:%SZ")
-        var timestamp = new Date("{{ timestamp }}").toString();
-        text_timestamp = "{{ _('Created on') }} " + timestamp;
-    {% endif %}
-</script>
-
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tooltipster.bundle.css') }}" rel="stylesheet">
-<script type="text/javascript" src="{{ url_for('static', filename='lib/tooltipster.bundle.js') }}"></script>
-
 <div class="row-fluid">
     <div class="span11">
         <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
-          <textarea id='code' name='content' placeholder="Write (or paste) your text here and click on Create linkode."
-                    rows="8" cols="40">{{content}}</textarea>
-          <div id="timestamp" class='kilink-timestamp'></div>
-          <div class='kilink-buttons buttons'>
-            {{ _("Select a text type:") }}&nbsp; 
-            <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
-                {{text_options("{{text_type}}")}}
-            </select>
+            <div class="form-container">
+                <div class="textarea-container">
+                    <textarea 
+                            id='code' name='content'
+                            placeholder="Write (or paste) your text here and click on Create linkode."
+                            rows="8" cols="40">{{content}}
+                    </textarea>
+                </div>
+                <div class="bar-container row-fluid">
+                    <div id="timestamp" class='span5 kilink-timestamp'></div>
+                    <div id="current_node" class="span1"></div>
+                    <div class='span6 pull-right kilink-buttons buttons'>
+                        {{ _("Select a text type:") }}&nbsp; 
+                        <select onchange="editor.selectMode()" id=selectlang class='btn btn-success' name="text_type">
+                            {{text_options("{{text_type}}")}}
+                        </select>
 
-            <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
-            <button id="text_type" value="{{text_type}}" style="display:none">{{text_type}}</button>
-          </div>
+                        <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
+                        <button id="text_type" value="{{text_type}}" style="display:none">{{text_type}}</button>
+                    </div>    
+                </div>
+            </div>
         </form>
     </div>
-    <div class='span1'>
+    <div class='span1'> 
         <div class="klk-tree" id="kilink-tree-span"></div>
     </div>
 </div>
 
-    <script src='/static/lib/d3.min.js'></script>
-    <script src='/static/lib/codemirror.min.js'></script>
-    <script src="/static/lib/highlight.js/highlight.pack.js"></script>
+<link type="text/css" href="{{ url_for('static', filename='theme/monokai.css') }}" rel="stylesheet">
+<link type="text/css" href="{{ url_for('static', filename='lib/codemirror.css') }}" rel="stylesheet">
+<link type="text/css" href="{{ url_for('static', filename='css/placeholder.css') }}" rel="stylesheet">
 
-    <!-- Languages -->
-    <script src='/static/mode/clike/clike.js'></script>
-    <script src='/static/mode/clojure/clojure.js'></script>
-    <script src='/static/mode/coffeescript/coffeescript.js'></script>
-    <script src='/static/mode/css/css.js'></script>
-    <script src='/static/mode/d/d.js'></script>
-    <script src='/static/mode/diff/diff.js'></script>
-    <script src='/static/mode/erlang/erlang.js'></script>
-    <script src='/static/mode/go/go.js'></script>
-    <script src='/static/mode/haskell/haskell.js'></script>
-    <script src='/static/mode/htmlmixed/htmlmixed.js'></script>
-    <script src='/static/mode/http/http.js'></script>
-    <script src='/static/mode/javascript/javascript.js'></script>
-    <script src='/static/mode/lua/lua.js'></script>
-    <script src='/static/mode/markdown/markdown.js'></script>
-    <script src='/static/mode/php/php.js'></script>
-    <script src='/static/mode/perl/perl.js'></script>
-    <script src='/static/mode/python/python.js'></script>
-    <script src='/static/mode/r/r.js'></script>
-    <script src='/static/mode/ruby/ruby.js'></script>
-    <!-- <script src='/static/mode/rust/rust.js'></script> -->
-    <script src='/static/mode/shell/shell.js'></script>
-    <script src='/static/mode/smalltalk/smalltalk.js'></script>
-    <script src='/static/mode/sql/sql.js'></script>
-    <script src='/static/mode/stex/stex.js'></script>
-    <script src='/static/mode/vbscript/vbscript.js'></script>
-    <script src='/static/mode/xml/xml.js'></script>
-    <!-- End Languages -->
+<script src='/static/lib/d3.min.js'></script>
+<script src='/static/lib/codemirror.min.js'></script>
+<script src="/static/lib/highlight.js/highlight.pack.js"></script>
 
-    <script src='/static/js/placeholder.js'></script>
-    <script src='/static/js/editor.js'></script>
-    <script type="text/javascript" src='/static/js/main.js'></script>
+<!-- Languages -->
+<script src='/static/mode/clike/clike.js'></script>
+<script src='/static/mode/clojure/clojure.js'></script>
+<script src='/static/mode/coffeescript/coffeescript.js'></script>
+<script src='/static/mode/css/css.js'></script>
+<script src='/static/mode/d/d.js'></script>
+<script src='/static/mode/diff/diff.js'></script>
+<script src='/static/mode/erlang/erlang.js'></script>
+<script src='/static/mode/go/go.js'></script>
+<script src='/static/mode/haskell/haskell.js'></script>
+<script src='/static/mode/htmlmixed/htmlmixed.js'></script>
+<script src='/static/mode/http/http.js'></script>
+<script src='/static/mode/javascript/javascript.js'></script>
+<script src='/static/mode/lua/lua.js'></script>
+<script src='/static/mode/markdown/markdown.js'></script>
+<script src='/static/mode/php/php.js'></script>
+<script src='/static/mode/perl/perl.js'></script>
+<script src='/static/mode/python/python.js'></script>
+<script src='/static/mode/r/r.js'></script>
+<script src='/static/mode/ruby/ruby.js'></script>
+<!-- <script src='/static/mode/rust/rust.js'></script> -->
+<script src='/static/mode/shell/shell.js'></script>
+<script src='/static/mode/smalltalk/smalltalk.js'></script>
+<script src='/static/mode/sql/sql.js'></script>
+<script src='/static/mode/stex/stex.js'></script>
+<script src='/static/mode/vbscript/vbscript.js'></script>
+<script src='/static/mode/xml/xml.js'></script>
+<!-- End Languages -->
+
+<script src='/static/js/placeholder.js'></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tooltipster.bundle.css') }}" rel="stylesheet">
+<script type="text/javascript" src="{{ url_for('static', filename='lib/tooltipster.bundle.js') }}"></script>
+<!-- <script src='/static/js/editor.js'></script> -->
+<script type="text/javascript" src='/static/js/main.js'></script>
 
 <script type="text/javascript">
 $(document).ready(function(){
+
+    editor.init({});
+
     linkode.init({
-      code_area : "textarea",
-      form : "pasteform",
-      time_stamp : "timestamp",
-      time_stamp_text : text_timestamp,
-      node_list : {{ tree_info|safe }},
+        time_stamp : "{{ timestamp }}",
+        node_list : {{ tree_info|safe }},
+        current_revno: "{{ current_revno }}",
+        text_datetime: "{{ _('Created on') }} ",
     })
-  });
+});
 </script>
 {% endblock %}

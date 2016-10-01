@@ -5,11 +5,9 @@ var linkode = (function (){
     * @param {Dict} opts
     */
     function init(opts){
-        $code_area = $("#" + opts.code_area);
-        $form = $("#" + opts.form);
-        $time_stamp = $("#" + opts.time_stamp);
-        time_stamp_text = opts.time_stamp_text;
+        time_stamp = opts.time_stamp;
         node_list = opts.node_list;
+        text_datetime = opts.text_datetime;
 
         if (node_list !== false) {
             create_tree();
@@ -21,12 +19,21 @@ var linkode = (function (){
             });
         }
 
-        $code_area.bind('keydown', 'ctrl+return', function(e) {
-            $form.submit();
-        });
-
-        $time_stamp.text(time_stamp_text);
+        $("#timestamp").text(parseDate(time_stamp));
     }
+
+    /**
+    * Parse the date
+    * @param string date_text
+    */
+    function parseDate(date_text){
+        var timestamp = Date.parse(date_text);
+        if(! isNaN(timestamp)){
+            return text_datetime + new Date(timestamp).toString();
+        }
+        return "";
+    }
+
 
     /**
     * Generate the Tree Node
@@ -42,8 +49,7 @@ var linkode = (function (){
         var tree = d3.layout.tree()
             .sort(null)
             .size([tree_size.width, tree_size.height])
-            .children(function(d)
-            {
+            .children(function(d){
                 return (!d.contents || d.contents.length === 0) ? null : d.contents;
             });
 
@@ -60,8 +66,7 @@ var linkode = (function (){
 
         // Edges between nodes as a <path class="link" />
         var link = d3.svg.diagonal()
-            .projection(function(d)
-            {
+            .projection(function(d){
                 var dy = d.y + 40
                 return [d.x, dy];
             });
@@ -79,8 +84,7 @@ var linkode = (function (){
             .enter()
             .append("svg:g")
             .attr("class", "node")
-            .attr("transform", function(d)
-            {
+            .attr("transform", function(d){
                 var dy = d.y + 40;
                 return "translate(" + d.x + "," + dy + ")";
             });
@@ -88,11 +92,10 @@ var linkode = (function (){
         nodeGroup.append("svg:circle")
             .attr("class", "node-dot")
             .attr("r", 15)
-            .style("fill", function(d)
-            {
+            .style("fill", function(d){
                 if (d.selected) {
-                   return "#222222";
-                } else {
+                   return "#222222";}
+                else {
                    return "#AAAAAA";
                 }
 
@@ -102,8 +105,7 @@ var linkode = (function (){
             .attr("text-anchor", "middle")
             .attr("class", "node-text")
             .attr("dy", 5)
-            .text(function(d)
-            {
+            .text(function(d){
                 return d.order;
             })
             .on("click", function(node){
@@ -123,19 +125,17 @@ var linkode = (function (){
     /**
     * Redirect to selected kilink
     * In the future, can load the kilink without redirect
+    * @param node node
     */
     function select_node(node){
         window.location = node.url;
     }
 
-    // selectors
-    var $code_area;
-    var $form;
-    var $time_stamp;
 
     // values
-    var time_stamp_text;
+    var time_stamp;
     var node_list;
+    var text_datetime;
 
 
     var module = {
@@ -144,4 +144,190 @@ var linkode = (function (){
 
     return module;
 
+}())
+
+
+var editor = (function (){
+
+    /**
+    * Init the module
+    * @param {Dict} opts
+    */
+    function init(opts){
+
+        // CodeMirror.on(window, "resize", function() {
+        //     var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
+        //     if (!showing) return;
+        //         showing.CodeMirror.getWrapperElement().style.height = winHeight() + "px";
+        // });
+
+        $editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            theme: 'monokai',
+            lineNumbers: true,
+            tabMode: "indent",
+            autofocus: true,
+            // viewportMargin: Infinity,
+            extraKeys: {
+                "F11": function(cm) {
+                    setFullScreen(cm, !isFullScreen(cm));
+                },
+                "Esc": function(cm) {
+                    if (isFullScreen(cm)){
+                        setFullScreen(cm, false);}
+                },
+                "Ctrl-Enter": function(cm){
+                    $("#pasteform").submit();
+                }
+            }
+        });
+
+        $modeInput = document.getElementById("selectlang");
+
+        var backInput = document.getElementById("text_type");
+        var bmode = backInput.value;
+        if (bmode in {'':0, 'auto':0}){
+            autoDetection = 1;
+            update();
+        }
+        else{
+            autoDetection = 0;
+            $modeInput.value = bmode;
+            $editor.setOption("mode", langLike(bmode));
+            isPython(bmode);
+        }
+        
+        $editor.on("change", function() {
+            if (autoDetection){
+                // clearTimeout(pending);
+                setTimeout(update, 400);
+            }
+            else{
+            //do nothing
+            }
+        });
+
+        // $editor.setOption("theme", 'monokai');
+    }
+
+    /**
+    * Get if the Codemirror is on full screen
+    * @param Codemirror cm
+    */
+    function isFullScreen(cm) {
+        return /\bCodeMirror-fullscreen\b/.test(cm.getWrapperElement().className);
+    }
+
+    function winHeight() {
+        return window.innerHeight || (document.documentElement || document.body).clientHeight;
+    }
+
+    function setFullScreen(cm, full) {
+        var wrap = cm.getWrapperElement();
+        if (full) {
+            wrap.className += " CodeMirror-fullscreen";
+            rap.style.height = winHeight() + "px";
+            document.documentElement.style.overflow = "hidden";
+        }
+        else {
+            wrap.className = wrap.className.replace(" CodeMirror-fullscreen", "");
+            wrap.style.height = "";
+            document.documentElement.style.overflow = "";
+        }
+
+        cm.refresh();
+    }
+
+    function selectMode() {
+        var mode = $modeInput.options[$modeInput.selectedIndex].innerHTML;
+        forkMode(mode);
+    }
+
+    function forkMode(inmode) {
+        var cmode = langLike(inmode.toLowerCase());
+        if (cmode=="auto"){
+            autoDetection = 1;
+            update();
+        }
+        else{
+            autoDetection = 0;
+            $editor.setOption("mode", cmode);
+            isPython(cmode);
+            $modeInput.options[0].text = "auto";
+        }
+    }
+
+    function looksLike(contents) {
+        var info = hljs.highlightAuto(contents.trim());
+        var clang = langLike(info.language)
+        return clang;
+    }
+
+    function langLike(lang){
+        if (lang in {'cpp':0, 'c++':0, 'cs':0, 'c#':0, 'c':0, 'scala':0, 'java':0}){
+            ang = "clike";
+        }
+        else if (lang=="bash"){
+            lang = "shell";
+        }
+        else if (lang=="html"){
+            lang = "xml";
+        }
+            else if (lang=="json"){
+        lang = "javascript";
+        }
+            else if (lang=="tex"){
+        lang = "stex";
+        }
+        else if (lang in languages){
+            
+            lang = "plain text";
+        }
+        else if (typeof lang === "undefined"){
+        lang = "plain text";
+        // "plain text" does not exist,
+        // it is a dummy mode to get easily "plain text" mode
+        }
+        else{
+        //do nothing
+        }
+        return lang;
+    }
+
+    function update() {
+        var langMode = looksLike($editor.getValue());
+        $editor.setOption("mode", langMode);
+        isPython(langMode);
+        $modeInput.options[$modeInput.selectedIndex].text = "auto: " + capitalise(langMode);
+    }
+
+    function capitalise(string){
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function isPython(imode){
+        if (imode == "python"){
+            $editor.setOption("indentUnit", 4);
+        }
+        else{
+            $editor.setOption("indentUnit", 2);
+        }
+    }
+
+    var $editor;
+    var $modeInput
+
+    // var pending;
+    var autoDetection = 1;
+    var languages =  {'1c':0, 'avr':0, 'assembler':0, 'actionscript':0,
+            'apache':0, 'applescript':0, 'axapta':0, 'bash':0, 'brainfuck':0,
+            'cmake':0, 'dos':0, '.bat':0, 'delphi':0, 'django':0, 'glsl':0,
+            'ini':0, 'lisp':0, 'mel':0, 'matlab':0, 'nginx':0, 'objectivec':0,
+            'parser3':0, 'profile':0, 'rsl':0, 'rib':0, 'vhdl':0, 'vala':0}
+
+    var module = {
+        init: init,
+        selectMode: selectMode,
+    }
+
+    return module;
 }())
