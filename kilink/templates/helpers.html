@@ -35,11 +35,11 @@
         "vbscript": "Vbscript",
         "xml": "Xml",
     } %}
-      {% for value in options %}
-          {% if value != current%}
-            <option value="{{value}}">{{options[value]}}</option>
+      {% for key in options | sort %}
+          {% if key != current %}
+            <option value="{{key}}">{{options[key]}}</option>
           {% else %}
-            <option value="{{value}}" selected>{{options[value]}}</option>
+            <option value="{{key}}" selected>{{options[key]}}</option>
           {% endif %}
       {% endfor %}
     }

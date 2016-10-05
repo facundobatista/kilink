@@ -8,13 +8,15 @@ var linkode = (function (){
         time_stamp = opts.time_stamp;
         node_list = opts.node_list;
         text_datetime = opts.text_datetime;
+        text_tooltip = opts.text_tooltip;
+
 
         if (node_list !== false) {
             create_tree();
             $.each($(".node"), function() {
                 $(this).tooltipster({
                     trigger: 'hover',
-                    content: "See node's version " + $(this).text(),
+                    content: text_tooltip + $(this).text(),
                 });
             });
         }
@@ -136,6 +138,7 @@ var linkode = (function (){
     var time_stamp;
     var node_list;
     var text_datetime;
+    var text_tooltip;
 
 
     var module = {
@@ -155,25 +158,18 @@ var editor = (function (){
     */
     function init(opts){
 
-        // CodeMirror.on(window, "resize", function() {
-        //     var showing = document.body.getElementsByClassName("CodeMirror-fullscreen")[0];
-        //     if (!showing) return;
-        //         showing.CodeMirror.getWrapperElement().style.height = winHeight() + "px";
-        // });
-
         $editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             theme: 'monokai',
             lineNumbers: true,
             tabMode: "indent",
             autofocus: true,
-            // viewportMargin: Infinity,
+            viewportMargin: Infinity,
             extraKeys: {
                 "F11": function(cm) {
-                    setFullScreen(cm, !isFullScreen(cm));
+                    cm.setOption("fullScreen", true)
                 },
                 "Esc": function(cm) {
-                    if (isFullScreen(cm)){
-                        setFullScreen(cm, false);}
+                     cm.setOption("fullScreen", false)
                 },
                 "Ctrl-Enter": function(cm){
                     $("#pasteform").submit();
@@ -198,43 +194,9 @@ var editor = (function (){
         
         $editor.on("change", function() {
             if (autoDetection){
-                // clearTimeout(pending);
                 setTimeout(update, 400);
             }
-            else{
-            //do nothing
-            }
         });
-
-        // $editor.setOption("theme", 'monokai');
-    }
-
-    /**
-    * Get if the Codemirror is on full screen
-    * @param Codemirror cm
-    */
-    function isFullScreen(cm) {
-        return /\bCodeMirror-fullscreen\b/.test(cm.getWrapperElement().className);
-    }
-
-    function winHeight() {
-        return window.innerHeight || (document.documentElement || document.body).clientHeight;
-    }
-
-    function setFullScreen(cm, full) {
-        var wrap = cm.getWrapperElement();
-        if (full) {
-            wrap.className += " CodeMirror-fullscreen";
-            rap.style.height = winHeight() + "px";
-            document.documentElement.style.overflow = "hidden";
-        }
-        else {
-            wrap.className = wrap.className.replace(" CodeMirror-fullscreen", "");
-            wrap.style.height = "";
-            document.documentElement.style.overflow = "";
-        }
-
-        cm.refresh();
     }
 
     function selectMode() {
