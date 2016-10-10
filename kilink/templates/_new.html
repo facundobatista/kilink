@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "helpers.html" import text_options%}
+{% from "helpers.html" import text_options, languages%}
 {% block main %}
 
 <div class="col-md-12">
@@ -32,55 +32,35 @@
 
 <link type="text/css" href="{{ url_for('static', filename='theme/monokai.css') }}" rel="stylesheet">
 <link type="text/css" href="{{ url_for('static', filename='lib/codemirror.css') }}" rel="stylesheet">
-<link type="text/css" href="{{ url_for('static', filename='css/placeholder.css') }}" rel="stylesheet">
 
-<script src='/static/lib/d3.min.js'></script>
 <script src='/static/lib/codemirror.min.js'></script>
+<script type="text/javascript" src='/static/js/main.js'></script>
+
+<script type="text/javascript">
+    editor.init({});
+</script>
+
+<link type="text/css" href="{{ url_for('static', filename='css/placeholder.css') }}" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='addon/display/fullscreen.css') }}" rel="stylesheet">
+
+<script type="text/javascript" src="{{ url_for('static', filename='addon/display/fullscreen.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='addon/display/placeholder.js') }}"></script>
 <script src="/static/lib/highlight.js/highlight.pack.js"></script>
 
 <!-- Languages -->
-<script src='/static/mode/clike/clike.js'></script>
-<script src='/static/mode/clojure/clojure.js'></script>
-<script src='/static/mode/coffeescript/coffeescript.js'></script>
-<script src='/static/mode/css/css.js'></script>
-<script src='/static/mode/d/d.js'></script>
-<script src='/static/mode/diff/diff.js'></script>
-<script src='/static/mode/erlang/erlang.js'></script>
-<script src='/static/mode/go/go.js'></script>
-<script src='/static/mode/haskell/haskell.js'></script>
-<script src='/static/mode/htmlmixed/htmlmixed.js'></script>
-<script src='/static/mode/http/http.js'></script>
-<script src='/static/mode/javascript/javascript.js'></script>
-<script src='/static/mode/lua/lua.js'></script>
-<script src='/static/mode/markdown/markdown.js'></script>
-<script src='/static/mode/php/php.js'></script>
-<script src='/static/mode/perl/perl.js'></script>
-<script src='/static/mode/python/python.js'></script>
-<script src='/static/mode/r/r.js'></script>
-<script src='/static/mode/ruby/ruby.js'></script>
-<!-- <script src='/static/mode/rust/rust.js'></script> -->
-<script src='/static/mode/shell/shell.js'></script>
-<script src='/static/mode/smalltalk/smalltalk.js'></script>
-<script src='/static/mode/sql/sql.js'></script>
-<script src='/static/mode/stex/stex.js'></script>
-<script src='/static/mode/vbscript/vbscript.js'></script>
-<script src='/static/mode/xml/xml.js'></script>
+    {{ languages() }}
 <!-- End Languages -->
 
 <!-- <script src='/static/js/placeholder.js'></script> -->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tooltipster.bundle.css') }}" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='addon/display/fullscreen.css') }}" rel="stylesheet">
 <script type="text/javascript" src="{{ url_for('static', filename='lib/tooltipster.bundle.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='addon/display/fullscreen.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='addon/display/placeholder.js') }}"></script>
-<!-- <script src='/static/js/editor.js'></script> -->
-<script type="text/javascript" src='/static/js/main.js'></script>
+<script src='/static/lib/d3.min.js'></script>
 
 <script type="text/javascript">
 
-editor.init({});
-
 $(document).ready(function(){
+
+    editor.init_mode();
 
     linkode.init({
         time_stamp : "{{ timestamp }}",

@@ -177,6 +177,10 @@ var editor = (function (){
             }
         });
 
+        
+    }
+
+    function init_mode(){
         $modeInput = document.getElementById("selectlang");
 
         var backInput = document.getElementById("text_type");
@@ -226,7 +230,7 @@ var editor = (function (){
 
     function langLike(lang){
         if (lang in {'cpp':0, 'c++':0, 'cs':0, 'c#':0, 'c':0, 'scala':0, 'java':0}){
-            ang = "clike";
+            lang = "clike";
         }
         else if (lang=="bash"){
             lang = "shell";
@@ -241,17 +245,17 @@ var editor = (function (){
         lang = "stex";
         }
         else if (lang in languages){
-            
             lang = "plain text";
         }
         else if (typeof lang === "undefined"){
-        lang = "plain text";
-        // "plain text" does not exist,
-        // it is a dummy mode to get easily "plain text" mode
+            lang = "plain text";
+            // "plain text" does not exist,
+            // it is a dummy mode to get easily "plain text" mode
         }
-        else{
-        //do nothing
+        else {
+            //do nothing
         }
+
         return lang;
     }
 
@@ -288,6 +292,7 @@ var editor = (function (){
 
     var module = {
         init: init,
+        init_mode: init_mode,
         selectMode: selectMode,
     }
 
