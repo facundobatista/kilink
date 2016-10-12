@@ -60,7 +60,9 @@ var linkode = (function (){
 
 
         var layoutRoot = d3.select(".klk-tree")
-            .append("svg:svg").attr("width", layout_size.width).attr("height", layout_size.height)
+            .append("svg:svg")
+            .attr("width", layout_size.width)
+            .attr("height", layout_size.height)
             .append("svg:g")
             .attr("class", "container")
             .attr("transform", "translate(0,0)");
@@ -180,12 +182,15 @@ var editor = (function (){
         
     }
 
+    /**
+    * Late Init for the mode
+    */
     function init_mode(){
-        $modeInput = document.getElementById("selectlang");
+        $modeInput = $("#selectlang");
+        $backInput = $("#text_type");
 
-        var backInput = document.getElementById("text_type");
-        var bmode = backInput.value;
-        if (bmode in {'':0, 'auto':0}){
+        var bmode = $backInput.val();
+        if ($.inArray(bmode, ['', 'auto']) >=0 ){
             autoDetection = 1;
             update();
         }
@@ -203,14 +208,13 @@ var editor = (function (){
         });
     }
 
+    /**
+    * Set the mode selected in the ddl
+    */
     function selectMode() {
-        var mode = $modeInput.options[$modeInput.selectedIndex].innerHTML;
-        forkMode(mode);
-    }
-
-    function forkMode(inmode) {
-        var cmode = langLike(inmode.toLowerCase());
-        if (cmode=="auto"){
+        var mode = $modeInput.find("option:selected").val();
+        var cmode = langLike(mode.toLowerCase());
+        if (cmode == "auto"){
             autoDetection = 1;
             update();
         }
@@ -218,33 +222,42 @@ var editor = (function (){
             autoDetection = 0;
             $editor.setOption("mode", cmode);
             isPython(cmode);
-            $modeInput.options[0].text = "auto";
+            $modeInput.find("option:first").text("auto");
         }
     }
 
+
+    /**
+    * Get an estimate of the language based on the content
+    * @param string content
+    */
     function looksLike(contents) {
         var info = hljs.highlightAuto(contents.trim());
         var clang = langLike(info.language)
         return clang;
     }
 
+    /**
+    * Get the mode based on the language
+    * @param string lang
+    */
     function langLike(lang){
-        if (lang in {'cpp':0, 'c++':0, 'cs':0, 'c#':0, 'c':0, 'scala':0, 'java':0}){
+        if ($.inArray(lang, c_languages) >= 0){
             lang = "clike";
         }
-        else if (lang=="bash"){
+        else if (lang == "bash"){
             lang = "shell";
         }
-        else if (lang=="html"){
+        else if (lang == "html"){
             lang = "xml";
         }
-            else if (lang=="json"){
+            else if (lang == "json"){
         lang = "javascript";
         }
-            else if (lang=="tex"){
+            else if (lang == "tex"){
         lang = "stex";
         }
-        else if (lang in languages){
+        else if ($.inArray(lang, plain_languages) >= 0){
             lang = "plain text";
         }
         else if (typeof lang === "undefined"){
@@ -259,17 +272,30 @@ var editor = (function (){
         return lang;
     }
 
+    /**
+    * Update the mode when language is auto
+    */
     function update() {
         var langMode = looksLike($editor.getValue());
         $editor.setOption("mode", langMode);
         isPython(langMode);
-        $modeInput.options[$modeInput.selectedIndex].text = "auto: " + capitalise(langMode);
+        $modeInput.find("option:selected").text("auto: " + capitalise(langMode));
     }
 
+
+    /**
+    * Capitalise the text
+    * @param string string
+    */
     function capitalise(string){
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
+
+    /**
+    * Set indent to 4 if python, else 2
+    * @param string mode
+    */
     function isPython(imode){
         if (imode == "python"){
             $editor.setOption("indentUnit", 4);
@@ -281,15 +307,15 @@ var editor = (function (){
 
     var $editor;
     var $modeInput
+    var $backInput
 
-    // var pending;
     var autoDetection = 1;
-    var languages =  {'1c':0, 'avr':0, 'assembler':0, 'actionscript':0,
-            'apache':0, 'applescript':0, 'axapta':0, 'bash':0, 'brainfuck':0,
-            'cmake':0, 'dos':0, '.bat':0, 'delphi':0, 'django':0, 'glsl':0,
-            'ini':0, 'lisp':0, 'mel':0, 'matlab':0, 'nginx':0, 'objectivec':0,
-            'parser3':0, 'profile':0, 'rsl':0, 'rib':0, 'vhdl':0, 'vala':0}
-
+    var plain_languages =  ['1c', 'avr', 'assembler', 'actionscript',
+                            'apache', 'applescript', 'axapta', 'bash', 'brainfuck',
+                            'cmake', 'dos', '.bat', 'delphi', 'django', 'glsl',
+                            'ini', 'lisp', 'mel', 'matlab', 'nginx', 'objectivec',
+                            'parser3', 'profile', 'rsl', 'rib', 'vhdl', 'vala'];
+    var c_languages = ['cpp', 'c++', 'cs', 'c#', 'c', 'scala', 'java'];
     var module = {
         init: init,
         init_mode: init_mode,
