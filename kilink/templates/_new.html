@@ -14,11 +14,10 @@
                     <div id="timestamp" class="col-md-5 kilink-timestamp"></div>
                     <div id="current_node" class="col-md-2"></div> <!-- For future current kilink icon -->
                     <div class="col-md-5 pull-right kilink-buttons buttons">
-                            {{ _("Select a text type:") }}&nbsp; 
+                        {{ _("Select a text type:") }}
                         <select onchange="editor.selectMode()" id=selectlang class='' name="text_type">
                             {{text_options("{{text_type}}")}}
                         </select>
-
                         <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
                     </div>
                 </div>
