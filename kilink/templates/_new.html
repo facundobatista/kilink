@@ -1,127 +1,73 @@
 {% extends "base.html" %}
-
+{% from "helpers.html" import text_options, languages%}
 {% block main %}
 
-<script type="text/javascript">
-    var node_list = {{ tree_info|safe }};
-    var current_revno = "{{ current_revno }}";
-    var text_timestamp;
-    {% if timestamp %}
-        // .strftime("%Y-%m-%dT%H:%M:%SZ")
-        var timestamp = new Date("{{ timestamp }}").toString();
-        text_timestamp = "{{ _('Created on') }} " + timestamp;
-    {% endif %}
-</script>
-
-<link rel="stylesheet" type="text/css" href="/static/css/tooltipster.bundle.css">
-<script type="text/javascript" src="/static/js/tooltipster.bundle.js"></script>
-
-
-<div class="row-fluid">
-  <div class="span11">
-    <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
-      <textarea id='code' name='content' placeholder="Write (or paste) your text here and click on Create linkode."
-                rows="8" cols="40">{{content}}</textarea>
-      <div class='kilink-timestamp'></div>
-      <div class='kilink-buttons buttons'>
-        {{ _("Select a text type:") }}&nbsp; <select onchange="selectMode()" id=seleclang class='btn btn-success' name="text_type">
-          <option value="auto" selected>auto</option>
-          <option value="c">C</option>
-          <option value="c++">C++</option>
-          <option value="c#">C#</option>
-          <option value="clojure">Clojure</option>
-          <option value="coffeescript">Coffeescript</option>
-          <option value="css">Css</option>
-          <option value="d">D</option>
-          <option value="diff">Diff</option>
-          <option value="erlang">Erlang</option>
-          <option value="go">Go</option>
-          <option value="haskell">Haskell</option>
-          <option value="html">Html</option>
-          <option value="htmlmixed">Htmlmixed</option>
-          <option value="http">Http</option>
-          <option value="java">Java</option>
-          <option value="javascript">Javascript</option>
-          <option value="json">Json</option>
-          <option value="lua">Lua</option>
-          <option value="markdown">Markdown</option>
-          <option value="php">Php</option>
-          <option value="perl">Perl</option>
-          <option value="plain text">Plain text</option>
-          <option value="python">Python</option>
-          <option value="r">R</option>
-          <option value="ruby">Ruby</option>
-          <!-- <option value="rust">Rust</option> -->
-          <option value="scala">Scala</option>
-          <option value="shell">Shell</option>
-          <option value="smalltalk">Smalltalk</option>
-          <option value="sql">Sql</option>
-          <option value="stex">Stex</option>
-          <option value="tex">Tex</option>
-          <option value="vbscript">Vbscript</option>
-          <option value="xml">Xml</option>
-        </select>
-        &nbsp; &nbsp;
-        <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
-        <button id="text_type" value="{{text_type}}" style="display:none">{{text_type}}</button>
-      </div>
-    </form>
-  </div>
-  <div class='span1'>
-    <div class="klk-tree" id="kilink-tree-span">
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-10">
+            <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
+                <div class="row ">
+                        <textarea id='code' name='content' placeholder="{{ _('Write (or paste) your text here and click on Create linkode.') }}">{{content}}</textarea>
+                        <input type="hidden" id="text_type" value="{{text_type}}">
+                </div>
+                <div class="row bar-container">
+                    <div id="timestamp" class="col-md-5 kilink-timestamp"></div>
+                    <div id="current_node" class="col-md-2"></div> <!-- For future current kilink icon -->
+                    <div class="col-md-5 pull-right kilink-buttons buttons">
+                        {{ _("Select a text type:") }}
+                        <select onchange="editor.selectMode()" id=selectlang class='' name="text_type">
+                            {{text_options("{{text_type}}")}}
+                        </select>
+                        <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-2">
+            <div class="klk-tree" id="kilink-tree-span"></div>
+        </div>
     </div>
-  </div>
 </div>
 
-    <script src='/static/lib/d3.min.js') }}"></script>
-    <script src='/static/lib/codemirror.min.js'></script>
-    <script src='/static/js/placeholder.js'></script>
-    <script src='/static/mode/clike/clike.js'></script>
-    <script src='/static/mode/clojure/clojure.js'></script>
-    <script src='/static/mode/coffeescript/coffeescript.js'></script>
-    <script src='/static/mode/css/css.js'></script>
-    <script src='/static/mode/d/d.js'></script>
-    <script src='/static/mode/diff/diff.js'></script>
-    <script src='/static/mode/erlang/erlang.js'></script>
-    <script src='/static/mode/go/go.js'></script>
-    <script src='/static/mode/haskell/haskell.js'></script>
-    <script src='/static/mode/htmlmixed/htmlmixed.js'></script>
-    <script src='/static/mode/http/http.js'></script>
-    <script src='/static/mode/javascript/javascript.js'></script>
-    <script src='/static/mode/lua/lua.js'></script>
-    <script src='/static/mode/markdown/markdown.js'></script>
-    <script src='/static/mode/php/php.js'></script>
-    <script src='/static/mode/perl/perl.js'></script>
-    <script src='/static/mode/python/python.js'></script>
-    <script src='/static/mode/r/r.js'></script>
-    <script src='/static/mode/ruby/ruby.js'></script>
-    <!-- <script src='/static/mode/rust/rust.js'></script> -->
-    <script src='/static/mode/shell/shell.js'></script>
-    <script src='/static/mode/smalltalk/smalltalk.js'></script>
-    <script src='/static/mode/sql/sql.js'></script>
-    <script src='/static/mode/stex/stex.js'></script>
-    <script src='/static/mode/vbscript/vbscript.js'></script>
-    <script src='/static/mode/xml/xml.js'></script>
-    <script src="/static/js/highlight.js/highlight.pack.js"></script>
-    <script src='/static/js/editor.js'></script>
+<link type="text/css" href="{{ url_for('static', filename='theme/monokai.css') }}" rel="stylesheet">
+<link type="text/css" href="{{ url_for('static', filename='lib/codemirror.css') }}" rel="stylesheet">
 
-    <script type="text/javascript" src='/static/js/main.js'></script>
-    <script type="text/javascript" src='/static/js/draw_tree.js'></script>
+<script src='/static/lib/codemirror.min.js'></script>
+<script type="text/javascript" src='/static/js/main.js'></script>
+
 <script type="text/javascript">
+    editor.init({});
+</script>
+
+<link type="text/css" href="{{ url_for('static', filename='css/placeholder.css') }}" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='addon/display/fullscreen.css') }}" rel="stylesheet">
+
+<script type="text/javascript" src="{{ url_for('static', filename='addon/display/fullscreen.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='addon/display/placeholder.js') }}"></script>
+<script src="/static/lib/highlight.js/highlight.pack.js"></script>
+
+<!-- Languages -->
+    {{ languages() }}
+<!-- End Languages -->
+
+<!-- <script src='/static/js/placeholder.js'></script> -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tooltipster.bundle.css') }}" rel="stylesheet">
+<script type="text/javascript" src="{{ url_for('static', filename='lib/tooltipster.bundle.js') }}"></script>
+<script src='/static/lib/d3.min.js'></script>
+
+<script type="text/javascript">
+
 $(document).ready(function(){
 
-    $('textarea').bind('keydown', 'ctrl+return', function(e) {
-        $('#pasteform').submit();
-    });
+    editor.init_mode();
 
-    $(".kilink-timestamp").text(text_timestamp);
-
-    $.each($(".node"), function() {
-      $(this).tooltipster({
-         trigger: 'hover',
-         content: "See node's version "+$(this).text(),
-      });
-    });
-  });
+    linkode.init({
+        time_stamp : "{{ timestamp }}",
+        node_list : {{ tree_info|safe }},
+        current_revno: "{{ current_revno }}",
+        text_datetime: "{{ _('Created on') }} ",
+        text_tooltip: "{{ _('See node\'s version') }} ",
+    })
+});
 </script>
 {% endblock %}

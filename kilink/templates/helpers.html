@@ -1,0 +1,76 @@
+{% macro text_options(current=None) %}
+    {% set options = {
+        "auto": "auto",
+        "c": "C",
+        "c++": "C++",
+        "c#": "C#",
+        "clojure": "Clojure",
+        "coffeescript": "Coffeescript",
+        "css": "Css",
+        "d": "D",
+        "diff": "Diff",
+        "erlang": "Erlang",
+        "go": "Go",
+        "haskell": "Haskell",
+        "html": "Html",
+        "htmlmixed": "Htmlmixed",
+        "http": "Http",
+        "java": "Java",
+        "javascript": "Javascript",
+        "json": "Json",
+        "lua": "Lua",
+        "markdown": "Markdown",
+        "php": "Php",
+        "perl": "Perl",
+        "plain tex": "Plain text",
+        "python": "Python",
+        "r": "R",
+        "ruby": "Ruby",
+        "scala": "Scala",
+        "shell": "Shell",
+        "smalltalk": "Smalltalk",
+        "sql": "Sql",
+        "stex": "Stex",
+        "tex": "Tex",
+        "vbscript": "Vbscript",
+        "xml": "Xml",
+    } %}
+      {% for key in options | sort %}
+          {% if key != current %}
+            <option value="{{key}}">{{options[key]}}</option>
+          {% else %}
+            <option value="{{key}}" selected>{{options[key]}}</option>
+          {% endif %}
+      {% endfor %}
+    }
+{% endmacro %}
+
+
+{% macro languages() %}
+    <script src='/static/mode/clike/clike.js'></script>
+    <script src='/static/mode/clojure/clojure.js'></script>
+    <script src='/static/mode/coffeescript/coffeescript.js'></script>
+    <script src='/static/mode/css/css.js'></script>
+    <script src='/static/mode/d/d.js'></script>
+    <script src='/static/mode/diff/diff.js'></script>
+    <script src='/static/mode/erlang/erlang.js'></script>
+    <script src='/static/mode/go/go.js'></script>
+    <script src='/static/mode/haskell/haskell.js'></script>
+    <script src='/static/mode/htmlmixed/htmlmixed.js'></script>
+    <script src='/static/mode/http/http.js'></script>
+    <script src='/static/mode/javascript/javascript.js'></script>
+    <script src='/static/mode/lua/lua.js'></script>
+    <script src='/static/mode/markdown/markdown.js'></script>
+    <script src='/static/mode/php/php.js'></script>
+    <script src='/static/mode/perl/perl.js'></script>
+    <script src='/static/mode/python/python.js'></script>
+    <script src='/static/mode/r/r.js'></script>
+    <script src='/static/mode/ruby/ruby.js'></script>
+    <!-- <script src='/static/mode/rust/rust.js'></script> -->
+    <script src='/static/mode/shell/shell.js'></script>
+    <script src='/static/mode/smalltalk/smalltalk.js'></script>
+    <script src='/static/mode/sql/sql.js'></script>
+    <script src='/static/mode/stex/stex.js'></script>
+    <script src='/static/mode/vbscript/vbscript.js'></script>
+    <script src='/static/mode/xml/xml.js'></script>
+{% endmacro %}
