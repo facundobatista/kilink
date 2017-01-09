@@ -22,6 +22,25 @@ var linkode = (function (){
         }
 
         $("#timestamp").text(parseDate(time_stamp));
+        $("#tree-toggle-panel").on("click", toggleTree)
+
+    }
+
+    /**
+    * Toggle the tree panel
+    */
+    function toggleTree(){
+        var cp = $(".code-panel");
+        var tp =$(".tree-panel");
+
+        if(cp.hasClass("col-md-12")){
+            cp.removeClass("col-md-12").addClass("col-md-10");
+            tp.show();
+        }
+        else{
+            cp.removeClass("col-md-10").addClass("col-md-12");
+            tp.hide();
+        }
     }
 
     /**
