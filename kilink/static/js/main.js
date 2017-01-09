@@ -19,10 +19,20 @@ var linkode = (function (){
                     content: text_tooltip + $(this).text(),
                 });
             });
+
+            // Only if nodes >= 2 
+            if(node_list["children"]){
+                $("#tree-toggle-panel").show();
+                $("#tree-toggle-panel").on("click", toggleTree)
+            }
+        }
+        else{
+            //TODO: Resize code panel to 100% 
+            // $(".code-text-panel").prop("width", "100%");
         }
 
         $("#timestamp").text(parseDate(time_stamp));
-        $("#tree-toggle-panel").on("click", toggleTree)
+
 
     }
 
