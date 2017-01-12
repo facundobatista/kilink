@@ -107,6 +107,11 @@ h1, h2, h3, h4, h5, h6 {
   width: 98.2%;
 }
 
+#toggle-container {
+    position: relative;
+    top: 50%;
+}
+
 #tree-toggle-panel{
   float: right;
   display: none;

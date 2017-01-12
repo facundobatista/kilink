@@ -9,6 +9,8 @@ var linkode = (function (){
         node_list = opts.node_list;
         text_datetime = opts.text_datetime;
         text_tooltip = opts.text_tooltip;
+        close_tree_img = opts.close_tree_img;
+        open_tree_img = opts.open_tree_img;
 
 
         if (node_list !== false) {
@@ -24,10 +26,11 @@ var linkode = (function (){
             if(node_list["children"]){
                 $("#tree-toggle-panel").show();
                 $("#tree-toggle-panel").on("click", toggleTree)
+                $("#tree-toggle-panel").click();
             }
         }
         else{
-            //TODO: Resize code panel to 100% 
+            //TODO: Resize code panel to 100% ??
             // $(".code-text-panel").prop("width", "100%");
         }
 
@@ -44,13 +47,28 @@ var linkode = (function (){
         var tp =$(".tree-panel");
 
         if(cp.hasClass("col-md-12")){
+            // Tree is closed
             cp.removeClass("col-md-12").addClass("col-md-10");
             tp.show();
+            toggleImgSrc(close_tree_img);
+            //Now is open
         }
         else{
+            //Tree is open
             cp.removeClass("col-md-10").addClass("col-md-12");
             tp.hide();
+            toggleImgSrc(open_tree_img);
+            //Now is closed
         }
+    }
+
+    /**
+    * Change the img src
+    * @param string img
+    * It could be done by css by i will be a little tricky in the future
+    */
+    function toggleImgSrc(img){
+        $("#toogle-image").attr("src", img)
     }
 
     /**
@@ -170,6 +188,8 @@ var linkode = (function (){
     var node_list;
     var text_datetime;
     var text_tooltip;
+    var close_tree_img;
+    var open_tree_img;
 
 
     var module = {

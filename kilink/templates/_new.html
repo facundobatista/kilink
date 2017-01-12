@@ -12,7 +12,9 @@
                 <input type="hidden" id="text_type" value="{{text_type}}">
               </div>
               <div id="tree-toggle-panel">
-                  <img src="{{ url_for('static', filename='img/open_tree.png') }}" alt="">
+                <div id="toggle-container">
+                  <img src="{{ url_for('static', filename='img/open_tree.png') }}" id="toogle-image">
+                </div>
               </div>
             </div>
             <div class="tree-panel col-md-2">
@@ -73,6 +75,8 @@ $(document).ready(function(){
         current_revno: "{{ current_revno }}",
         text_datetime: "{{ _('Created on') }} ",
         text_tooltip: "{{ _('See node\'s version') }} ",
+        open_tree_img: "{{ url_for('static', filename='img/open_tree.png') }}",
+        close_tree_img: "{{ url_for('static', filename='img/close_tree.png') }}"
     })
 });
 </script>
