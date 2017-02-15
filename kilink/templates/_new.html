@@ -4,28 +4,36 @@
 
 <div class="col-md-12">
     <div class="row">
-        <div class="col-md-10">
-            <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
-                <div class="row ">
-                        <textarea id='code' name='content' placeholder="{{ _('Write (or paste) your text here and click on Create linkode.') }}">{{content}}</textarea>
-                        <input type="hidden" id="text_type" value="{{text_type}}">
+      <form action="/{{ kid_info }}" method="POST" id="pasteform" name="pasteform">
+        <div class="col-md-12 code-container">
+            <div class="col-md-12 code-panel">
+              <div class="code-text-panel">
+                <textarea id='code' name='content' placeholder="{{ _('Write (or paste) your text here and click on Create linkode.') }}">{{content}}</textarea>
+                <input type="hidden" id="text_type" value="{{text_type}}">
+              </div>
+              <div id="tree-toggle-panel">
+                <div id="toggle-container">
+                  <img src="{{ url_for('static', filename='img/open_tree.png') }}" id="toogle-image">
                 </div>
-                <div class="row bar-container">
-                    <div id="timestamp" class="col-md-5 kilink-timestamp"></div>
-                    <div id="current_node" class="col-md-2"></div> <!-- For future current kilink icon -->
-                    <div class="col-md-5 pull-right kilink-buttons buttons">
-                        {{ _("Select a text type:") }}
-                        <select onchange="editor.selectMode()" id=selectlang class='' name="text_type">
-                            {{text_options("{{text_type}}")}}
-                        </select>
-                        <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
-                    </div>
-                </div>
-            </form>
+              </div>
+            </div>
+            <div class="tree-panel col-md-2">
+              <div class="klk-tree" id="kilink-tree-span"></div>
+            </div>
         </div>
-        <div class="col-md-2">
-            <div class="klk-tree" id="kilink-tree-span"></div>
+
+        <div class="col-md-12 action-container">
+            <div id="timestamp" class="col-md-5 kilink-timestamp"></div>
+            <div id="current_node" class="col-md-2"></div> <!-- For future current kilink icon -->
+            <div class="col-md-5 pull-right kilink-buttons buttons">
+                {{ _("Select a text type:") }}
+                <select onchange="editor.selectMode()" id=selectlang class='' name="text_type">
+                    {{text_options("{{text_type}}")}}
+                </select>
+                <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
+            </div>
         </div>
+      </form>
     </div>
 </div>
 
@@ -67,6 +75,8 @@ $(document).ready(function(){
         current_revno: "{{ current_revno }}",
         text_datetime: "{{ _('Created on') }} ",
         text_tooltip: "{{ _('See node\'s version') }} ",
+        open_tree_img: "{{ url_for('static', filename='img/open_tree.png') }}",
+        close_tree_img: "{{ url_for('static', filename='img/close_tree.png') }}"
     })
 });
 </script>

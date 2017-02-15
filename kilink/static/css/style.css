@@ -91,3 +91,32 @@ h1, h2, h3, h4, h5, h6 {
     color: #317eac;
     text-rendering: optimizelegibility;
 }
+
+.code-container{
+  padding-left: 0px;
+  padding-right: 20px;
+}
+
+.code-panel{
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.code-text-panel{
+  display: inline-block;
+  width: 98.2%;
+}
+
+#toggle-container {
+    position: relative;
+    top: 50%;
+}
+
+#tree-toggle-panel{
+  float: right;
+  display: none;
+}
+
+.tree-panel{
+  display: none;
+}
