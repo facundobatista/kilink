@@ -22,21 +22,16 @@ var linkode = (function (){
                 });
             });
 
+            $("#tree-toggle-panel").show();
+            $("#toggle-container").on("click", toggleTree)
+
             // Only if nodes >= 2 
             if(node_list["children"]){
-                $("#tree-toggle-panel").show();
-                $("#tree-toggle-panel").on("click", toggleTree)
-                $("#tree-toggle-panel").click();
+                toggleTree();
             }
-        }
-        else{
-            //TODO: Resize code panel to 100% ??
-            // $(".code-text-panel").prop("width", "100%");
         }
 
         $("#timestamp").text(parseDate(time_stamp));
-
-
     }
 
     /**
