@@ -11,7 +11,13 @@ var linkode = (function (){
         text_tooltip = opts.text_tooltip;
         close_tree_img = opts.close_tree_img;
         open_tree_img = opts.open_tree_img;
+        open_tree_tooltip = opts.open_tree_tooltip
+        closed_tree_tooltip = opts.closed_tree_tooltip
 
+        $("#toogle-image").tooltipster({
+            trigger: 'hover',
+            side: 'left'
+        })
 
         if (node_list !== false) {
             create_tree();
@@ -32,6 +38,7 @@ var linkode = (function (){
         }
 
         $("#timestamp").text(parseDate(time_stamp));
+
     }
 
     /**
@@ -40,30 +47,22 @@ var linkode = (function (){
     function toggleTree(){
         var cp = $(".code-panel");
         var tp =$(".tree-panel");
-
         if(cp.hasClass("col-md-12")){
             // Tree is closed
             cp.removeClass("col-md-12").addClass("col-md-10");
             tp.show();
-            toggleImgSrc(close_tree_img);
+            $("#toogle-image").attr("src", close_tree_img)
+            $("#toogle-image").tooltipster("content", closed_tree_tooltip);
             //Now is open
         }
         else{
             //Tree is open
             cp.removeClass("col-md-10").addClass("col-md-12");
             tp.hide();
-            toggleImgSrc(open_tree_img);
+            $("#toogle-image").attr("src", open_tree_img)
+            $("#toogle-image").tooltipster("content", open_tree_tooltip)
             //Now is closed
         }
-    }
-
-    /**
-    * Change the img src
-    * @param string img
-    * It could be done by css by i will be a little tricky in the future
-    */
-    function toggleImgSrc(img){
-        $("#toogle-image").attr("src", img)
     }
 
     /**
@@ -185,6 +184,8 @@ var linkode = (function (){
     var text_tooltip;
     var close_tree_img;
     var open_tree_img;
+    var open_tree_tooltip;
+    var closed_tree_tooltip;
 
 
     var module = {
