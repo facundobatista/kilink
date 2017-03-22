@@ -8,7 +8,7 @@
         <div class="col-md-12 code-container">
             <div class="col-md-12 code-panel">
               <div class="code-text-panel">
-                <textarea id='code' name='content' placeholder="{{ _('Write (or paste) your text here and click on Create linkode.') }}">{{content}}</textarea>
+                <textarea id='code' class="form-control" name='content' placeholder="{{ _('Write (or paste) your text here and click on Create linkode.') }}">{{content}}</textarea>
                 <input type="hidden" id="text_type" value="{{text_type}}">
               </div>
               <div id="tree-toggle-panel">
@@ -75,6 +75,8 @@ $(document).ready(function(){
         current_revno: "{{ current_revno }}",
         text_datetime: "{{ _('Created on') }} ",
         text_tooltip: "{{ _('See node\'s version') }} ",
+        open_tree_tooltip: "{{ _('Open version tree') }} ",
+        closed_tree_tooltip: "{{ _('Close version tree') }} ",
         open_tree_img: "{{ url_for('static', filename='img/open_tree.png') }}",
         close_tree_img: "{{ url_for('static', filename='img/close_tree.png') }}"
     })

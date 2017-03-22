@@ -7,149 +7,265 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-09-19 18:33-0300\n"
+"POT-Creation-Date: 2017-03-13 22:25-0300\n"
 "PO-Revision-Date: 2013-10-26 22:44-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
 "Language-Team: es <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.0\n"
+"Generated-By: Babel 2.3.4\n"
 
-#: kilink.py:112
+#: kilink.py:140
 msgid "Create linkode"
 msgstr "Crear linkode"
 
-#: kilink.py:176
+#: kilink.py:205
 msgid "Save new version"
 msgstr "Nueva versión"
 
-#: templates/_about.html:8
-msgid "What is Linkode?"
-msgstr "Que es Linkode?"
+#: templates/_new.html:9
+msgid "Write (or paste) your text here and click on Create linkode."
+msgstr "Escribe (o pega) tu texto aquí y has click en Crear linkode."
 
-#: templates/_about.html:10
-msgid "Linkode is the useful pastebin!"
-msgstr "Linkode es un Pastebin útil!"
+#: templates/_new.html:27
+msgid "Select a text type:"
+msgstr "Elige un tipo de texto:"
 
-#: templates/_new.html:11
+#: templates/_new.html:74
 msgid "Created on"
 msgstr "Creado en"
 
-#: templates/base.html:50
+#: templates/_new.html:75
+msgid "See node's version"
+msgstr "Ver versión de nodo"
+
+#: templates/_new.html:76
+msgid "Open version tree"
+msgstr "Abrir árbol de versión"
+
+#: templates/_new.html:77
+msgid "Close version tree"
+msgstr "Cerrar árbol de versión"
+
+#: templates/base.html:52
 msgid "New"
 msgstr "Nuevo"
->>>>>>> kilink/master
 
-#: templates/_about.html:13
-msgid "Really, what?"
-msgstr "De veras, qué?"
+#: templates/base.html:53
+msgid "About"
+msgstr ""
 
-#: templates/_about.html:17
-msgid "Some awesome details:"
-msgstr "Algunos detalles geniales:"
+#: templates/base.html:54
+msgid "Tools"
+msgstr ""
 
-#: templates/_about.html:19
-msgid "You can create linkodes anywhere, whenever, and effortlessly."
-msgstr "Se pueden crear linkodes donde quieras, cuando quieras y sin esfuerzo."
+#: templates/base.html:68
+msgid "Back to top"
+msgstr "Volver arriba"
 
-#: templates/_about.html:20
-msgid "Editable texts, not static!"
-msgstr "Textos editables, no estáticos!"
+#~ msgid "What is Linkode?"
+#~ msgstr "Que es Linkode?"
 
-#: templates/_about.html:21
-msgid "Every new edition creates a child: you have a tree"
-msgstr "Cada nueva edición crea un hijo: obtienes un árbol."
+#~ msgid "Linkode is the useful pastebin!"
+#~ msgstr "Linkode es un Pastebin útil!"
 
-#: templates/_about.html:22
-msgid "Code/text type autodetection (and coloring!)"
-msgstr "Autodetección de código/texto (y sintaxis coloreada!)"
+#~ msgid "Really, what?"
+#~ msgstr "De veras, qué?"
 
-#: templates/_about.html:23
-msgid "Permanent linkodes (but still the owner can remove them)"
-msgstr "Linkodes permanentes (pero el dueño puede eliminarlos)"
+#~ msgid "Some awesome details:"
+#~ msgstr "Algunos detalles geniales:"
 
-#: templates/_about.html:24
-msgid "Absolutely anonymous (unless you login, which is dead simple)"
-msgstr "Absolutamente anónimo (a menos que te suscribas, lo cual es muy simple)"
+#~ msgid "You can create linkodes anywhere, whenever, and effortlessly."
+#~ msgstr "Se pueden crear linkodes donde quieras, cuando quieras y sin esfuerzo."
 
-#: templates/_about.html:25
-msgid "Private URLs: because you can not guess UUIDs"
-msgstr "URLs privadas: no se pueden adivinar UUIDs"
+#~ msgid "Editable texts, not static!"
+#~ msgstr "Textos editables, no estáticos!"
 
-#: templates/_about.html:30
-msgid "How do I use it?"
-msgstr "Como lo uso?"
+#~ msgid "Every new edition creates a child: you have a tree"
+#~ msgstr "Cada nueva edición crea un hijo: obtienes un árbol."
 
-#: templates/_about.html:32
-msgid "To start with, use it like any pastebin. Go to the "
-msgstr "Para comenzar, usar como cualquier otro pastebin. Ir a la "
+#~ msgid "Code/text type autodetection (and coloring!)"
+#~ msgstr "Autodetección de código/texto (y sintaxis coloreada!)"
 
-#: templates/_about.html:32
-msgid "main page"
-msgstr "página principal"
+#~ msgid "Permanent linkodes (but still the owner can remove them)"
+#~ msgstr "Linkodes permanentes (pero el dueño puede eliminarlos)"
 
-#: templates/_about.html:32
-msgid ", and paste some text (or type it directly) in the editor. Then, select the type of text you created (if it wasn't already recognized automatically) and save it."
-msgstr ", y pegar algo de texto (o tipearlo directamente) en el editor. Luego, seleccionar el tipo de texto que se creó (si todavía no lo reconoció automáticamente) y guardarlo."
+#~ msgid "Absolutely anonymous (unless you login, which is dead simple)"
+#~ msgstr "Absolutamente anónimo (a menos que te suscribas, lo cual es muy simple)"
 
-#: templates/_about.html:34
-msgid "There, you have already created your first Linkode. Grab the URL and share it with whomever you want. Other people could modify it and save their own versions, but note that they will not be overwriting your content, they will be creating new nodes in the revision tree."
-msgstr "Listo, creaste tu primer Linkode. Puedes copiar la URL y compartirla con quien quieras. Otros podrán modificarlo y guardar sus propias versiones, tener en cuenta que no estarán sobreescribiendo tu contenido, sino que estarán creando nuevos nodos en el árbol de revisión."
+#~ msgid "Private URLs: because you can not guess UUIDs"
+#~ msgstr "URLs privadas: no se pueden adivinar UUIDs"
 
-#: templates/_about.html:36
-msgid "This way, you can easily share your text or code with other people, and then review their changes, suggestions, improvements."
-msgstr "De esta manera puedes compartir facilmente tu texto o código con otras personas, y luego revisar sus cambios, sugerencias y mejoras."
+#~ msgid "How do I use it?"
+#~ msgstr "Como lo uso?"
 
-#: templates/_about.html:38
-msgid "Enjoy."
-msgstr "Disfrutalo."
+#~ msgid "To start with, use it like any pastebin. Go to the "
+#~ msgstr "Para comenzar, usar como cualquier otro pastebin. Ir a la "
 
-#: templates/_about.html:41
-msgid "Getting help and support"
-msgstr "Obteniendo ayuda y soporte"
+#~ msgid "main page"
+#~ msgstr "página principal"
 
-#: templates/_about.html:43
-msgid "The Linkode service is given as part as of "
-msgstr "El servicio Linkode esta disponible como parte del "
+#~ msgid ""
+#~ ", and paste some text (or type "
+#~ "it directly) in the editor. Then, "
+#~ "select the type of text you "
+#~ "created (if it wasn't already recognized"
+#~ " automatically) and save it."
+#~ msgstr ""
+#~ ", y pegar algo de texto (o "
+#~ "tipearlo directamente) en el editor. "
+#~ "Luego, seleccionar el tipo de texto "
+#~ "que se creó (si todavía no lo "
+#~ "reconoció automáticamente) y guardarlo."
 
-#: templates/_about.html:43
-msgid "the Kilink project"
-msgstr "Proyecto Kilink"
+#~ msgid ""
+#~ "There, you have already created your "
+#~ "first Linkode. Grab the URL and "
+#~ "share it with whomever you want. "
+#~ "Other people could modify it and "
+#~ "save their own versions, but note "
+#~ "that they will not be overwriting "
+#~ "your content, they will be creating "
+#~ "new nodes in the revision tree."
+#~ msgstr ""
+#~ "Listo, creaste tu primer Linkode. Puedes"
+#~ " copiar la URL y compartirla con "
+#~ "quien quieras. Otros podrán modificarlo "
+#~ "y guardar sus propias versiones, tener"
+#~ " en cuenta que no estarán "
+#~ "sobreescribiendo tu contenido, sino que "
+#~ "estarán creando nuevos nodos en el "
+#~ "árbol de revisión."
 
-#: templates/_about.html:45
-msgid "To get help, you can send a mail to "
-msgstr "Para obtener ayuda, puedes enviar un correo electrónico a "
+#~ msgid ""
+#~ "This way, you can easily share "
+#~ "your text or code with other "
+#~ "people, and then review their changes,"
+#~ " suggestions, improvements."
+#~ msgstr ""
+#~ "De esta manera puedes compartir "
+#~ "facilmente tu texto o código con "
+#~ "otras personas, y luego revisar sus "
+#~ "cambios, sugerencias y mejoras."
 
-#: templates/_about.html:45
-msgid "the mailing list"
-msgstr "la lista de correo"
+#~ msgid "Enjoy."
+#~ msgstr "Disfrutalo."
 
-#: templates/_about.html:45
-msgid ", or ask in the IRC channel (#kilink on Freenode), or even open an issue in the project."
-msgstr ", o preguntar en el canal IRC (#kilink en Freenode) o incluso puedes abrir un issue en el proyecto."
+#~ msgid "Getting help and support"
+#~ msgstr "Obteniendo ayuda y soporte"
 
-#: templates/_about.html:47
-msgid "For developing, getting the source code, proposing branches, etc, you can go to "
-msgstr "Para desarrollar, obtener el código fuente, proponer branchs, etc, puedes ir a "
+#~ msgid "The Linkode service is given as part as of "
+#~ msgstr "El servicio Linkode esta disponible como parte del "
 
-#: templates/_about.html:47
-msgid "the project page"
-msgstr "la página del proyecto"
+#~ msgid "the Kilink project"
+#~ msgstr "Proyecto Kilink"
 
-#: templates/_about.html:50
-msgid "Some terms and conditions"
-msgstr "Algunos términos y condiciones"
+#~ msgid "To get help, you can send a mail to "
+#~ msgstr "Para obtener ayuda, puedes enviar un correo electrónico a "
 
-#: templates/_about.html:52
-msgid "Linkodes will be permanent, they will never expire and will always be online, so please never post any sensible information. However, if you're logged in when you create a linkode, you will be able to delete it, as you own it. All said, we don't guarantee that the information will always be live; bad things may happen and we can lose all our data, some content may disappear, or anybody's cat may get angry. Anything that happens, you're not allowed to sue us. You can still complain, however."
-msgstr "Los Linkodes serán permanentes, nunca expirarán y estarán siempre online, por favor no postees información sensible. De todas maneras, si estás logeado cuando creaste un linkode, podrás eliminarlo (porque eres su dueño). Igual, no podemos garantizar que la información estará siempre disponible; cosas malas pasan todo el tiempo y podríamos perder todos los datos, algunos contenidos pueden desaparecer, o el gato del vecino puede enojarse. Cualquier cosa que pase, no estás en posición de demandarnos. Igual: Siempre puedes quejarte"
+#~ msgid "the mailing list"
+#~ msgstr "la lista de correo"
 
-#: templates/_about.html:54
-msgid "Please, be gentle with our web page and API. There are rate limits, and you may be denied to get a useful response after crossing them. We still haven't decided on those limits, though, we'll communicate them as soon as we make up our minds."
-msgstr "Por favor, sé amable con nuestro sitio y API. Hay límites de uso y puedes terminar no obteniendo resultados luego de sobrepasarlos. De todas maneras, no hemos pensado en estos límites, todavía. Los comunicaremos apenas se nos ocurran."
+#~ msgid ""
+#~ ", or ask in the IRC channel "
+#~ "(#kilink on Freenode), or even open "
+#~ "an issue in the project."
+#~ msgstr ""
+#~ ", o preguntar en el canal IRC "
+#~ "(#kilink en Freenode) o incluso puedes"
+#~ " abrir un issue en el proyecto."
 
-#: templates/_about.html:56
-msgid "If you are logged in when you create a linkode, you own the pasted text, you are responsible for it, have its copyright, and explicitly are allowing us to show it to whomever knows the linkode id and to use it internally for statistics purposes and whatever. If you're not logged in at creation time, the content is public domain, but you still are responsible for it."
-msgstr "Si estas logeado cuando crees un linkode, eres el dueño del texto, y eres responsable por el, tienes su copyright, y explícitamente nos estas permitiendo mostrarlo a cualquiera que conozca el linkode id y a usarlo internamente con fines estadísticos y otros. Si no estás logeado en el momento que lo creaste, el contenido es de dominio público, pero aún eres responsable por él"
+#~ msgid ""
+#~ "For developing, getting the source code,"
+#~ " proposing branches, etc, you can go"
+#~ " to "
+#~ msgstr ""
+#~ "Para desarrollar, obtener el código "
+#~ "fuente, proponer branchs, etc, puedes ir"
+#~ " a "
+
+#~ msgid "the project page"
+#~ msgstr "la página del proyecto"
+
+#~ msgid "Some terms and conditions"
+#~ msgstr "Algunos términos y condiciones"
+
+#~ msgid ""
+#~ "Linkodes will be permanent, they will"
+#~ " never expire and will always be "
+#~ "online, so please never post any "
+#~ "sensible information. However, if you're "
+#~ "logged in when you create a "
+#~ "linkode, you will be able to "
+#~ "delete it, as you own it. All "
+#~ "said, we don't guarantee that the "
+#~ "information will always be live; bad "
+#~ "things may happen and we can lose"
+#~ " all our data, some content may "
+#~ "disappear, or anybody's cat may get "
+#~ "angry. Anything that happens, you're not"
+#~ " allowed to sue us. You can "
+#~ "still complain, however."
+#~ msgstr ""
+#~ "Los Linkodes serán permanentes, nunca "
+#~ "expirarán y estarán siempre online, por"
+#~ " favor no postees información sensible. "
+#~ "De todas maneras, si estás logeado "
+#~ "cuando creaste un linkode, podrás "
+#~ "eliminarlo (porque eres su dueño). "
+#~ "Igual, no podemos garantizar que la "
+#~ "información estará siempre disponible; cosas"
+#~ " malas pasan todo el tiempo y "
+#~ "podríamos perder todos los datos, "
+#~ "algunos contenidos pueden desaparecer, o "
+#~ "el gato del vecino puede enojarse. "
+#~ "Cualquier cosa que pase, no estás "
+#~ "en posición de demandarnos. Igual: "
+#~ "Siempre puedes quejarte"
+
+#~ msgid ""
+#~ "Please, be gentle with our web "
+#~ "page and API. There are rate "
+#~ "limits, and you may be denied to"
+#~ " get a useful response after crossing"
+#~ " them. We still haven't decided on"
+#~ " those limits, though, we'll communicate"
+#~ " them as soon as we make up "
+#~ "our minds."
+#~ msgstr ""
+#~ "Por favor, sé amable con nuestro "
+#~ "sitio y API. Hay límites de uso"
+#~ " y puedes terminar no obteniendo "
+#~ "resultados luego de sobrepasarlos. De "
+#~ "todas maneras, no hemos pensado en "
+#~ "estos límites, todavía. Los comunicaremos "
+#~ "apenas se nos ocurran."
+
+#~ msgid ""
+#~ "If you are logged in when you "
+#~ "create a linkode, you own the "
+#~ "pasted text, you are responsible for "
+#~ "it, have its copyright, and explicitly"
+#~ " are allowing us to show it to"
+#~ " whomever knows the linkode id and"
+#~ " to use it internally for statistics"
+#~ " purposes and whatever. If you're not"
+#~ " logged in at creation time, the "
+#~ "content is public domain, but you "
+#~ "still are responsible for it."
+#~ msgstr ""
+#~ "Si estas logeado cuando crees un "
+#~ "linkode, eres el dueño del texto, "
+#~ "y eres responsable por el, tienes "
+#~ "su copyright, y explícitamente nos estas"
+#~ " permitiendo mostrarlo a cualquiera que "
+#~ "conozca el linkode id y a usarlo"
+#~ " internamente con fines estadísticos y "
+#~ "otros. Si no estás logeado en el"
+#~ " momento que lo creaste, el contenido"
+#~ " es de dominio público, pero aún "
+#~ "eres responsable por él"
+
