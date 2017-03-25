@@ -1,2 +1,2 @@
 #!/bin/sh
-python kilink/kilink.py
+fades -r requirements.txt --python=python2 kilink/kilink.py

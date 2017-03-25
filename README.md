@@ -45,6 +45,14 @@ In a future this will be in a Doc file (source of that HTML).
 How To Try It In Development
 ----------------------------
 
+Just using fades:
+
+```
+./run
+```
+
+Or creating the virtualenv by hand:
+
 ```bash
 virtualenv kilink
 cd kilink
@@ -52,10 +60,10 @@ git clone https://github.com/facundobatista/kilink.git
 source bin/activate
 pip install -r requirements.txt
 ./test
-./run
+python2 kilink/kilink.py
 ```
 
-or if you prefer to use Docker
+Or if you prefer to use Docker
 
 ```
 docker build -t kilink .
