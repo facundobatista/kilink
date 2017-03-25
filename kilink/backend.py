@@ -1,6 +1,6 @@
 # encoding: utf8
 
-# Copyright 2011-2016 Facundo Batista, Nicolás César
+# Copyright 2011-2017 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Backend functionality for Kilink."""
@@ -15,7 +15,6 @@ import zlib
 from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.orm.exc import NoResultFound
 
 from config import config
 
@@ -27,11 +26,11 @@ logger = logging.getLogger('kilink.backend')
 
 
 class KilinkNotFoundError(Exception):
-
     """A kilink was specified, we couldn't find it."""
 
+
 TreeNode = collections.namedtuple(
-    "TreeNode", "content parent order revno timestamp text_type")
+    "TreeNode", "content parent order linkode_id timestamp text_type")
 
 
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -49,12 +48,12 @@ def _get_unique_id():
 
 
 class Kilink(Base, object):
-
     """Kilink data."""
+
     __tablename__ = 'kilink'
 
-    kid = Column(String, primary_key=True, default=_get_unique_id)
-    revno = Column(String, primary_key=True, default=_get_unique_id)
+    linkode_id = Column(String, primary_key=True, default=_get_unique_id)
+    root = Column(String, default=_get_unique_id)
     parent = Column(String, default=None)
     compressed = Column(LargeBinary)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
@@ -71,6 +70,11 @@ class Kilink(Base, object):
         self.compressed = zlib.compress(data)
 
     content = property(_get_content, _set_content)
+
+    def __repr__(self):
+        return "<Kilink id={} root={}>".format(self.linkode_id, self.root)
+
+    __str__ = __repr__
 
 
 def session_manager(orig_func):
@@ -90,7 +94,6 @@ def session_manager(orig_func):
 
 
 class KilinkBackend(object):
-
     """Backend for Kilink."""
 
     def __init__(self, db_engine):
@@ -117,76 +120,76 @@ class KilinkBackend(object):
         return klnk
 
     @session_manager
-    def update_kilink(self, kid, parent, new_content, text_type):
-        """Add a new revision to a kilink."""
-        search = self.session.query(Kilink).filter_by(kid=kid, revno=parent)
-        if not search.all():
+    def update_kilink(self, parent_id, new_content, text_type):
+        """Add a new child to a kilink."""
+        parent_klnk = self.session.query(Kilink).get(parent_id)
+        if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
 
-        klnk = Kilink(kid=kid, parent=parent,
+        klnk = Kilink(parent=parent_id, root=parent_klnk.root,
                       content=new_content, text_type=text_type)
         self.session.add(klnk)
         return klnk
 
     @session_manager
-    def get_kilink(self, kid, revno):
-        """Get a specific kilink and revision number."""
-        try:
-            klnk = self.session.query(Kilink).filter_by(
-                kid=kid, revno=revno).one()
-        except NoResultFound:
-            msg = "Data not found for kilink=%r revno=%r" % (kid, revno)
-            raise KilinkNotFoundError(msg)
-
+    def get_kilink(self, linkode_id):
+        """Get a specific kilink."""
+        klnk = self.session.query(Kilink).get(linkode_id)
+        if klnk is None:
+            raise KilinkNotFoundError("Data not found for kilink=%r" % (linkode_id,))
         return klnk
 
     @session_manager
-    def get_kilink_tree(self, kid):
+    def _get_kilink_tree(self, root):
         """Return all the information about the kilink."""
-        klnk_tree = self.session.query(Kilink).filter_by(kid=kid).all()
+        klnk_tree = self.session.query(Kilink).filter_by(root=root).all()
         if len(klnk_tree) == 0:
-            raise KilinkNotFoundError("Kilink id not found: %r" % (kid,))
-        klnk_tree.sort(key=operator.attrgetter("timestamp", "revno"))
+            raise KilinkNotFoundError("Kilink id not found: %r" % (root,))
+        klnk_tree.sort(key=operator.attrgetter("timestamp"))
         result = []
         for i, klnk in enumerate(klnk_tree, 1):
-            tn = TreeNode(order=i, content=klnk.content,
-                          revno=klnk.revno, parent=klnk.parent,
-                          timestamp=klnk.timestamp, text_type=klnk.text_type)
+            tn = TreeNode(order=i, linkode_id=klnk.linkode_id, content=klnk.content,
+                          parent=klnk.parent, timestamp=klnk.timestamp, text_type=klnk.text_type)
             result.append(tn)
         return result
 
     @session_manager
-    def get_root_node(self, kid):
+    def _get_root_node(self, linkode_id):
         """Return the root node of the kilink."""
-        try:
-            klnk = self.session.query(Kilink).filter_by(kid=kid).order_by(
-                Kilink.timestamp).limit(1).one()
-        except NoResultFound:
-            raise KilinkNotFoundError("Kilink id not found: %r" % (kid,))
+        klnk = self.session.query(Kilink).get(linkode_id)
+        if klnk is None:
+            raise KilinkNotFoundError("Kilink id not found: %r" % (linkode_id,))
         return klnk
 
-    def build_tree(self, kid, revno):
+    def build_tree(self, linkode_id):
         """Build the tree for a given kilink id."""
+        # get the kilink to find out the root
+        klnk = self._get_root_node(linkode_id)
+
+        # get and process all nodes for that root
         nodes = []
-        for treenode in self.get_kilink_tree(kid):
-            url = "/%s/%s" % (kid, treenode.revno)
-            parent = treenode.parent
-            nodes.append({
+        root_node = None
+        for treenode in self._get_kilink_tree(klnk.root):
+            url = "/%s" % (treenode.linkode_id,)
+            node = {
                 'order': treenode.order,
-                'parent': parent,
-                'revno': treenode.revno,
+                'parent': treenode.parent,
+                'revno': treenode.linkode_id,
                 'url': url,
                 'timestamp': str(treenode.timestamp),
-                'selected': treenode.revno == revno,
-            })
-        root = [n for n in nodes if n['parent'] is None][0]
-        fringe = [root, ]
+                'selected': treenode.linkode_id == linkode_id,
+                'linkode_id': treenode.linkode_id,
+            }
+            if treenode.parent is None:
+                root_node = node
+            nodes.append(node)
 
+        fringe = [root_node]
         while fringe:
             node = fringe.pop()
-            children = [n for n in nodes if n['parent'] == node['revno']]
+            children = [n for n in nodes if n['parent'] == node['linkode_id']]
 
             node['contents'] = children
             fringe.extend(children)
 
-        return root, len(nodes)
+        return root_node, len(nodes)

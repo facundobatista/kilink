@@ -1,6 +1,6 @@
 # encoding: utf8
 
-# Copyright 2011-2013 Facundo Batista, Nicolás César
+# Copyright 2011-2017 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """API tests."""
@@ -28,6 +28,7 @@ class _ANY(object):
     def __repr__(self):
         return '<ANY>'
 
+
 anything = _ANY()
 
 
@@ -48,18 +49,18 @@ class BaseTestCase(TestCase):
         if code == 201:
             return json.loads(r.data)
 
-    def api_update(self, kid, data, code=201):
+    def api_update(self, linkode_id, data, code=201):
         """Helper to hit the api to edit."""
-        r = self.app.post("/api/1/linkodes/%s" % (kid,), data=data)
+        r = self.app.post("/api/1/linkodes/%s" % (linkode_id,), data=data)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
 
-    def api_get(self, kid, revno=None, code=200):
+    def api_get(self, linkode_id, revno=None, code=200):
         """Helper to hit the api to get."""
         if revno is None:
-            url = "/api/1/linkodes/%s" % (kid,)
+            url = "/api/1/linkodes/%s" % (linkode_id,)
         else:
-            url = "/api/1/linkodes/%s/%s" % (kid, revno)
+            url = "/api/1/linkodes/%s/%s" % (linkode_id, revno)
         r = self.app.get(url)
         self.assertEqual(r.status_code, code)
         return json.loads(r.data)
@@ -79,7 +80,7 @@ class ApiTestCase(BaseTestCase):
             resp = self.api_create(data=datos)
             kilink.metrics.count.assert_called_with("api.create.ok", 1)
 
-        klnk = self.backend.get_kilink(resp["linkode_id"], resp["revno"])
+        klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
 
@@ -104,7 +105,7 @@ class ApiTestCase(BaseTestCase):
         datos = {'content': content}
         resp = self.api_create(data=datos)
 
-        klnk = self.backend.get_kilink(resp["linkode_id"], resp["revno"])
+        klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, "")
 
@@ -112,7 +113,7 @@ class ApiTestCase(BaseTestCase):
         """Update a kilink with new content."""
         parent_content = {'content': u'ÑOÑO', 'text_type': 'type1'}
         resp = self.api_create(data=parent_content)
-        kid = resp['linkode_id']
+        linkode_id = resp['linkode_id']
         revno0 = resp["revno"]
 
         child_content = {
@@ -121,11 +122,11 @@ class ApiTestCase(BaseTestCase):
             'text_type': 'type2',
         }
         with patch.object(kilink, "metrics"):
-            resp = self.api_update(kid, data=child_content)
+            resp = self.api_update(linkode_id, data=child_content)
             kilink.metrics.count.assert_called_with("api.update.ok", 1)
         revno1 = resp["revno"]
 
-        klnk = self.backend.get_kilink(kid, revno1)
+        klnk = self.backend.get_kilink(revno1)
         self.assertEqual(klnk.content, u"Moñito")
         self.assertEqual(klnk.text_type, u"type2")
 
@@ -134,10 +135,10 @@ class ApiTestCase(BaseTestCase):
             'parent': revno0,
             'text_type': 'type3',
         }
-        resp = self.api_update(kid, data=child_content2)
+        resp = self.api_update(linkode_id, data=child_content2)
         revno2 = resp["revno"]
 
-        klnk = self.backend.get_kilink(kid, revno2)
+        klnk = self.backend.get_kilink(revno2)
         self.assertEqual(klnk.content, u"Moñito2")
         self.assertEqual(klnk.text_type, u"type3")
 
@@ -149,19 +150,20 @@ class ApiTestCase(BaseTestCase):
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
 
-        kid = resp['linkode_id']
+        linkode_id = resp['linkode_id']
         revno = resp['revno']
         with patch.object(kilink, "metrics"):
-            resp = self.api_get(kid, revno)
+            resp = self.api_get(linkode_id, revno)
             kilink.metrics.count.assert_called_with("api.get.ok", 1)
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
         self.assertEqual(resp['tree'], {
             u'revno': revno,
+            u'linkode_id': linkode_id,
             u'timestamp': anything,
             u'parent': None,
-            u'url': "/{}/{}".format(kid, revno),
+            u'url': "/{}".format(linkode_id),
             u'selected': True,
             u'order': 1,
             u'contents': [],
@@ -171,20 +173,21 @@ class ApiTestCase(BaseTestCase):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
-        kid = resp['linkode_id']
+        linkode_id = resp['linkode_id']
         revno = resp['revno']
 
         with patch.object(kilink, "metrics"):
-            resp = self.api_get(kid)
+            resp = self.api_get(linkode_id)
             kilink.metrics.count.assert_called_with("api.get.ok", 1)
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
         self.assertEqual(resp['tree'], {
+            u'linkode_id': linkode_id,
             u'revno': revno,
             u'timestamp': anything,
             u'parent': None,
-            u'url': "/{}/{}".format(kid, revno),
+            u'url': "/{}".format(linkode_id),
             u'selected': True,
             u'order': 1,
             u'contents': [],
@@ -194,38 +197,47 @@ class ApiTestCase(BaseTestCase):
         """Get a good tree when getting a node."""
 
         resp = self.api_create(data={'content': "content 0", 'text_type': ''})
-        kid = resp['linkode_id']
+        linkode_id = resp['linkode_id']
         root_revno = resp['revno']
 
-        resp = self.api_update(kid=kid, data={'content': "content 1", 'text_type': '', 'parent': root_revno})
+        resp = self.api_update(
+            linkode_id=linkode_id,
+            data={'content': "content 1", 'text_type': '', 'parent': root_revno})
         child1_revno = resp['revno']
 
-        resp = self.api_update(kid=kid, data={'content': "content 11", 'text_type': '', 'parent': child1_revno})
+        resp = self.api_update(
+            linkode_id=linkode_id,
+            data={'content': "content 11", 'text_type': '', 'parent': child1_revno})
         child11_revno = resp['revno']
 
-        resp = self.api_update(kid=kid, data={'content': "content 2", 'text_type': '', 'parent': root_revno})
+        resp = self.api_update(
+            linkode_id=linkode_id,
+            data={'content': "content 2", 'text_type': '', 'parent': root_revno})
         child2_revno = resp['revno']
 
         # get the info
-        resp = self.api_get(kid)
+        resp = self.api_get(linkode_id)
         self.assertEqual(resp['tree'], {
             u'revno': root_revno,
+            u'linkode_id': linkode_id,
             u'parent': None,
-            u'url': "/{}/{}".format(kid, root_revno),
+            u'url': "/{}".format(linkode_id),
             u'timestamp': anything,
             u'selected': True,
             u'order': 1,
             u'contents': [{
                 u'revno': child1_revno,
+                u'linkode_id': child1_revno,
                 u'parent': root_revno,
-                u'url': "/{}/{}".format(kid, child1_revno),
+                u'url': "/{}".format(child1_revno),
                 u'timestamp': anything,
                 u'selected': False,
                 u'order': 2,
                 u'contents': [{
                     u'revno': child11_revno,
+                    u'linkode_id': child11_revno,
                     u'parent': child1_revno,
-                    u'url': "/{}/{}".format(kid, child11_revno),
+                    u'url': "/{}".format(child11_revno),
                     u'timestamp': anything,
                     u'selected': False,
                     u'order': 3,
@@ -233,8 +245,9 @@ class ApiTestCase(BaseTestCase):
                 }],
             }, {
                 u'revno': child2_revno,
+                u'linkode_id': child2_revno,
                 u'parent': root_revno,
-                u'url': "/{}/{}".format(kid, child2_revno),
+                u'url': "/{}".format(child2_revno),
                 u'timestamp': anything,
                 u'selected': False,
                 u'order': 4,
