@@ -1,5 +1,13 @@
-var linkode = (function (){
+// NOTES : 
+// if window.location.hash != ""
+//      linkode_id = window.location.hash
+// elif window.location.pathname.split("/").pop() != ""
+//      linkode_id = window.location.pathname.split("/").pop()
+// else
+//      pass
+// api_get = "http://" + window.location.host + "/api/1/linkodes/" + linkode_id
 
+var linkode = (function (){
     /**
     * Init the module
     * @param {Dict} opts
@@ -39,6 +47,32 @@ var linkode = (function (){
 
         $("#timestamp").text(parseDate(time_stamp));
 
+    }
+
+    /**
+    *
+    */
+    function api_post(){
+        var api_post_url = "http://" + window.location.host + "/api/1/linkodes/" + window.location.pathname.split("/")[1]
+        $.post(api_post_url,{'content': 'lallalala',
+                                        'text_type': 'javascript',
+                                        'parent': window.location.pathname.split("/").pop()},
+            function(data) {
+                var posted_linkode = data;
+                api_get(window.location.pathname.split("/")[1], posted_linkode.revno)
+        });
+
+        
+    }
+
+    function api_get(root, linkode_id){
+        var api_get_url = "http://" + window.location.host + "/api/1/linkodes/" + root + "/" + linkode_id
+        $.get(api_get_url, function(data) {
+            node_list = data.tree
+            $(".klk-tree").empty()
+            create_tree()
+            window.location.hash = linkode_id
+        });
     }
 
     /**
@@ -189,7 +223,9 @@ var linkode = (function (){
 
 
     var module = {
-        init: init,
+        init : init,
+        api_post : api_post,
+        api_get : api_get
     }
 
     return module;
