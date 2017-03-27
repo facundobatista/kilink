@@ -1,6 +1,6 @@
 # encoding: utf8
 
-# Copyright 2011-2013 Facundo Batista, Nicolás César
+# Copyright 2011-2017 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Some tests for the serving part."""
@@ -35,7 +35,7 @@ class UnmockedServingTestCase(TestCase):
     def test_serving_base(self):
         """Serving a kilink, base."""
         klnk = self.backend.create_kilink("content", "type1")
-        resp = self.app.get("/l/%s" % (klnk.kid,))
+        resp = self.app.get("/l/%s" % (klnk.linkode_id,))
         self.assertEqual(resp.headers['Cache-Control'], "public, max-age=0")
 
 
@@ -65,7 +65,7 @@ class ServingTestCase(TestCase):
         k = {}
         k['content'] = ''
         k['button_text'] = 'Create linkode'
-        k['kid_info'] = ''
+        k['linkode_info'] = ''
         k['tree_info'] = json.dumps(False)
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
@@ -73,15 +73,16 @@ class ServingTestCase(TestCase):
         """Serving a kilink, base."""
         klnk = self.backend.create_kilink("content", "type1")
         with patch.object(kilink, "metrics"):
-            self.app.get("/%s" % (klnk.kid,))
+            self.app.get("/%s" % (klnk.linkode_id,))
             kilink.metrics.count.assert_called_with("server.show.ok", 1)
 
         tree = dict(
             contents=[],
             order=1,
-            revno=klnk.revno,
+            revno=klnk.linkode_id,
+            linkode_id=klnk.linkode_id,
             parent=None,
-            url="/%s/%s" % (klnk.kid, klnk.revno),
+            url="/%s" % (klnk.linkode_id,),
             timestamp=str(klnk.timestamp),
             selected=True,
         )
@@ -90,27 +91,28 @@ class ServingTestCase(TestCase):
         k['content'] = 'content'
         k['button_text'] = 'Save new version'
         k['text_type'] = 'type1'
-        k['kid_info'] = "%s/%s" % (klnk.kid, klnk.revno)
+        k['linkode_info'] = str(klnk.linkode_id)
         k['tree_info'] = json.dumps(tree)
-        k['current_revno'] = klnk.revno
+        k['current_revno'] = klnk.linkode_id
         k['timestamp'] = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
         self.mocked_render.reset_mock()
-        self.app.get("/l/%s" % (klnk.kid,))
+        self.app.get("/l/%s" % (klnk.linkode_id,))
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_serving_revno(self):
         """Serving a kilink with a revno."""
         klnk = self.backend.create_kilink("content", "type2")
-        self.app.get("/%s/%s" % (klnk.kid, klnk.revno))
+        self.app.get("/%s" % (klnk.linkode_id,))
 
         tree = dict(
             contents=[],
             order=1,
-            revno=klnk.revno,
+            revno=klnk.linkode_id,
+            linkode_id=klnk.linkode_id,
             parent=None,
-            url="/%s/%s" % (klnk.kid, klnk.revno),
+            url="/%s" % (klnk.linkode_id,),
             timestamp=str(klnk.timestamp),
             selected=True,
         )
@@ -119,14 +121,14 @@ class ServingTestCase(TestCase):
         k['content'] = 'content'
         k['button_text'] = 'Save new version'
         k['text_type'] = 'type2'
-        k['kid_info'] = "%s/%s" % (klnk.kid, klnk.revno)
+        k['linkode_info'] = str(klnk.linkode_id)
         k['tree_info'] = json.dumps(tree)
-        k['current_revno'] = klnk.revno
+        k['current_revno'] = klnk.linkode_id
         k['timestamp'] = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
         self.mocked_render.reset_mock()
-        self.app.get("/l/%s/%s" % (klnk.kid, klnk.revno))
+        self.app.get("/l/%s" % (klnk.linkode_id,))
         self.mocked_render.assert_called_once_with("_new.html", **k)
 
     def test_create(self):
@@ -141,7 +143,7 @@ class ServingTestCase(TestCase):
         # compare
         self.assertEqual(created.content, "content")
         self.assertEqual(created.text_type, "type1")
-        url = "/%s" % (created.kid,)
+        url = "/%s" % (created.linkode_id,)
         self.mocked_redirect.assert_called_once_with(url, code=303)
 
     def test_create_auto_text(self):
@@ -155,44 +157,44 @@ class ServingTestCase(TestCase):
         # compare
         self.assertEqual(created.content, "content")
         self.assertEqual(created.text_type, "type1")
-        url = "/%s" % (created.kid,)
+        url = "/%s" % (created.linkode_id,)
         self.mocked_redirect.assert_called_once_with(url, code=303)
 
     def test_update_base(self):
-        """Update a kilink from it's base node."""
+        """Update a kilink from it's id."""
         klnk = self.backend.create_kilink("content", "")
 
-        url = "/%s" % (klnk.kid,)
+        url = "/%s" % (klnk.linkode_id,)
         with patch.object(kilink, "metrics"):
             self.app.post(url, data=dict(content=u"moño", text_type="type1"))
             kilink.metrics.count.assert_called_with("server.update.ok", 1)
 
         # get what was created, to compare
         created = self.backend.session.query(backend.Kilink).filter_by(
-            kid=klnk.kid, parent=klnk.revno).one()
+            parent=klnk.linkode_id).one()
 
         # compare
         self.assertEqual(created.content, u"moño")
         self.assertEqual(created.text_type, "type1")
-        url = "/%s/%s" % (created.kid, created.revno)
+        url = "/%s" % (created.linkode_id,)
         self.mocked_redirect.assert_called_once_with(url, code=303)
 
-    def test_update_revno(self):
-        """Update a kilink from it's base node."""
+    def test_update_double_id(self):
+        """Update a kilink from the double id (the old way)."""
         klnk = self.backend.create_kilink("content", "")
-        klnk = self.backend.update_kilink(klnk.kid, klnk.revno, "c2", "t2")
+        klnk = self.backend.update_kilink(klnk.linkode_id, "c2", "t2")
 
-        url = "/%s/%s" % (klnk.kid, klnk.revno)
+        url = "/dontcare/%s" % (klnk.linkode_id,)
         self.app.post(url, data=dict(content=u"moño", text_type="type2"))
 
         # get what was created, to compare
         created = self.backend.session.query(backend.Kilink).filter_by(
-            kid=klnk.kid, parent=klnk.revno).one()
+            parent=klnk.linkode_id).one()
 
         # compare
         self.assertEqual(created.content, u"moño")
         self.assertEqual(created.text_type, "type2")
-        url = "/%s/%s" % (created.kid, created.revno)
+        url = "/%s" % (created.linkode_id,)
         self.mocked_redirect.assert_called_once_with(url, code=303)
 
     def test_invalid_base(self):
