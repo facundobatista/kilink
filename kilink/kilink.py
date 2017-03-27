@@ -1,4 +1,4 @@
-# Copyright 2011-2016 Facundo Batista
+# Copyright 2011-2017 Facundo Batista
 # All Rigths Reserved
 
 """The server for kilink."""
@@ -138,7 +138,7 @@ def index():
     render_dict = {
         'content': '',
         'button_text': _('Create linkode'),
-        'kid_info': '',
+        'linkode_info': '',
         'tree_info': json.dumps(False),
     }
     return render_template('_new.html', **render_dict)
@@ -154,58 +154,58 @@ def create():
     if text_type[:6] == "auto: ":
         text_type = text_type[6:]
     klnk = kilinkbackend.create_kilink(content, text_type)
-    url = "/%s" % (klnk.kid,)
-    logger.debug("Create done; kid=%s", klnk.kid)
+    url = "/%s" % (klnk.linkode_id,)
+    logger.debug("Create done; linkode_id=%s", klnk.linkode_id)
     return redirect(url, code=303)
 
 
-@app.route('/<kid>', methods=['POST'])
-@app.route('/<kid>/<parent>', methods=['POST'])
+@app.route('/<linkode_id>', methods=['POST'])
+@app.route('/<linkode_id>/<parent>', methods=['POST'])
 @measure("server.update")
-def update(kid, parent=None):
+def update(linkode_id, parent=None):
     """Update a kilink."""
     content = request.form['content']
     text_type = request.form['text_type']
-    logger.debug("Update start; kid=%r parent=%r type=%r size=%d",
-                 kid, parent, text_type, len(content))
-    if parent is None:
-        root = kilinkbackend.get_root_node(kid)
-        parent = root.revno
+    logger.debug("Update start; linkode_id=%r parent=%r type=%r size=%d",
+                 linkode_id, parent, text_type, len(content))
+    if parent is not None:
+        # the linkode id to have a child is the parent!
+        linkode_id = parent
 
-    klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
-    new_url = "/%s/%s" % (kid, klnk.revno)
-    logger.debug("Update done; kid=%r revno=%r", klnk.kid, klnk.revno)
+    klnk = kilinkbackend.update_kilink(linkode_id, content, text_type)
+    new_url = "/%s" % (klnk.linkode_id,)
+    logger.debug("Update done; linkode_id=%r", klnk.linkode_id)
     return redirect(new_url, code=303)
 
 
-@app.route('/<kid>')
-@app.route('/<kid>/<revno>')
-@app.route('/l/<kid>')
-@app.route('/l/<kid>/<revno>')
+@app.route('/<linkode_id>')
+@app.route('/<linkode_id>/<revno>')
+@app.route('/l/<linkode_id>')
+@app.route('/l/<linkode_id>/<revno>')
 @nocache
 @measure("server.show")
-def show(kid, revno=None):
+def show(linkode_id, revno=None):
     """Show the kilink content"""
     # get the content
-    logger.debug("Show start; kid=%r revno=%r", kid, revno)
-    if revno is None:
-        klnk = kilinkbackend.get_root_node(kid)
-        revno = klnk.revno
-    else:
-        klnk = kilinkbackend.get_kilink(kid, revno)
+    logger.debug("Show start; linkode_id=%r revno=%r", linkode_id, revno)
+    if revno is not None:
+        # the linkode_id to get the info from is the second token
+        linkode_id = revno
+
+    klnk = kilinkbackend.get_kilink(linkode_id)
     content = klnk.content
     text_type = klnk.text_type
     timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # get the tree
-    tree, nodeq = kilinkbackend.build_tree(kid, revno)
+    tree, nodeq = kilinkbackend.build_tree(linkode_id)
 
     render_dict = {
         'content': content,
         'button_text': _('Save new version'),
-        'kid_info': "%s/%s" % (kid, revno),
+        'linkode_info': linkode_id,
         'tree_info': json.dumps(tree) if tree != {} else False,
-        'current_revno': revno,
+        'current_revno': linkode_id,
         'text_type': text_type,
         'timestamp': timestamp,
     }
@@ -223,59 +223,56 @@ def api_create():
     text_type = request.form.get('text_type', "")
     logger.debug("API create start; type=%r size=%d", text_type, len(content))
     klnk = kilinkbackend.create_kilink(content, text_type)
-    ret_json = jsonify(linkode_id=klnk.kid, revno=klnk.revno)
+    ret_json = jsonify(linkode_id=klnk.linkode_id, revno=klnk.linkode_id)
     response = make_response(ret_json)
-    response.headers['Location'] = 'http://%s/%s/%s' % (
-        config["server_host"], klnk.kid, klnk.revno)
-    logger.debug("API create done; kid=%s", klnk.kid)
+    response.headers['Location'] = 'http://%s/%s' % (config["server_host"], klnk.linkode_id)
+    logger.debug("API create done; linkode_id=%s", klnk.linkode_id)
     return response, 201
 
 
-@app.route('/api/1/linkodes/<kid>', methods=['POST'])
+@app.route('/api/1/linkodes/<linkode_id>', methods=['POST'])
 @crossdomain(origin='*')
 @measure("api.update")
-def api_update(kid):
+def api_update(linkode_id):
     """Update a kilink."""
     content = request.form['content']
     parent = request.form['parent']
     text_type = request.form['text_type']
-    logger.debug("API update start; kid=%r parent=%r type=%r size=%d",
-                 kid, parent, text_type, len(content))
+    logger.debug("API update start; linkode_id=%r parent=%r type=%r size=%d",
+                 linkode_id, parent, text_type, len(content))
     try:
-        klnk = kilinkbackend.update_kilink(kid, parent, content, text_type)
+        klnk = kilinkbackend.update_kilink(parent, content, text_type)
     except backend.KilinkNotFoundError:
-        logger.debug("API update done; kid %r not found", kid)
+        logger.debug("API update done; linkode_id %r not found", linkode_id)
         response = make_response()
         return response, 404
 
-    logger.debug("API update done; kid=%r revno=%r", klnk.kid, klnk.revno)
-    ret_json = jsonify(revno=klnk.revno)
+    logger.debug("API update done; linkode_id=%r", klnk.linkode_id)
+    ret_json = jsonify(revno=klnk.linkode_id)
     response = make_response(ret_json)
-    response.headers['Location'] = 'http://%s/%s/%s' % (
-        config["server_host"], klnk.kid, klnk.revno)
+    response.headers['Location'] = 'http://%s/%s' % (config["server_host"], klnk.linkode_id)
     return response, 201
 
 
-@app.route('/api/1/linkodes/<kid>/<revno>', methods=['GET'])
-@app.route('/api/1/linkodes/<kid>', methods=['GET'])
+@app.route('/api/1/linkodes/<linkode_id>/<revno>', methods=['GET'])
+@app.route('/api/1/linkodes/<linkode_id>', methods=['GET'])
 @crossdomain(origin='*')
 @measure("api.get")
-def api_get(kid, revno=None):
+def api_get(linkode_id, revno=None):
     """Get the kilink and revno content"""
-    logger.debug("API get; kid=%r revno=%r", kid, revno)
-    if revno is None:
-        klnk = kilinkbackend.get_root_node(kid)
-        revno = klnk.revno
-    else:
-        klnk = kilinkbackend.get_kilink(kid, revno)
+    logger.debug("API get; linkode_id=%r revno=%r", linkode_id, revno)
+    if revno is not None:
+        # the linkode_id to get the info from is the second token
+        linkode_id = revno
+
+    klnk = kilinkbackend.get_kilink(linkode_id)
 
     # get the tree
-    tree, nodeq = kilinkbackend.build_tree(kid, revno)
+    tree, nodeq = kilinkbackend.build_tree(linkode_id)
 
     logger.debug("API get done; type=%r size=%d len_tree=%d",
                  klnk.text_type, len(klnk.content), nodeq)
-    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
-                       tree=tree)
+    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type, tree=tree)
     return ret_json
 
 
