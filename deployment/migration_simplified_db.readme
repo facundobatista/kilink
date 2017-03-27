@@ -1,0 +1,13 @@
+Execute the  migration_simplified_db.py  in the server!
+
+ALTER TABLE kilink RENAME TO tmp_kilink;
+ -- WARNING check indexes (probably they should be renamed)
+
+ALTER TABLE kilink_new RENAME TO kilink;
+ -- WARNING check indexes (probably they should be renamed)
+
+SELECT count(*)
+FROM kilink
+SELECT count(*)
+FROM tmp_kilink
+
