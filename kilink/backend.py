@@ -52,8 +52,8 @@ class Kilink(Base, object):
 
     __tablename__ = 'kilink'
 
-    linkode_id = Column(String, primary_key=True, default=_get_unique_id)
-    root = Column(String, default=_get_unique_id)
+    linkode_id = Column(String, primary_key=True)
+    root = Column(String, nullable=False)
     parent = Column(String, default=None)
     compressed = Column(LargeBinary)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
@@ -115,7 +115,8 @@ class KilinkBackend(object):
     @session_manager
     def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
-        klnk = Kilink(content=content, text_type=text_type)
+        new_id = _get_unique_id()
+        klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type)
         self.session.add(klnk)
         return klnk
 
@@ -126,7 +127,8 @@ class KilinkBackend(object):
         if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
 
-        klnk = Kilink(parent=parent_id, root=parent_klnk.root,
+        new_id = _get_unique_id()
+        klnk = Kilink(linkode_id=new_id, parent=parent_id, root=parent_klnk.root,
                       content=new_content, text_type=text_type)
         self.session.add(klnk)
         return klnk
