@@ -10,5 +10,6 @@ These are the developers that most participated in the project
 - Hugo Ruscitti
 - Jose C. Massón
 - Juan Carizza
+- Mati Barriento
 - Miss Filly
 - Nico César

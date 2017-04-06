@@ -1,0 +1,57 @@
+
+As root in the new machine
+
+- install some stuff
+    sudo apt-get install openssh-server vim postgresql git apache2 \
+        libapache2-mod-wsgi python-psycopg2 virtualenv varnish
+
+- bring the DB from scratch
+    - always as PG superuser:  sudo su - postgres
+    - in the other machine: pg_dumpall > bleh
+    - here: psql < bleh
+
+- create user 'kilink'
+    sudo adduser kilink
+    sudo cp -pr .ssh ~kilink/
+    sudo chown -R kilink: ~kilink/.ssh/
+
+- allow only to log with keys
+    - edit /etc/ssh/sshd_config
+    - put PasswordAuthentication in no
+    - sudo service ssh2 restart
+
+
+As kilink user:
+
+- arrange some dirs
+    mkdir logs
+    chmod 777 logs
+    mkdir project
+
+- bring the project
+    cd project/
+    git clone https://github.com/facundobatista/kilink.git production
+    cd ~
+
+- setup the virtualenv
+    mkdir .virtualenvs
+    cd .virtualenvs
+    virtualenv kilink
+    source kilink/bin
+
+- push the db_auth.txt to use the DB
+    scp db_auth.txt kilink@onionsky:project/production/configs/db_auth.txt
+
+
+Again as root in the new machine
+
+- set up Apache
+    cd /etc/apache2
+    vi ports.conf  <-- change port to 8080
+    cp ~kilink/project/production/configs/apache-linkode.conf sites-available/linkode.conf
+    cd sites-enabled/
+    ln -s ../sites-available/linkode.conf 000-linkode.conf
+    service apache2 restart
+
+- set up Varnish
+    ??
