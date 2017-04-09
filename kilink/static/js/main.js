@@ -1,78 +1,131 @@
-// NOTES : 
-// if window.location.hash != ""
-//      linkode_id = window.location.hash
-// elif window.location.pathname.split("/").pop() != ""
-//      linkode_id = window.location.pathname.split("/").pop()
-// else
-//      pass
-// api_get = "http://" + window.location.host + "/api/1/linkodes/" + linkode_id
-
 var linkode = (function (){
     /**
     * Init the module
     * @param {Dict} opts
     */
     function init(opts){
-        time_stamp = opts.time_stamp;
-        node_list = opts.node_list;
+        text_new_submit = opts.text_new_submit;
         text_datetime = opts.text_datetime;
+        text_update_submit = opts.text_update_submit;
         text_tooltip = opts.text_tooltip;
         close_tree_img = opts.close_tree_img;
         open_tree_img = opts.open_tree_img;
-        open_tree_tooltip = opts.open_tree_tooltip
-        closed_tree_tooltip = opts.closed_tree_tooltip
+        open_tree_tooltip = opts.open_tree_tooltip;
+        closed_tree_tooltip = opts.closed_tree_tooltip;
 
         $("#toogle-image").tooltipster({
             trigger: 'hover',
             side: 'left'
-        })
+        });
 
-        if (node_list !== false) {
-            create_tree();
-            $.each($(".node"), function() {
-                $(this).tooltipster({
-                    trigger: 'hover',
-                    content: text_tooltip + $(this).text(),
-                });
-            });
-
-            $("#tree-toggle-panel").show();
-            $("#toggle-container").on("click", toggleTree)
-
-            // Only if nodes >= 2 
-            if(node_list["children"]){
-                toggleTree();
-            }
+        if(get_linkode_id()){
+            $("#btn-submit").text(text_update_submit);
+            api_get(get_linkode_id(), true);
+        }
+        else{
+            $("#btn-submit").text(text_new_submit);
         }
 
-        $("#timestamp").text(parseDate(time_stamp));
+        $("#toggle-container").on("click", toggleTree);
+        $("#btn-submit").on("click", api_post);
 
+    }
+
+    function get_linkode_id(){
+        hash = window.location.hash.replace("#", "");
+        path = window.location.pathname.split("/").pop();
+
+        if (hash){
+            return hash;
+        }
+        else if (path){
+            return path;
+        }
+        else{
+            return null;
+        }
     }
 
     /**
     *
     */
     function api_post(){
-        var api_post_url = "http://" + window.location.host + "/api/1/linkodes/" + window.location.pathname.split("/")[1]
-        $.post(api_post_url,{'content': 'lallalala',
-                                        'text_type': 'javascript',
-                                        'parent': window.location.pathname.split("/").pop()},
+        var api_post_url = api_url;
+        var post_data = {
+            'content': editor.val(),
+            'text_type': $("#selectlang").val()
+        };
+
+        if(get_linkode_id()){
+            api_post_url = api_post_url + get_linkode_id();
+            post_data.parent = get_linkode_id();
+        }
+
+        $.post(api_post_url,post_data,
             function(data) {
                 var posted_linkode = data;
-                api_get(window.location.pathname.split("/")[1], posted_linkode.revno)
+                api_get_tree(posted_linkode.revno);
         });
 
-        
+        $("#btn-submit").text(text_update_submit);
     }
 
-    function api_get(root, linkode_id){
-        var api_get_url = "http://" + window.location.host + "/api/1/linkodes/" + root + "/" + linkode_id
+    function api_get_tree(linkode_id){
+        var api_get_url = api_url + linkode_id;
         $.get(api_get_url, function(data) {
-            node_list = data.tree
-            $(".klk-tree").empty()
-            create_tree()
-            window.location.hash = linkode_id
+            node_list = data.tree;
+
+            if (node_list !== false) {
+                $(".klk-tree").empty();
+                create_tree(linkode_id);
+                $("#tree-toggle-panel").show();
+            }
+            set_timestamp(data.timestamp);
+            window.location.hash = linkode_id;
         });
+    }
+
+    function api_get(linkode_id, include_tree){
+        var api_get_url = api_url + linkode_id;
+        $.get(api_get_url, function(data) {
+            load_linkode(data.content, data.text_type, data.timestamp);
+
+            if(include_tree){
+                node_list = data.tree;
+                if (node_list !== false) {
+                    $(".klk-tree").empty();
+                    create_tree(linkode_id);
+                    $("#tree-toggle-panel").show();
+
+                    // Only if nodes >= 2 
+                    if(node_list.children){
+                        toggleTree();
+                    }
+                }
+            }
+
+            window.location.hash = linkode_id;
+        });
+    }
+
+    /**
+    * 
+    */
+    function set_timestamp(date_text){
+        var timestamp = Date.parse(date_text);
+        if(! isNaN(timestamp)){
+            $("#timestamp").text(text_datetime + new Date(timestamp).toString());
+        }
+        else{
+            $("#timestamp").text("");
+        }
+    }
+
+    function load_linkode(content, text_type, timestamp){
+        $("#selectlang").val(text_type);
+        editor.selectMode();
+        set_timestamp(timestamp);
+        editor.val(content);
     }
 
     /**
@@ -85,7 +138,7 @@ var linkode = (function (){
             // Tree is closed
             cp.removeClass("col-md-12").addClass("col-md-10");
             tp.show();
-            $("#toogle-image").attr("src", close_tree_img)
+            $("#toogle-image").attr("src", close_tree_img);
             $("#toogle-image").tooltipster("content", closed_tree_tooltip);
             //Now is open
         }
@@ -93,29 +146,16 @@ var linkode = (function (){
             //Tree is open
             cp.removeClass("col-md-10").addClass("col-md-12");
             tp.hide();
-            $("#toogle-image").attr("src", open_tree_img)
-            $("#toogle-image").tooltipster("content", open_tree_tooltip)
+            $("#toogle-image").attr("src", open_tree_img);
+            $("#toogle-image").tooltipster("content", open_tree_tooltip);
             //Now is closed
         }
     }
 
     /**
-    * Parse the date
-    * @param string date_text
-    */
-    function parseDate(date_text){
-        var timestamp = Date.parse(date_text);
-        if(! isNaN(timestamp)){
-            return text_datetime + new Date(timestamp).toString();
-        }
-        return "";
-    }
-
-
-    /**
     * Generate the Tree Node
     */
-    function create_tree(){
+    function create_tree(linkode_id){
         var tree_size = {};
         var layout_size = {};
         tree_size.width = 200;
@@ -146,7 +186,7 @@ var linkode = (function (){
         // Edges between nodes as a <path class="link" />
         var link = d3.svg.diagonal()
             .projection(function(d){
-                var dy = d.y + 40
+                var dy = d.y + 40;
                 return [d.x, dy];
             });
 
@@ -170,15 +210,9 @@ var linkode = (function (){
 
         nodeGroup.append("svg:circle")
             .attr("class", "node-dot")
-            .attr("r", 15)
-            .style("fill", function(d){
-                if (d.selected) {
-                   return "#222222";}
-                else {
-                   return "#AAAAAA";
-                }
+            .attr("r", 15);
 
-            });
+        color_node(nodeGroup, linkode_id);
 
         nodeGroup.append("svg:text")
             .attr("text-anchor", "middle")
@@ -188,49 +222,84 @@ var linkode = (function (){
                 return d.order;
             })
             .on("click", function(node){
-                if (!node.selected){
-                    window.location = node.url;
-                };
+                select_node(node, nodeGroup);
             });
 
         nodeGroup.selectAll(".node-dot")
             .on("click", function(node){
-                if (!node.selected){
-                    select_node(node);
-                };
+                select_node(node, nodeGroup);
+            });
+
+        $.each($(".node"), function() {
+            $(this).tooltipster({
+                trigger: 'hover',
+                content: text_tooltip + $(this).text(),
+            });
         });
     }
 
     /**
-    * Redirect to selected kilink
-    * In the future, can load the kilink without redirect
-    * @param node node
+    * Selected kilink
+    * @param node node, nodeGroup nodeGroup
     */
-    function select_node(node){
-        window.location = node.url;
+    function select_node(node, nodeGroup){
+        if (!node.selected){
+            if (allow_cache && node.text && node.text_type){
+                load_linkode(node.text, node.text_type, node.timestamp);
+            }
+            else{
+                api_get(node.linkode_id);
+                if (allow_cache){
+                    node.text = editor.val();
+                    node.text_type = $("#selectlang").val();
+                }
+            }
+
+            color_node(nodeGroup, node.linkode_id);
+        }
+    }
+
+    /**
+    * Unselect all kilinks
+    * @param nodeGroup nodeGroup
+    */
+    function color_node(nodeGroup, linkode_id){
+        nodeGroup.selectAll(".node-dot")
+        .style("fill", function(node){
+            if (node.linkode_id == linkode_id) {
+                node.selected = true;
+                return "#222222";}
+            else {
+                node.selected = false;
+                return "#AAAAAA";
+            }
+
+        });
     }
 
 
+    var api_url = "http://" + window.location.host + "/api/1/linkodes/";
+
     // values
-    var time_stamp;
-    var node_list;
-    var text_datetime;
+    var text_update_submit;
+    var text_new_submit;
     var text_tooltip;
     var close_tree_img;
     var open_tree_img;
     var open_tree_tooltip;
     var closed_tree_tooltip;
+    var text_datetime;
+
+    var allow_cache = true;
 
 
     var module = {
         init : init,
-        api_post : api_post,
-        api_get : api_get
-    }
+    };
 
     return module;
 
-}())
+}());
 
 
 var editor = (function (){
@@ -249,13 +318,13 @@ var editor = (function (){
             viewportMargin: Infinity,
             extraKeys: {
                 "F11": function(cm) {
-                    cm.setOption("fullScreen", true)
+                    cm.setOption("fullScreen", true);
                 },
                 "Esc": function(cm) {
-                     cm.setOption("fullScreen", false)
+                     cm.setOption("fullScreen", false);
                 },
                 "Ctrl-Enter": function(cm){
-                    $("#pasteform").submit();
+                    $("#btn-submit").click();
                 }
             }
         });
@@ -307,6 +376,18 @@ var editor = (function (){
         }
     }
 
+    /**
+    * Get or set the text in the editor
+    */
+    function val(new_val){
+        if (new_val){   
+            $editor.setValue(new_val);
+        }
+        else {
+            return $editor.getValue();
+        }
+    }
+
 
     /**
     * Get an estimate of the language based on the content
@@ -314,7 +395,7 @@ var editor = (function (){
     */
     function looksLike(contents) {
         var info = hljs.highlightAuto(contents.trim());
-        var clang = langLike(info.language)
+        var clang = langLike(info.language);
         return clang;
     }
 
@@ -387,8 +468,8 @@ var editor = (function (){
     }
 
     var $editor;
-    var $modeInput
-    var $backInput
+    var $modeInput;
+    var $backInput;
 
     var autoDetection = 1;
     var plain_languages =  ['1c', 'avr', 'assembler', 'actionscript',
@@ -401,7 +482,8 @@ var editor = (function (){
         init: init,
         init_mode: init_mode,
         selectMode: selectMode,
-    }
+        val: val
+    };
 
     return module;
-}())
+}());

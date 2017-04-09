@@ -4,12 +4,11 @@
 
 <div class="col-md-12">
     <div class="row">
-      <form action="/{{ linkode_info }}" method="POST" id="pasteform" name="pasteform">
         <div class="col-md-12 code-container">
             <div class="col-md-12 code-panel">
               <div class="code-text-panel">
                 <textarea id='code' class="form-control" name='content' placeholder="{{ _('Write (or paste) your text here and click on Create linkode.') }}">{{content}}</textarea>
-                <input type="hidden" id="text_type" value="{{text_type}}">
+                <input type="hidden" id="text_type">
               </div>
               <div id="tree-toggle-panel">
                 <div id="toggle-container">
@@ -28,12 +27,11 @@
             <div class="col-md-5 pull-right kilink-buttons buttons">
                 {{ _("Select a text type:") }}
                 <select onchange="editor.selectMode()" id=selectlang class='' name="text_type">
-                    {{text_options("{{text_type}}")}}
+                    {{text_options()}}
                 </select>
-                <button type="submit" value="{{button_text}}" class='btn btn-success'>{{button_text}}</button>
+                <button id='btn-submit' type="button" class='btn btn-success'>{{button_text}}</button>
             </div>
         </div>
-      </form>
     </div>
 </div>
 
@@ -70,15 +68,14 @@ $(document).ready(function(){
     editor.init_mode();
 
     linkode.init({
-        time_stamp : "{{ timestamp }}",
-        node_list : {{ tree_info|safe }},
-        current_revno: "{{ current_revno }}",
+        text_new_submit: "{{new_button_text}}",
+        text_update_submit: "{{update_button_text}}",
         text_datetime: "{{ _('Created on') }} ",
         text_tooltip: "{{ _('See node\'s version') }} ",
         open_tree_tooltip: "{{ _('Open version tree') }} ",
         closed_tree_tooltip: "{{ _('Close version tree') }} ",
         open_tree_img: "{{ url_for('static', filename='img/open_tree.png') }}",
-        close_tree_img: "{{ url_for('static', filename='img/close_tree.png') }}"
+        close_tree_img: "{{ url_for('static', filename='img/close_tree.png') }}",
     })
 });
 </script>
