@@ -1,8 +1,8 @@
 var linkode = (function (){
     /**
-    * Init the module
-    * @param {Dict} opts
-    */
+     * Init the module.
+     * @param  {dict}
+     */
     function init(opts){
         text_new_submit = opts.text_new_submit;
         text_datetime = opts.text_datetime;
@@ -12,15 +12,16 @@ var linkode = (function (){
         open_tree_img = opts.open_tree_img;
         open_tree_tooltip = opts.open_tree_tooltip;
         closed_tree_tooltip = opts.closed_tree_tooltip;
+        current_linkode_id = null;
 
         $("#toogle-image").tooltipster({
             trigger: 'hover',
             side: 'left'
         });
 
-        if(get_linkode_id()){
+        if(linkode_id_val()){
             $("#btn-submit").text(text_update_submit);
-            api_get(get_linkode_id(), true);
+            api_get(linkode_id_val(), true);
         }
         else{
             $("#btn-submit").text(text_new_submit);
@@ -28,89 +29,118 @@ var linkode = (function (){
 
         $("#toggle-container").on("click", toggleTree);
         $("#btn-submit").on("click", api_post);
-
     }
 
-    function get_linkode_id(){
-        hash = window.location.hash.replace("#", "");
-        path = window.location.pathname.split("/").pop();
+    /**
+     * Get or set the current_linkode_id
+     * @param  {string}
+     * @return {string}
+     */
+    function linkode_id_val(new_linkode_id){
+        if (new_linkode_id) {
+            window.location.hash = new_linkode_id;
+            current_linkode_id = new_linkode_id;
+        } 
+        else {
+            if(!current_linkode_id){
+                hash = window.location.hash.replace("#", "");
+                path = window.location.pathname.split("/").pop();
 
-        if (hash){
-            return hash;
-        }
-        else if (path){
-            return path;
-        }
-        else{
-            return null;
+                if (hash){
+                    current_linkode_id = hash;
+                }
+                else if (path){
+                    current_linkode_id = path;
+                }
+                else{
+                    current_linkode_id = null;
+                }
+            }
+
+            return current_linkode_id;
         }
     }
 
     /**
-    *
-    */
+     * Post the new linkode
+     */
     function api_post(){
-        var api_post_url = api_url;
+        var api_post_url = API_URL;
         var post_data = {
             'content': editor.val(),
             'text_type': $("#selectlang").val()
         };
 
-        if(get_linkode_id()){
-            api_post_url = api_post_url + get_linkode_id();
-            post_data.parent = get_linkode_id();
+        if(linkode_id_val()){
+            api_post_url = api_post_url + linkode_id_val();
+            post_data.parent = linkode_id_val();
         }
 
-        $.post(api_post_url,post_data,
-            function(data) {
+        $.post(api_post_url,post_data)
+            .done(function(data) {
                 var posted_linkode = data;
-                api_get_tree(posted_linkode.revno);
-        });
+                api_after_post_get(posted_linkode.revno);
+            });
 
         $("#btn-submit").text(text_update_submit);
     }
 
-    function api_get_tree(linkode_id){
-        var api_get_url = api_url + linkode_id;
-        $.get(api_get_url, function(data) {
-            node_list = data.tree;
-
-            if (node_list !== false) {
-                $(".klk-tree").empty();
-                create_tree(linkode_id);
-                $("#tree-toggle-panel").show();
-            }
-            set_timestamp(data.timestamp);
-            window.location.hash = linkode_id;
-        });
-    }
-
-    function api_get(linkode_id, include_tree){
-        var api_get_url = api_url + linkode_id;
-        $.get(api_get_url, function(data) {
-            load_linkode(data.content, data.text_type, data.timestamp);
-
-            if(include_tree){
+    /**
+     * Create the tree and set timestamp.
+     * @param  {string}
+     */
+    function api_after_post_get(linkode_id){
+        var api_get_url = API_URL + linkode_id;
+        $.get(api_get_url)
+            .done(function(data) {
                 node_list = data.tree;
+
                 if (node_list !== false) {
                     $(".klk-tree").empty();
                     create_tree(linkode_id);
                     $("#tree-toggle-panel").show();
-
-                    // Only if nodes >= 2 
-                    if(node_list.children){
-                        toggleTree();
-                    }
                 }
-            }
-
-            window.location.hash = linkode_id;
-        });
+                set_timestamp(data.timestamp);
+                linkode_id_val(linkode_id);
+            });
     }
 
     /**
-    * 
-    */
+     * Get the linkode
+     * @param  {string}
+     * @param  {bool}
+     */
+    function api_get(linkode_id, include_tree){
+        var api_get_url = API_URL + linkode_id;
+        $.get(api_get_url)
+            .done(function(data) {
+                load_linkode(data.content, data.text_type, data.timestamp);
+
+                if(include_tree){
+                    node_list = data.tree;
+                    if (node_list !== false) {
+                        $(".klk-tree").empty();
+                        create_tree(linkode_id);
+                        $("#tree-toggle-panel").show();
+
+                        // Only if nodes >= 2 
+                        if(node_list.children){
+                            toggleTree();
+                        }
+                    }
+                }
+
+                linkode_id_val(linkode_id);
+            })
+            .fail(function(data, error) {
+                console.log(data, error)
+            });
+    }
+
+    /**
+     * Set the timestamp of the current linkode
+     * @param {string}
+     */
     function set_timestamp(date_text){
         var timestamp = Date.parse(date_text);
         if(! isNaN(timestamp)){
@@ -121,6 +151,12 @@ var linkode = (function (){
         }
     }
 
+    /**
+     * Load the linkode to the page
+     * @param  {string}
+     * @param  {string}
+     * @param  {string}
+     */
     function load_linkode(content, text_type, timestamp){
         $("#selectlang").val(text_type);
         editor.selectMode();
@@ -129,8 +165,8 @@ var linkode = (function (){
     }
 
     /**
-    * Toggle the tree panel
-    */
+     * Toggle the tree panel
+     */
     function toggleTree(){
         var cp = $(".code-panel");
         var tp =$(".tree-panel");
@@ -153,8 +189,9 @@ var linkode = (function (){
     }
 
     /**
-    * Generate the Tree Node
-    */
+     * Generate the Tree Node
+     * @param  {string}
+     */
     function create_tree(linkode_id){
         var tree_size = {};
         var layout_size = {};
@@ -239,30 +276,22 @@ var linkode = (function (){
     }
 
     /**
-    * Selected kilink
-    * @param node node, nodeGroup nodeGroup
-    */
+     * Selected kilink
+     * @param  {node}
+     * @param  {nodeGroup}
+     */
     function select_node(node, nodeGroup){
         if (!node.selected){
-            if (allow_cache && node.text && node.text_type){
-                load_linkode(node.text, node.text_type, node.timestamp);
-            }
-            else{
-                api_get(node.linkode_id);
-                if (allow_cache){
-                    node.text = editor.val();
-                    node.text_type = $("#selectlang").val();
-                }
-            }
-
+            api_get(node.linkode_id);
             color_node(nodeGroup, node.linkode_id);
         }
     }
 
     /**
-    * Unselect all kilinks
-    * @param nodeGroup nodeGroup
-    */
+     * Unselect all kilinks
+     * @param  {nodeGroup}
+     * @param  {string}
+     */
     function color_node(nodeGroup, linkode_id){
         nodeGroup.selectAll(".node-dot")
         .style("fill", function(node){
@@ -278,7 +307,9 @@ var linkode = (function (){
     }
 
 
-    var api_url = "http://" + window.location.host + "/api/1/linkodes/";
+    var API_URL = window.location.protocol + "//" + window.location.host + "/api/1/linkodes/";
+    var RETRY_TIMES = 3;
+    var RETRY_DELAY = 2000; // in miliseconds
 
     // values
     var text_update_submit;
@@ -290,8 +321,7 @@ var linkode = (function (){
     var closed_tree_tooltip;
     var text_datetime;
 
-    var allow_cache = true;
-
+    var current_linkode_id;
 
     var module = {
         init : init,

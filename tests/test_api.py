@@ -6,7 +6,7 @@
 """API tests."""
 
 import json
-
+import datetime
 from unittest import TestCase
 
 from mock import patch
@@ -34,6 +34,7 @@ anything = _ANY()
 
 class BaseTestCase(TestCase):
     """Base for all test using a API."""
+
     def setUp(self):
         """Set up."""
         super(BaseTestCase, self).setUp()
@@ -83,6 +84,7 @@ class ApiTestCase(BaseTestCase):
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
+        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
     def test_create_error(self):
         """Simple create."""
@@ -108,6 +110,7 @@ class ApiTestCase(BaseTestCase):
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, "")
+        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
     def test_update_simple(self):
         """Update a kilink with new content."""
@@ -129,6 +132,7 @@ class ApiTestCase(BaseTestCase):
         klnk = self.backend.get_kilink(revno1)
         self.assertEqual(klnk.content, u"Moñito")
         self.assertEqual(klnk.text_type, u"type2")
+        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
         child_content2 = {
             'content': u'Moñito2',
@@ -141,6 +145,7 @@ class ApiTestCase(BaseTestCase):
         klnk = self.backend.get_kilink(revno2)
         self.assertEqual(klnk.content, u"Moñito2")
         self.assertEqual(klnk.text_type, u"type3")
+        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
         # all three are different
         self.assertEqual(len(set([revno0, revno1, revno2])), 3)
@@ -158,6 +163,7 @@ class ApiTestCase(BaseTestCase):
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
+        self.assertEqual(resp["timestamp"], anything)
         self.assertEqual(resp['tree'], {
             u'revno': revno,
             u'linkode_id': linkode_id,
@@ -182,6 +188,7 @@ class ApiTestCase(BaseTestCase):
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
+        self.assertEqual(resp["timestamp"], anything)
         self.assertEqual(resp['tree'], {
             u'linkode_id': linkode_id,
             u'revno': revno,

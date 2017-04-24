@@ -4,7 +4,6 @@
 """The server for kilink."""
 
 import logging
-import json
 import time
 
 from functools import update_wrapper
@@ -14,7 +13,6 @@ from flask import (
     jsonify,
     render_template,
     request,
-    redirect,
     make_response
 )
 

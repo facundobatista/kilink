@@ -17,6 +17,7 @@ from kilink import kilink, backend
 
 class FakeRequest(object):
     """A fake request to patch Flask."""
+
     def __init__(self, **k):
         self.__dict__.update(k)
 
