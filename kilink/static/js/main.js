@@ -8,16 +8,20 @@ var linkode = (function (){
         text_datetime = opts.text_datetime;
         text_update_submit = opts.text_update_submit;
         text_tooltip = opts.text_tooltip;
+        text_retry_noty = opts.text_retry_noty;
+        text_retry_times_noty = opts.text_retry_times_noty;
+        text_get_error_noty = opts.text_get_error_noty;
+        text_post_error_noty = opts.text_post_error_noty;
+
         close_tree_img = opts.close_tree_img;
         open_tree_img = opts.open_tree_img;
         open_tree_tooltip = opts.open_tree_tooltip;
         closed_tree_tooltip = opts.closed_tree_tooltip;
+
         current_linkode_id = null;
 
-        $("#toogle-image").tooltipster({
-            trigger: 'hover',
-            side: 'left'
-        });
+        tooltipster_default();
+        noty_default();
 
         if(linkode_id_val()){
             $("#btn-submit").text(text_update_submit);
@@ -64,7 +68,7 @@ var linkode = (function (){
     /**
      * Post the new linkode
      */
-    function api_post(){
+    function api_post(event, current_retry){
         var api_post_url = API_URL;
         var post_data = {
             'content': editor.val(),
@@ -79,10 +83,23 @@ var linkode = (function (){
         $.post(api_post_url,post_data)
             .done(function(data) {
                 var posted_linkode = data;
+                linkode_id_val(posted_linkode.revno);
                 api_after_post_get(posted_linkode.revno);
+                $("#btn-submit").text(text_update_submit);
+            })
+            .fail(function(data, error) {
+                current_retry = current_retry ? current_retry : 0;
+                if (current_retry < RETRY_TIMES){
+                    show_retry_noty();
+                    current_retry++;
+                    setTimeout(function(){
+                        api_post(event, current_retry);
+                    }, RETRY_DELAY);
+                }
+                else{
+                    show_error_noty(text_post_error_noty);
+                }
             });
-
-        $("#btn-submit").text(text_update_submit);
     }
 
     /**
@@ -91,18 +108,17 @@ var linkode = (function (){
      */
     function api_after_post_get(linkode_id){
         var api_get_url = API_URL + linkode_id;
-        $.get(api_get_url)
-            .done(function(data) {
-                node_list = data.tree;
+        return $.get(api_get_url)
+                .done(function(data) {
+                    node_list = data.tree;
 
-                if (node_list !== false) {
-                    $(".klk-tree").empty();
-                    create_tree(linkode_id);
-                    $("#tree-toggle-panel").show();
-                }
-                set_timestamp(data.timestamp);
-                linkode_id_val(linkode_id);
-            });
+                    if (node_list !== false) {
+                        $(".klk-tree").empty();
+                        create_tree(linkode_id);
+                        $("#tree-toggle-panel").show();
+                    }
+                    set_timestamp(data.timestamp);
+                });
     }
 
     /**
@@ -110,31 +126,48 @@ var linkode = (function (){
      * @param  {string}
      * @param  {bool}
      */
-    function api_get(linkode_id, include_tree){
+    function api_get(linkode_id, include_tree, current_retry){
         var api_get_url = API_URL + linkode_id;
-        $.get(api_get_url)
-            .done(function(data) {
-                load_linkode(data.content, data.text_type, data.timestamp);
+        result = $.get(api_get_url)
+                .done(function(data) {
+                    load_linkode(data.content, data.text_type, data.timestamp);
 
-                if(include_tree){
-                    node_list = data.tree;
-                    if (node_list !== false) {
-                        $(".klk-tree").empty();
-                        create_tree(linkode_id);
-                        $("#tree-toggle-panel").show();
+                    if(include_tree){
+                        node_list = data.tree;
+                        if (node_list !== false) {
+                            $(".klk-tree").empty();
+                            create_tree(linkode_id);
+                            $("#tree-toggle-panel").show();
 
-                        // Only if nodes >= 2 
-                        if(node_list.children){
-                            toggleTree();
+                            // Only if nodes >= 2 
+                            if(node_list.children){
+                                toggleTree();
+                            }
                         }
                     }
-                }
-
-                linkode_id_val(linkode_id);
-            })
-            .fail(function(data, error) {
-                console.log(data, error)
-            });
+                    else{
+                        color_node(linkode_id);
+                    }
+                    linkode_id_val(linkode_id);
+                })
+                .fail(function(data, error) {
+                    if(include_tree){
+                    }
+                    else{
+                        current_retry = current_retry ? current_retry : 0;
+                        if (current_retry < RETRY_TIMES){
+                            show_retry_noty();
+                            current_retry++;
+                            setTimeout(function(){
+                                result = api_get(linkode_id, include_tree, current_retry);
+                            }, RETRY_DELAY);
+                        }
+                        else{
+                            show_error_noty(text_get_error_noty);
+                        }
+                    }
+                });
+        return result;
     }
 
     /**
@@ -249,7 +282,7 @@ var linkode = (function (){
             .attr("class", "node-dot")
             .attr("r", 15);
 
-        color_node(nodeGroup, linkode_id);
+        color_node(linkode_id);
 
         nodeGroup.append("svg:text")
             .attr("text-anchor", "middle")
@@ -259,12 +292,12 @@ var linkode = (function (){
                 return d.order;
             })
             .on("click", function(node){
-                select_node(node, nodeGroup);
+                select_node(node);
             });
 
         nodeGroup.selectAll(".node-dot")
             .on("click", function(node){
-                select_node(node, nodeGroup);
+                select_node(node);
             });
 
         $.each($(".node"), function() {
@@ -280,10 +313,9 @@ var linkode = (function (){
      * @param  {node}
      * @param  {nodeGroup}
      */
-    function select_node(node, nodeGroup){
+    function select_node(node){
         if (!node.selected){
-            api_get(node.linkode_id);
-            color_node(nodeGroup, node.linkode_id);
+            api_get(node.linkode_id, false, 0);
         }
     }
 
@@ -292,7 +324,8 @@ var linkode = (function (){
      * @param  {nodeGroup}
      * @param  {string}
      */
-    function color_node(nodeGroup, linkode_id){
+    function color_node(linkode_id) {
+        nodeGroup = d3.select(".klk-tree").selectAll("g.node");
         nodeGroup.selectAll(".node-dot")
         .style("fill", function(node){
             if (node.linkode_id == linkode_id) {
@@ -306,6 +339,69 @@ var linkode = (function (){
         });
     }
 
+    /**
+     * Show retry notification
+     */
+    function show_retry_noty(){
+        new Noty({
+            type: 'info',
+            text: text_retry_noty + " " + RETRY_DELAY / 1000 + " " + text_retry_times_noty,
+            timeout: RETRY_DELAY - 500, // subtract 500 ms to avoid overlap
+            progressBar: true,
+            queue: 'q_rety',
+            killer: 'q_rety',
+        }).show();
+    }
+
+    /**
+     * Show error notification
+     * @param  {string} error Error message
+     */
+    function show_error_noty(error){
+        new Noty({
+            type: 'error',
+            text: error,
+        }).show();
+    }
+
+    /**
+     * Set the default values for noty
+     */
+    function noty_default(){
+        Noty.overrideDefaults({
+            theme: 'bootstrap-v3',
+            layout: 'topRight',
+            timeout: false,
+            progressBar: false,
+            closeWith: ['button'],
+            animation: {
+                open: 'noty_effects_open',
+                close: 'noty_effects_close'
+            },
+            id: false,
+            force: false,
+            killer: false,
+            queue: 'global',
+            container: false,
+            buttons: [],
+            sounds: {},
+            titleCount: {
+                conditions: []
+            },
+            modal: false
+        });
+    }
+
+    /**
+     * Set the default values for tooltipster
+     * @return {[type]} [description]
+     */
+    function tooltipster_default(){
+        $("#toogle-image").tooltipster({
+            trigger: 'hover',
+            side: 'left'
+        });
+    }
 
     var API_URL = window.location.protocol + "//" + window.location.host + "/api/1/linkodes/";
     var RETRY_TIMES = 3;
@@ -315,11 +411,16 @@ var linkode = (function (){
     var text_update_submit;
     var text_new_submit;
     var text_tooltip;
+    var text_datetime;
+    var text_retry_noty;
+    var text_retry_times_noty;
+    var text_get_error_noty;
+    var text_post_error_noty;
+    
     var close_tree_img;
     var open_tree_img;
     var open_tree_tooltip;
     var closed_tree_tooltip;
-    var text_datetime;
 
     var current_linkode_id;
 
