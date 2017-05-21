@@ -8,6 +8,7 @@ var linkode = (function (){
         text_datetime = opts.text_datetime;
         text_update_submit = opts.text_update_submit;
         text_tooltip = opts.text_tooltip;
+        text_success_noty = opts.text_success_noty;
         text_retry_noty = opts.text_retry_noty;
         text_retry_times_noty = opts.text_retry_times_noty;
         text_get_error_noty = opts.text_get_error_noty;
@@ -91,6 +92,7 @@ var linkode = (function (){
                     editor.selectMode();
                     api_after_post_get(posted_linkode.revno);
                     $("#btn-submit").text(text_update_submit);
+                    show_success_noty(posted_linkode.revno);
                 }
                 else{
                     window.location.replace(URL_BASE + "/#" + posted_linkode.revno);
@@ -351,6 +353,16 @@ var linkode = (function (){
         });
     }
 
+    function show_success_noty(linkode_id){
+        new Noty({
+            type: 'success',
+            text: text_success_noty + " " + linkode_id,
+            timeout: RETRY_DELAY,
+            progressBar: false,
+
+        }).show();
+    }
+
     /**
      * Show retry notification
      */
@@ -426,6 +438,7 @@ var linkode = (function (){
     var text_new_submit;
     var text_tooltip;
     var text_datetime;
+    var text_success_noty;
     var text_retry_noty;
     var text_retry_times_noty;
     var text_get_error_noty;
