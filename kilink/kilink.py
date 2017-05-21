@@ -130,8 +130,12 @@ def version():
 
 # views
 @app.route('/')
+@app.route('/<linkode_id>')
+@app.route('/<linkode_id>/<revno>')
+@app.route('/l/<linkode_id>')
+@app.route('/l/<linkode_id>/<revno>')
 @measure("index")
-def index():
+def index(linkode_id=None, revno=None):
     """The base page."""
     render_dict = {
         'new_button_text': _('Create linkode'),

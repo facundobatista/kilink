@@ -1,4 +1,4 @@
-var linkode = (function (){
+var linkode = (function () {
     /**
      * Init the module.
      * @param  {dict}
@@ -19,13 +19,14 @@ var linkode = (function (){
         closed_tree_tooltip = opts.closed_tree_tooltip;
 
         current_linkode_id = null;
+        first_load_success = true;
 
         tooltipster_default();
         noty_default();
 
         if(linkode_id_val()){
             $("#btn-submit").text(text_update_submit);
-            api_get(linkode_id_val(), true);
+            api_get(linkode_id_val(), true, true);
         }
         else{
             $("#btn-submit").text(text_new_submit);
@@ -75,7 +76,7 @@ var linkode = (function (){
             'text_type': $("#selectlang").val()
         };
 
-        if(linkode_id_val()){
+        if(first_load_success && linkode_id_val()){
             api_post_url = api_post_url + linkode_id_val();
             post_data.parent = linkode_id_val();
         }
@@ -83,9 +84,14 @@ var linkode = (function (){
         $.post(api_post_url,post_data)
             .done(function(data) {
                 var posted_linkode = data;
-                linkode_id_val(posted_linkode.revno);
-                api_after_post_get(posted_linkode.revno);
-                $("#btn-submit").text(text_update_submit);
+                if(first_load_success){
+                    linkode_id_val(posted_linkode.revno);
+                    api_after_post_get(posted_linkode.revno);
+                    $("#btn-submit").text(text_update_submit);
+                }
+                else{
+                    window.location.replace(URL_BASE + "/#" + posted_linkode.revno);
+                }
             })
             .fail(function(data, error) {
                 current_retry = current_retry ? current_retry : 0;
@@ -126,12 +132,11 @@ var linkode = (function (){
      * @param  {string}
      * @param  {bool}
      */
-    function api_get(linkode_id, include_tree, current_retry){
+    function api_get(linkode_id, include_tree, first_load, current_retry) {
         var api_get_url = API_URL + linkode_id;
         result = $.get(api_get_url)
                 .done(function(data) {
                     load_linkode(data.content, data.text_type, data.timestamp);
-
                     if(include_tree){
                         node_list = data.tree;
                         if (node_list !== false) {
@@ -148,10 +153,14 @@ var linkode = (function (){
                     else{
                         color_node(linkode_id);
                     }
-                    linkode_id_val(linkode_id);
+                    if(!first_load){
+                        linkode_id_val(linkode_id);
+                    }
                 })
                 .fail(function(data, error) {
-                    if(include_tree){
+                    if(first_load){
+                        first_load_success = false;
+                        show_error_noty(text_get_error_noty);
                     }
                     else{
                         current_retry = current_retry ? current_retry : 0;
@@ -159,7 +168,7 @@ var linkode = (function (){
                             show_retry_noty();
                             current_retry++;
                             setTimeout(function(){
-                                result = api_get(linkode_id, include_tree, current_retry);
+                                result = api_get(linkode_id, include_tree, false, current_retry);
                             }, RETRY_DELAY);
                         }
                         else{
@@ -315,7 +324,7 @@ var linkode = (function (){
      */
     function select_node(node){
         if (!node.selected){
-            api_get(node.linkode_id, false, 0);
+            api_get(node.linkode_id, false, false, 0);
         }
     }
 
@@ -403,7 +412,9 @@ var linkode = (function (){
         });
     }
 
-    var API_URL = window.location.protocol + "//" + window.location.host + "/api/1/linkodes/";
+    // constants
+    var URL_BASE = window.location.protocol + "//" + window.location.host;
+    var API_URL = URL_BASE + "/api/1/linkodes/";
     var RETRY_TIMES = 3;
     var RETRY_DELAY = 2000; // in miliseconds
 
@@ -422,7 +433,9 @@ var linkode = (function (){
     var open_tree_tooltip;
     var closed_tree_tooltip;
 
+    // vars
     var current_linkode_id;
+    var first_load_success;
 
     var module = {
         init : init,
