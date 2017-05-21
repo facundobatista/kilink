@@ -1,4 +1,4 @@
-var linkode = (function () {
+var linkode = (function (){
     /**
      * Init the module.
      * @param  {dict}
@@ -71,9 +71,10 @@ var linkode = (function () {
      */
     function api_post(event, current_retry){
         var api_post_url = API_URL;
+        text_type = $("#selectlang").val().replace("auto_", "");
         var post_data = {
             'content': editor.val(),
-            'text_type': $("#selectlang").val()
+            'text_type': text_type
         };
 
         if(first_load_success && linkode_id_val()){
@@ -86,6 +87,8 @@ var linkode = (function () {
                 var posted_linkode = data;
                 if(first_load_success){
                     linkode_id_val(posted_linkode.revno);
+                    $("#selectlang").val(text_type);
+                    editor.selectMode();
                     api_after_post_get(posted_linkode.revno);
                     $("#btn-submit").text(text_update_submit);
                 }
@@ -508,7 +511,7 @@ var editor = (function (){
     function selectMode() {
         var mode = $modeInput.find("option:selected").val();
         var cmode = langLike(mode.toLowerCase());
-        if (cmode == "auto"){
+        if (cmode == "auto" || cmode.startsWith("auto_")){
             autoDetection = 1;
             update();
         }
@@ -585,6 +588,7 @@ var editor = (function (){
         var langMode = looksLike($editor.getValue());
         $editor.setOption("mode", langMode);
         isPython(langMode);
+        $modeInput.find("option:selected").val("auto_"+langMode);
         $modeInput.find("option:selected").text("auto: " + capitalise(langMode));
     }
 
