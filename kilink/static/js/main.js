@@ -101,11 +101,12 @@ var linkode = (function (){
             .fail(function(data, error) {
                 current_retry = current_retry ? current_retry : 0;
                 if (current_retry < RETRY_TIMES){
-                    show_retry_noty();
+                    retry_delay = RETRY_DELAYS[current_retry];
                     current_retry++;
+                    show_retry_noty(retry_delay);
                     setTimeout(function(){
                         api_post(event, current_retry);
-                    }, RETRY_DELAY);
+                    }, retry_delay);
                 }
                 else{
                     show_error_noty(text_post_error_noty);
@@ -172,11 +173,12 @@ var linkode = (function (){
                     else{
                         current_retry = current_retry ? current_retry : 0;
                         if (current_retry < RETRY_TIMES){
-                            show_retry_noty();
+                            retry_delay = RETRY_DELAYS[current_retry];
                             current_retry++;
+                            show_retry_noty(retry_delay);
                             setTimeout(function(){
                                 result = api_get(linkode_id, include_tree, false, current_retry);
-                            }, RETRY_DELAY);
+                            }, retry_delay);
                         }
                         else{
                             show_error_noty(text_get_error_noty);
@@ -368,7 +370,7 @@ var linkode = (function (){
         new Noty({
             type: 'success',
             text: text_success_noty + " " + linkode_id,
-            timeout: RETRY_DELAY,
+            timeout: 2000,
             progressBar: false,
             queue: 'q_success',
             killer: 'q_success',
@@ -379,11 +381,11 @@ var linkode = (function (){
     /**
      * Show retry notification
      */
-    function show_retry_noty(){
+    function show_retry_noty(retry_delay){
         new Noty({
             type: 'info',
-            text: text_retry_noty + " " + RETRY_DELAY / 1000 + " " + text_retry_times_noty,
-            timeout: RETRY_DELAY - 500, // subtract 500 ms to avoid overlap
+            text: text_retry_noty + " " + retry_delay / 1000 + " " + text_retry_times_noty,
+            timeout: retry_delay - 500, // subtract 500 ms to avoid overlap
             progressBar: true,
             queue: 'q_rety',
             killer: 'q_rety',
@@ -444,7 +446,7 @@ var linkode = (function (){
     var URL_BASE = window.location.protocol + "//" + window.location.host;
     var API_URL = URL_BASE + "/api/1/linkodes/";
     var RETRY_TIMES = 3;
-    var RETRY_DELAY = 10000; // in miliseconds
+    var RETRY_DELAYS = [2000, 10000, 30000]; // in miliseconds
 
     // values
     var text_update_submit;
