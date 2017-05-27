@@ -126,7 +126,9 @@ var linkode = (function (){
                     if (node_list !== false) {
                         $(".klk-tree").empty();
                         create_tree(linkode_id);
-                        $("#tree-toggle-panel").show();
+                        if(node_list.children){
+                            toggleTree(true);
+                        }
                     }
                     set_timestamp(data.timestamp);
                 });
@@ -214,9 +216,18 @@ var linkode = (function (){
     /**
      * Toggle the tree panel
      */
-    function toggleTree(){
+    function toggleTree(force_open){
         var cp = $(".code-panel");
         var tp =$(".tree-panel");
+
+        if (force_open){
+            cp.removeClass("col-md-12").addClass("col-md-10");
+            tp.show();
+            $("#toogle-image").attr("src", close_tree_img);
+            $("#toogle-image").tooltipster("content", closed_tree_tooltip);
+            return;
+        }
+
         if(cp.hasClass("col-md-12")){
             // Tree is closed
             cp.removeClass("col-md-12").addClass("col-md-10");
@@ -359,6 +370,8 @@ var linkode = (function (){
             text: text_success_noty + " " + linkode_id,
             timeout: RETRY_DELAY,
             progressBar: false,
+            queue: 'q_success',
+            killer: 'q_success',
 
         }).show();
     }
@@ -431,7 +444,7 @@ var linkode = (function (){
     var URL_BASE = window.location.protocol + "//" + window.location.host;
     var API_URL = URL_BASE + "/api/1/linkodes/";
     var RETRY_TIMES = 3;
-    var RETRY_DELAY = 2000; // in miliseconds
+    var RETRY_DELAY = 10000; // in miliseconds
 
     // values
     var text_update_submit;
@@ -601,7 +614,8 @@ var editor = (function (){
         var langMode = looksLike($editor.getValue());
         $editor.setOption("mode", langMode);
         isPython(langMode);
-        $modeInput.find("option:selected").val("auto_"+langMode);
+        var modeval = langMode == 'clike' ? 'c++' : langMode;
+        $modeInput.find("option:selected").val("auto_"+modeval);
         $modeInput.find("option:selected").text("auto: " + capitalise(langMode));
     }
 
