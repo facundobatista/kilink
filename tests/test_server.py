@@ -36,8 +36,4 @@ class ServingTestCase(TestCase):
         """Root page."""
         kilink.index()
 
-        k = {}
-        k['update_button_text'] = u'Save new version'
-        k['new_button_text'] = u'Create linkode'
-
-        self.mocked_render.assert_called_once_with("_new.html", **k)
+        self.mocked_render.assert_called_once_with("_new.html")

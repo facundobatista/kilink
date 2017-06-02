@@ -137,11 +137,7 @@ def version():
 @measure("index")
 def index(linkode_id=None, revno=None):
     """The base page."""
-    render_dict = {
-        'new_button_text': _('Create linkode'),
-        'update_button_text': _('Save new version'),
-    }
-    return render_template('_new.html', **render_dict)
+    return render_template('_new.html')
 
 
 # API
