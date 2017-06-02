@@ -1,4 +1,4 @@
-{% macro text_options(current=None) %}
+{% macro text_options() %}
     {% set options = {
         "auto": "auto",
         "c": "C",
@@ -22,7 +22,7 @@
         "markdown": "Markdown",
         "php": "Php",
         "perl": "Perl",
-        "plain tex": "Plain text",
+        "plain text": "Plain text",
         "python": "Python",
         "r": "R",
         "ruby": "Ruby",
@@ -36,13 +36,8 @@
         "xml": "Xml",
     } %}
       {% for key in options | sort %}
-          {% if key != current %}
-            <option value="{{key}}">{{options[key]}}</option>
-          {% else %}
-            <option value="{{key}}" selected>{{options[key]}}</option>
-          {% endif %}
+        <option value="{{key}}">{{options[key]}}</option>
       {% endfor %}
-    }
 {% endmacro %}
 
 

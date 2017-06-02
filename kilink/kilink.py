@@ -4,7 +4,6 @@
 """The server for kilink."""
 
 import logging
-import json
 import time
 
 from functools import update_wrapper
@@ -14,7 +13,6 @@ from flask import (
     jsonify,
     render_template,
     request,
-    redirect,
     make_response
 )
 
@@ -132,84 +130,17 @@ def version():
 
 # views
 @app.route('/')
-@measure("index")
-def index():
-    """The base page."""
-    render_dict = {
-        'content': '',
-        'button_text': _('Create linkode'),
-        'linkode_info': '',
-        'tree_info': json.dumps(False),
-    }
-    return render_template('_new.html', **render_dict)
-
-
-@app.route('/', methods=['POST'])
-@measure("server.create")
-def create():
-    """Create a kilink."""
-    content = request.form['content']
-    text_type = request.form['text_type']
-    logger.debug("Create start; type=%r size=%d", text_type, len(content))
-    if text_type[:6] == "auto: ":
-        text_type = text_type[6:]
-    klnk = kilinkbackend.create_kilink(content, text_type)
-    url = "/%s" % (klnk.linkode_id,)
-    logger.debug("Create done; linkode_id=%s", klnk.linkode_id)
-    return redirect(url, code=303)
-
-
-@app.route('/<linkode_id>', methods=['POST'])
-@app.route('/<linkode_id>/<parent>', methods=['POST'])
-@measure("server.update")
-def update(linkode_id, parent=None):
-    """Update a kilink."""
-    content = request.form['content']
-    text_type = request.form['text_type']
-    logger.debug("Update start; linkode_id=%r parent=%r type=%r size=%d",
-                 linkode_id, parent, text_type, len(content))
-    if parent is not None:
-        # the linkode id to have a child is the parent!
-        linkode_id = parent
-
-    klnk = kilinkbackend.update_kilink(linkode_id, content, text_type)
-    new_url = "/%s" % (klnk.linkode_id,)
-    logger.debug("Update done; linkode_id=%r", klnk.linkode_id)
-    return redirect(new_url, code=303)
-
-
 @app.route('/<linkode_id>')
 @app.route('/<linkode_id>/<revno>')
 @app.route('/l/<linkode_id>')
 @app.route('/l/<linkode_id>/<revno>')
-@nocache
-@measure("server.show")
-def show(linkode_id, revno=None):
-    """Show the kilink content"""
-    # get the content
-    logger.debug("Show start; linkode_id=%r revno=%r", linkode_id, revno)
-    if revno is not None:
-        # the linkode_id to get the info from is the second token
-        linkode_id = revno
-
-    klnk = kilinkbackend.get_kilink(linkode_id)
-    content = klnk.content
-    text_type = klnk.text_type
-    timestamp = klnk.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    # get the tree
-    tree, nodeq = kilinkbackend.build_tree(linkode_id)
-
+@measure("index")
+def index(linkode_id=None, revno=None):
+    """The base page."""
     render_dict = {
-        'content': content,
-        'button_text': _('Save new version'),
-        'linkode_info': linkode_id,
-        'tree_info': json.dumps(tree) if tree != {} else False,
-        'current_revno': linkode_id,
-        'text_type': text_type,
-        'timestamp': timestamp,
+        'new_button_text': _('Create linkode'),
+        'update_button_text': _('Save new version'),
     }
-    logger.debug("Show done; quantity=%d", nodeq)
     return render_template('_new.html', **render_dict)
 
 
@@ -272,7 +203,8 @@ def api_get(linkode_id, revno=None):
 
     logger.debug("API get done; type=%r size=%d len_tree=%d",
                  klnk.text_type, len(klnk.content), nodeq)
-    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type, tree=tree)
+    ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
+                       tree=tree, timestamp=klnk.timestamp)
     return ret_json
 
 
