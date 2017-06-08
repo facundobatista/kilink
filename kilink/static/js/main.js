@@ -209,6 +209,9 @@ var linkode = (function (){
      * @param  {string}
      */
     function load_linkode(content, text_type, timestamp){
+        //Reset the auto option.
+        $("#selectlang option[value^='auto']").text("auto")
+        $("#selectlang option[value^='auto']").val("auto")
         $("#selectlang").val(text_type);
         editor.selectMode();
         set_timestamp(timestamp);
