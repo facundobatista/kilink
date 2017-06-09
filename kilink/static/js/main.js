@@ -13,6 +13,7 @@ var linkode = (function (){
         text_retry_times_noty = opts.text_retry_times_noty;
         text_get_error_noty = opts.text_get_error_noty;
         text_post_error_noty = opts.text_post_error_noty;
+        text_retry_button = opts.text_retry_button;
 
         close_tree_img = opts.close_tree_img;
         open_tree_img = opts.open_tree_img;
@@ -109,7 +110,7 @@ var linkode = (function (){
                     }, retry_delay);
                 }
                 else{
-                    show_error_noty(text_post_error_noty);
+                    show_error_noty(text_post_error_noty, api_post, [event, ]);
                 }
             });
     }
@@ -168,7 +169,9 @@ var linkode = (function (){
                 .fail(function(data, error) {
                     if(first_load){
                         first_load_success = false;
-                        show_error_noty(text_get_error_noty);
+                        show_error_noty(text_get_error_noty, api_get,
+                                        api_get, 
+                                        [linkode_id, include_tree, first_load, 0]);
                     }
                     else{
                         current_retry = current_retry ? current_retry : 0;
@@ -181,7 +184,9 @@ var linkode = (function (){
                             }, retry_delay);
                         }
                         else{
-                            show_error_noty(text_get_error_noty);
+                            show_error_noty(text_get_error_noty, 
+                                            api_get, 
+                                            [linkode_id, include_tree, first_load, 0]);
                         }
                     }
                 });
@@ -370,40 +375,48 @@ var linkode = (function (){
     }
 
     function show_success_noty(linkode_id){
-        new Noty({
-            type: 'success',
-            text: text_success_noty + " " + linkode_id,
-            timeout: 2000,
-            progressBar: false,
-            queue: 'q_success',
-            killer: 'q_success',
+        var n = new Noty({
+                type: 'success',
+                text: text_success_noty + " " + linkode_id,
+                timeout: 2000,
+                progressBar: false,
+                queue: 'q_success',
+                killer: true,
 
-        }).show();
+            }).show();
     }
 
     /**
      * Show retry notification
      */
     function show_retry_noty(retry_delay){
-        new Noty({
-            type: 'info',
-            text: text_retry_noty + " " + retry_delay / 1000 + " " + text_retry_times_noty,
-            timeout: retry_delay - 500, // subtract 500 ms to avoid overlap
-            progressBar: true,
-            queue: 'q_rety',
-            killer: 'q_rety',
-        }).show();
+        var n = new Noty({
+                type: 'info',
+                text: text_retry_noty + " " + retry_delay / 1000 + " " + text_retry_times_noty,
+                timeout: retry_delay - 500, // subtract 500 ms to avoid overlap
+                progressBar: true,
+                queue: 'q_rety',
+                killer: 'q_rety',
+            }).show();
     }
 
     /**
      * Show error notification
      * @param  {string} error Error message
      */
-    function show_error_noty(error){
-        new Noty({
-            type: 'error',
-            text: error,
-        }).show();
+    function show_error_noty(error, retry_func, retry_params){
+        var n = new Noty({
+                type: 'error',
+                text: error,
+                killer: true,
+                buttons:[
+                    Noty.button(text_retry_button, 'btn btn-error', function(){
+                        n.close();
+                        //retry_func(...retry_params); // Spread Operator only ES6
+                        retry_func.apply(null,retry_params); // ES5 Spread Operator solution
+                    })
+                ],
+            }).show();
     }
 
     /**
@@ -461,6 +474,7 @@ var linkode = (function (){
     var text_retry_times_noty;
     var text_get_error_noty;
     var text_post_error_noty;
+    var text_retry_button;
     
     var close_tree_img;
     var open_tree_img;
