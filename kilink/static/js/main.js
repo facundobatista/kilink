@@ -34,7 +34,9 @@ var linkode = (function (){
             $("#btn-submit").text(text_new_submit);
         }
 
-        $("#toggle-container").on("click", toggleTree);
+        $("#toggle-container").on("click", function(){
+            toggleTree();
+        });
         $("#btn-submit").on("click", api_post);
     }
 
