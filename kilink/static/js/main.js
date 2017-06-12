@@ -477,7 +477,7 @@ var linkode = (function (){
     // constants
     var URL_BASE = window.location.protocol + "//" + window.location.host;
     var API_URL = URL_BASE + "/api/1/linkodes/";
-    var RETRY_TIMES = 1;
+    var RETRY_TIMES = 3;
     var RETRY_DELAYS = [2000, 10000, 30000]; // in miliseconds
 
     // values
