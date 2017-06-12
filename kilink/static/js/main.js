@@ -12,7 +12,9 @@ var linkode = (function (){
         text_retry_noty = opts.text_retry_noty;
         text_retry_times_noty = opts.text_retry_times_noty;
         text_get_error_noty = opts.text_get_error_noty;
+        text_get_not_exist_noty = opts.text_get_not_exist_noty;
         text_post_error_noty = opts.text_post_error_noty;
+        text_post_not_exist_noty = opts.text_post_not_exist_noty;
         text_retry_button = opts.text_retry_button;
 
         close_tree_img = opts.close_tree_img;
@@ -37,7 +39,9 @@ var linkode = (function (){
         $("#toggle-container").on("click", function(){
             toggleTree();
         });
-        $("#btn-submit").on("click", api_post);
+        $("#btn-submit").on("click", function(){
+            api_post();
+        });
     }
 
     /**
@@ -70,10 +74,20 @@ var linkode = (function (){
         }
     }
 
+    function get_error_message(error, is_post){
+        if (error == 404){
+            return is_post ? text_post_not_exist_noty : text_get_not_exist_noty;
+        }
+        else{
+            return is_post ? text_post_error_noty : text_get_error_noty;
+        }
+    }
+    
+
     /**
      * Post the new linkode
      */
-    function api_post(event, current_retry){
+    function api_post(current_retry){
         var api_post_url = API_URL;
         text_type = $("#selectlang").val().replace("auto_", "");
         var post_data = {
@@ -103,16 +117,16 @@ var linkode = (function (){
             })
             .fail(function(data, error) {
                 current_retry = current_retry ? current_retry : 0;
-                if (current_retry < RETRY_TIMES){
+                if (current_retry < RETRY_TIMES && data.status != 404){
                     retry_delay = RETRY_DELAYS[current_retry];
                     current_retry++;
                     show_retry_noty(retry_delay);
                     setTimeout(function(){
-                        api_post(event, current_retry);
+                        api_post(current_retry);
                     }, retry_delay);
                 }
                 else{
-                    show_error_noty(text_post_error_noty, api_post, [event, ]);
+                    show_error_noty(get_error_message(data.status, true), api_post, []);
                 }
             });
     }
@@ -169,9 +183,9 @@ var linkode = (function (){
                     }
                 })
                 .fail(function(data, error) {
-                    if(first_load){
+                    if(first_load || data.status == 404){
                         first_load_success = false;
-                        show_error_noty(text_get_error_noty, api_get,
+                        show_error_noty(get_error_message(data.status, false), 
                                         api_get, 
                                         [linkode_id, include_tree, first_load, 0]);
                     }
@@ -186,7 +200,7 @@ var linkode = (function (){
                             }, retry_delay);
                         }
                         else{
-                            show_error_noty(text_get_error_noty, 
+                            show_error_noty(get_error_message(data.status, false), 
                                             api_get, 
                                             [linkode_id, include_tree, first_load, 0]);
                         }
@@ -217,8 +231,8 @@ var linkode = (function (){
      */
     function load_linkode(content, text_type, timestamp){
         //Reset the auto option.
-        $("#selectlang option[value^='auto']").text("auto")
-        $("#selectlang option[value^='auto']").val("auto")
+        $("#selectlang option[value^='auto']").text("auto");
+        $("#selectlang option[value^='auto']").val("auto");
         $("#selectlang").val(text_type);
         editor.selectMode();
         set_timestamp(timestamp);
@@ -475,7 +489,9 @@ var linkode = (function (){
     var text_retry_noty;
     var text_retry_times_noty;
     var text_get_error_noty;
+    var text_get_not_exist_noty;
     var text_post_error_noty;
+    var text_post_not_exist_noty;
     var text_retry_button;
     
     var close_tree_img;

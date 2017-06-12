@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-06-02 20:10-0300\n"
+"POT-Creation-Date: 2017-06-11 21:11-0300\n"
 "PO-Revision-Date: 2013-10-26 22:44-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -67,8 +67,20 @@ msgid "Error obtaining linkode"
 msgstr "Error al obtener linkode"
 
 #: templates/_new.html:84
+msgid "Linkode does not exist"
+msgstr "Linkode no existe"
+
+#: templates/_new.html:85
 msgid "Error creating linkode"
 msgstr "Error al crear linkode"
+
+#: templates/_new.html:86
+msgid "Parent linkode does not exist"
+msgstr "Linkode padre no existe"
+
+#: templates/_new.html:87
+msgid "Retry"
+msgstr "Reintentar"
 
 #: templates/base.html:52
 msgid "New"
