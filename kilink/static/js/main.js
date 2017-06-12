@@ -74,16 +74,6 @@ var linkode = (function (){
         }
     }
 
-    function get_error_message(error, is_post){
-        if (error == 404){
-            return is_post ? text_post_not_exist_noty : text_get_not_exist_noty;
-        }
-        else{
-            return is_post ? text_post_error_noty : text_get_error_noty;
-        }
-    }
-    
-
     /**
      * Post the new linkode
      */
@@ -126,7 +116,7 @@ var linkode = (function (){
                     }, retry_delay);
                 }
                 else{
-                    show_error_noty(get_error_message(data.status, true), api_post, []);
+                    show_error_noty(data.status, true, api_post, []);
                 }
             });
     }
@@ -185,7 +175,8 @@ var linkode = (function (){
                 .fail(function(data, error) {
                     if(first_load || data.status == 404){
                         first_load_success = false;
-                        show_error_noty(get_error_message(data.status, false), 
+                        $("#btn-submit").text(text_new_submit);
+                        show_error_noty(data.status, false, 
                                         api_get, 
                                         [linkode_id, include_tree, first_load, 0]);
                     }
@@ -200,7 +191,7 @@ var linkode = (function (){
                             }, retry_delay);
                         }
                         else{
-                            show_error_noty(get_error_message(data.status, false), 
+                            show_error_noty(data.status, false, 
                                             api_get, 
                                             [linkode_id, include_tree, first_load, 0]);
                         }
@@ -420,18 +411,27 @@ var linkode = (function (){
      * Show error notification
      * @param  {string} error Error message
      */
-    function show_error_noty(error, retry_func, retry_params){
+    function show_error_noty(error_number, is_post, retry_func, retry_params){
+        if (error_number == 404){
+            text = is_post ? text_post_not_exist_noty : text_get_not_exist_noty;
+            buttons = [];
+        }
+        else{
+            text =  is_post ? text_post_error_noty : text_get_error_noty;
+            buttons = [
+                Noty.button(text_retry_button, 'btn btn-error', function(){
+                    n.close();
+                    //retry_func(...retry_params); // Spread Operator only ES6
+                    retry_func.apply(null,retry_params); // ES5 Spread Operator solution
+                })
+            ];
+        }
+
         var n = new Noty({
                 type: 'error',
-                text: error,
+                text: text,
                 killer: true,
-                buttons:[
-                    Noty.button(text_retry_button, 'btn btn-error', function(){
-                        n.close();
-                        //retry_func(...retry_params); // Spread Operator only ES6
-                        retry_func.apply(null,retry_params); // ES5 Spread Operator solution
-                    })
-                ],
+                buttons: buttons,
             }).show();
     }
 
@@ -477,7 +477,7 @@ var linkode = (function (){
     // constants
     var URL_BASE = window.location.protocol + "//" + window.location.host;
     var API_URL = URL_BASE + "/api/1/linkodes/";
-    var RETRY_TIMES = 3;
+    var RETRY_TIMES = 1;
     var RETRY_DELAYS = [2000, 10000, 30000]; // in miliseconds
 
     // values
