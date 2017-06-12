@@ -130,7 +130,7 @@ var linkode = (function (){
         return $.get(api_get_url)
                 .done(function(data) {
                     node_list = data.tree;
-
+                    $("#tree-toggle-panel").show();
                     if (node_list !== false) {
                         $(".klk-tree").empty();
                         create_tree(linkode_id);
@@ -237,15 +237,7 @@ var linkode = (function (){
         var cp = $(".code-panel");
         var tp =$(".tree-panel");
 
-        if (force_open){
-            cp.removeClass("col-md-12").addClass("col-md-10");
-            tp.show();
-            $("#toogle-image").attr("src", close_tree_img);
-            $("#toogle-image").tooltipster("content", closed_tree_tooltip);
-            return;
-        }
-
-        if(cp.hasClass("col-md-12")){
+        if(cp.hasClass("col-md-12") || force_open){
             // Tree is closed
             cp.removeClass("col-md-12").addClass("col-md-10");
             tp.show();
