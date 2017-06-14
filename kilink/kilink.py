@@ -91,13 +91,8 @@ def measure(metric_name):
 @app.errorhandler(backend.KilinkNotFoundError)
 def handle_not_found_error(error):
     """Return 404 on kilink not found"""
-    if request.url_rule.endpoint.startswith('api_'):
-        response = jsonify({'message': error.message})
-    else:
-        response = render_template('_404.html')
-
     logger.debug(error.message)
-    return response, 404
+    return jsonify({'message': error.message}), 404
 
 
 @babel.localeselector
