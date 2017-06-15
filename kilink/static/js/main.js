@@ -411,7 +411,7 @@ var linkode = (function (){
         else{
             text =  is_post ? text_post_error_noty : text_get_error_noty;
             buttons = [
-                Noty.button(text_retry_button, 'btn btn-error', function(){
+                Noty.button(text_retry_button, 'btn btn-default', function(){
                     n.close();
                     //retry_func(...retry_params); // Spread Operator only ES6
                     retry_func.apply(null,retry_params); // ES5 Spread Operator solution
@@ -432,7 +432,7 @@ var linkode = (function (){
      */
     function noty_default(){
         Noty.overrideDefaults({
-            theme: 'bootstrap-v3',
+            theme: 'metroui',
             layout: 'topRight',
             timeout: false,
             progressBar: false,
