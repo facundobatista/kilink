@@ -624,7 +624,7 @@ var editor = (function (){
         setMode(mode);
         
         if(mode){
-            setAutoOption("auto_" + mode, "auto: " + capitalise(mode));
+            setAutoOption("auto_" + mode,  "auto: " + findOption(mode).text());
         }
         else{
             setAutoOption("auto", "auto");
@@ -643,11 +643,11 @@ var editor = (function (){
     }
 
     /**
-    * Capitalise the text
-    * @param string string
-    */
-    function capitalise(string){
-        return string.charAt(0).toUpperCase() + string.slice(1);
+     * @param  {string}
+     * @return {jquery option selector}
+     */
+    function findOption(value){
+        return $modeInput.find('option[value=' + value + ']');
     }
 
     var $editor;
