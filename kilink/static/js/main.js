@@ -80,7 +80,7 @@ var linkode = (function (){
      */
     function api_post(current_retry){
         var api_post_url = API_URL;
-        text_type = $("#selectlang").val().replace("auto_", "");
+        var text_type = $("#selectlang").val().replace("auto_", "");
         var post_data = {
             'content': editor.val(),
             'text_type': text_type
@@ -613,7 +613,7 @@ var editor = (function (){
         if(auto_language[info.language]){
             return auto_language[info.language];
         }
-        return null;
+        return "plain text";
     }
 
     /**
@@ -622,13 +622,7 @@ var editor = (function (){
     function update() {
         var mode = looksLike($editor.getValue());
         setMode(mode);
-        
-        if(mode){
-            setAutoOption("auto_" + mode,  "auto: " + findOption(mode).text());
-        }
-        else{
-            setAutoOption("auto", "auto");
-        }
+        setAutoOption("auto_" + mode,  "auto: " + findOption(mode).text());
     }
 
     /**
@@ -647,7 +641,7 @@ var editor = (function (){
      * @return {jquery option selector}
      */
     function findOption(value){
-        return $modeInput.find('option[value=' + value + ']');
+        return $modeInput.find('option[value="' + value + '"]:first');
     }
 
     var $editor;
