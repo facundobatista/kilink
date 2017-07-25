@@ -73,7 +73,6 @@ def measure(metric_name):
                 result = oldf(*args, **kwargs)
             except Exception as exc:
                 name = "%s.error.%s" % (metric_name, exc.__class__.__name__)
-                print(name)
                 metrics.count(name, 1)
                 raise
             else:

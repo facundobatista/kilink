@@ -410,7 +410,7 @@ var linkode = (function (){
             buttons = [];
         }
         else if (error_number == 413){
-            text = is_post ? text_post_too_big_noty : text_post_too_big_noty;
+            text = text_post_too_big_noty;
             buttons = [];
         }
         else {
