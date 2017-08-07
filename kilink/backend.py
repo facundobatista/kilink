@@ -28,6 +28,8 @@ logger = logging.getLogger('kilink.backend')
 class KilinkNotFoundError(Exception):
     """A kilink was specified, we couldn't find it."""
 
+class KilinkDataTooBigError(Exception):
+    """Content data too big."""
 
 TreeNode = collections.namedtuple(
     "TreeNode", "content parent order linkode_id timestamp text_type")
@@ -115,6 +117,7 @@ class KilinkBackend(object):
     @session_manager
     def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
+        self._check_kilink(content)
         new_id = _get_unique_id()
         klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type)
         self.session.add(klnk)
@@ -123,6 +126,7 @@ class KilinkBackend(object):
     @session_manager
     def update_kilink(self, parent_id, new_content, text_type):
         """Add a new child to a kilink."""
+        self._check_kilink(new_content)
         parent_klnk = self.session.query(Kilink).get(parent_id)
         if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
@@ -132,6 +136,11 @@ class KilinkBackend(object):
                       content=new_content, text_type=text_type)
         self.session.add(klnk)
         return klnk
+
+    def _check_kilink(self, content):
+        if len(content) > config["max_payload"]:
+            raise KilinkDataTooBigError("Content data too large, limit exceeded")
+
 
     @session_manager
     def get_kilink(self, linkode_id):
@@ -144,7 +153,7 @@ class KilinkBackend(object):
     @session_manager
     def _get_kilink_tree(self, root):
         """Return all the information about the kilink."""
-        klnk_tree = self.session.query(Kilink).filter_by(root=root).all()
+        klnk_tree = self.session.query(Kilink).filter_by(root=root).order_by("timestamp").all()
         if len(klnk_tree) == 0:
             raise KilinkNotFoundError("Kilink id not found: %r" % (root,))
         klnk_tree.sort(key=operator.attrgetter("timestamp"))
