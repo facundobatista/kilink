@@ -14,6 +14,7 @@ var linkode = (function (){
         text_get_error_noty = opts.text_get_error_noty;
         text_get_not_exist_noty = opts.text_get_not_exist_noty;
         text_post_error_noty = opts.text_post_error_noty;
+        text_post_too_big_noty = opts.text_post_too_big_noty;
         text_post_not_exist_noty = opts.text_post_not_exist_noty;
         text_retry_button = opts.text_retry_button;
 
@@ -108,7 +109,7 @@ var linkode = (function (){
             })
             .fail(function(data, error) {
                 current_retry = current_retry ? current_retry : 0;
-                if (current_retry < RETRY_TIMES && data.status != 404){
+                if (current_retry < RETRY_TIMES && data.status != 404 && data.status != 413){
                     retry_delay = RETRY_DELAYS[current_retry];
                     current_retry++;
                     show_retry_noty(retry_delay);
@@ -418,10 +419,14 @@ var linkode = (function (){
             text = is_post ? text_post_not_exist_noty : text_get_not_exist_noty;
             buttons = [];
         }
-        else{
+        else if (error_number == 413){
+            text = text_post_too_big_noty;
+            buttons = [];
+        }
+        else {
             text =  is_post ? text_post_error_noty : text_get_error_noty;
             buttons = [
-                Noty.button(text_retry_button, 'btn btn-error', function(){
+                Noty.button(text_retry_button, 'btn btn-default', function(){
                     n.close();
                     //retry_func(...retry_params); // Spread Operator only ES6
                     retry_func.apply(null,retry_params); // ES5 Spread Operator solution
@@ -442,7 +447,7 @@ var linkode = (function (){
      */
     function noty_default(){
         Noty.overrideDefaults({
-            theme: 'bootstrap-v3',
+            theme: 'metroui',
             layout: 'topRight',
             timeout: false,
             progressBar: false,
@@ -492,6 +497,7 @@ var linkode = (function (){
     var text_get_error_noty;
     var text_get_not_exist_noty;
     var text_post_error_noty;
+    var text_post_too_big_noty;
     var text_post_not_exist_noty;
     var text_retry_button;
     

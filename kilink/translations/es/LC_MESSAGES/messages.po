@@ -20,7 +20,7 @@ msgstr ""
 
 #: templates/_new.html:10
 msgid "Write (or paste) your text here and click on Create linkode."
-msgstr "Escribe (o pega) tu texto aquí y has click en Crear linkode."
+msgstr "Escribe (o pega) tu texto aquí y haz click en Crear linkode."
 
 #: templates/_new.html:28
 msgid "Select a text type:"
@@ -75,10 +75,14 @@ msgid "Error creating linkode"
 msgstr "Error al crear linkode"
 
 #: templates/_new.html:86
+msgid "Content data too large"
+msgstr "Demasiados datos en el contenido"
+
+#: templates/_new.html:87
 msgid "Parent linkode does not exist"
 msgstr "Linkode padre no existe"
 
-#: templates/_new.html:87
+#: templates/_new.html:88
 msgid "Retry"
 msgstr "Reintentar"
 
@@ -88,24 +92,24 @@ msgstr "Nuevo"
 
 #: templates/base.html:53
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 #: templates/base.html:54
 msgid "Tools"
-msgstr ""
+msgstr "Herramientas"
 
 #: templates/base.html:68
 msgid "Back to top"
 msgstr "Volver arriba"
 
 #~ msgid "What is Linkode?"
-#~ msgstr "Que es Linkode?"
+#~ msgstr "¿Qué es Linkode?"
 
 #~ msgid "Linkode is the useful pastebin!"
-#~ msgstr "Linkode es un Pastebin útil!"
+#~ msgstr "¡Linkode es un Pastebin útil!"
 
 #~ msgid "Really, what?"
-#~ msgstr "De veras, qué?"
+#~ msgstr "¿De veras, qué?"
 
 #~ msgid "Some awesome details:"
 #~ msgstr "Algunos detalles geniales:"
@@ -114,13 +118,13 @@ msgstr "Volver arriba"
 #~ msgstr "Se pueden crear linkodes donde quieras, cuando quieras y sin esfuerzo."
 
 #~ msgid "Editable texts, not static!"
-#~ msgstr "Textos editables, no estáticos!"
+#~ msgstr "¡Textos editables, no estáticos!"
 
 #~ msgid "Every new edition creates a child: you have a tree"
 #~ msgstr "Cada nueva edición crea un hijo: obtienes un árbol."
 
 #~ msgid "Code/text type autodetection (and coloring!)"
-#~ msgstr "Autodetección de código/texto (y sintaxis coloreada!)"
+#~ msgstr "Autodetección de tipo de código/texto (¡y sintaxis coloreada!)"
 
 #~ msgid "Permanent linkodes (but still the owner can remove them)"
 #~ msgstr "Linkodes permanentes (pero el dueño puede eliminarlos)"
@@ -132,7 +136,7 @@ msgstr "Volver arriba"
 #~ msgstr "URLs privadas: no se pueden adivinar UUIDs"
 
 #~ msgid "How do I use it?"
-#~ msgstr "Como lo uso?"
+#~ msgstr "¿Cómo lo uso?"
 
 #~ msgid "To start with, use it like any pastebin. Go to the "
 #~ msgstr "Para comenzar, usar como cualquier otro pastebin. Ir a la "
@@ -140,11 +144,8 @@ msgstr "Volver arriba"
 #~ msgid "main page"
 #~ msgstr "página principal"
 
-#~ msgid ""
-#~ msgstr ""
-
 #~ msgid "Enjoy."
-#~ msgstr "Disfrutalo."
+#~ msgstr "Disfrútalo."
 
 #~ msgid "Getting help and support"
 #~ msgstr "Obteniendo ayuda y soporte"

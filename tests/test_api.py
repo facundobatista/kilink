@@ -268,3 +268,14 @@ class ApiTestCase(BaseTestCase):
 
         self.assertIn('message', resp_base)
         self.assertIn('message', resp_klnk)
+
+
+    def test_too_large_content(self):
+        """Content data too large."""
+        content = u'Moñooo()?¿' + '.' * config["max_payload"]
+        text_type = "type1"
+        datos = {'content': content, 'text_type': text_type}
+
+        with patch.object(kilink, "metrics"):
+            resp = self.api_create(data=datos, code=413)
+

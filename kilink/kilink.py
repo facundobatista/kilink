@@ -95,6 +95,13 @@ def handle_not_found_error(error):
     return jsonify({'message': error.message}), 404
 
 
+@app.errorhandler(backend.KilinkDataTooBigError)
+def handle_content_data_too_big_error(error):
+    """Return 413 on content data too big"""
+    logger.debug(error.message)
+    return jsonify({'message': error.message}), 413
+
+
 @babel.localeselector
 def get_locale():
     """Return the best matched language supported."""
@@ -144,7 +151,12 @@ def api_create():
     content = request.form['content']
     text_type = request.form.get('text_type', "")
     logger.debug("API create start; type=%r size=%d", text_type, len(content))
-    klnk = kilinkbackend.create_kilink(content, text_type)
+    try:
+        klnk = kilinkbackend.create_kilink(content, text_type)
+    except backend.KilinkDataTooBigError:
+        logger.debug("Content data too big; on creation")
+        response = make_response()
+        return response, 413
     ret_json = jsonify(linkode_id=klnk.linkode_id, revno=klnk.linkode_id)
     response = make_response(ret_json)
     response.headers['Location'] = 'http://%s/%s' % (config["server_host"], klnk.linkode_id)
@@ -168,6 +180,10 @@ def api_update(linkode_id):
         logger.debug("API update done; linkode_id %r not found", linkode_id)
         response = make_response()
         return response, 404
+    except backend.KilinkDataTooBigError:
+        logger.debug("Content data too big.; linkode_id %r", linkode_id)
+        response = make_response()
+        return response, 413
 
     logger.debug("API update done; linkode_id=%r", klnk.linkode_id)
     ret_json = jsonify(revno=klnk.linkode_id)
