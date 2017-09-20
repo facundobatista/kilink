@@ -77,10 +77,11 @@ var linkode = (function (){
 
     /**
      * Post the new linkode
+     * @param  {string}
      */
     function api_post(current_retry){
         var api_post_url = API_URL;
-        text_type = $("#selectlang").val().replace("auto_", "");
+        var text_type = $("#selectlang").val().replace("auto_", "");
         var post_data = {
             'content': editor.val(),
             'text_type': text_type
@@ -147,6 +148,8 @@ var linkode = (function (){
      * Get the linkode
      * @param  {string}
      * @param  {bool}
+     * @param  {bool}
+     * @param  {int}
      */
     function api_get(linkode_id, include_tree, first_load, current_retry) {
         var api_get_url = API_URL + linkode_id;
@@ -232,7 +235,8 @@ var linkode = (function (){
     }
 
     /**
-     * Toggle the tree panel
+     * @param  {bool}
+     * @return {[type]}
      */
     function toggleTree(force_open){
         var cp = $(".code-panel");
@@ -346,7 +350,6 @@ var linkode = (function (){
     /**
      * Selected kilink
      * @param  {node}
-     * @param  {nodeGroup}
      */
     function select_node(node){
         if (!node.selected){
@@ -356,7 +359,6 @@ var linkode = (function (){
 
     /**
      * Unselect all kilinks
-     * @param  {nodeGroup}
      * @param  {string}
      */
     function color_node(linkode_id) {
@@ -374,6 +376,10 @@ var linkode = (function (){
         });
     }
 
+    /**
+     * Show the success notification
+     * @param  {string}
+     */
     function show_success_noty(linkode_id){
         var n = new Noty({
                 type: 'success',
@@ -388,6 +394,7 @@ var linkode = (function (){
 
     /**
      * Show retry notification
+     * @param  {int}
      */
     function show_retry_noty(retry_delay){
         var n = new Noty({
@@ -402,7 +409,10 @@ var linkode = (function (){
 
     /**
      * Show error notification
-     * @param  {string} error Error message
+     * @param  {int}
+     * @param  {boolean}
+     * @param  {function}
+     * @param  {params}
      */
     function show_error_noty(error_number, is_post, retry_func, retry_params){
         if (error_number == 404){
@@ -462,7 +472,6 @@ var linkode = (function (){
 
     /**
      * Set the default values for tooltipster
-     * @return {[type]} [description]
      */
     function tooltipster_default(){
         $("#toogle-image").tooltipster({
@@ -517,6 +526,8 @@ var editor = (function (){
     * @param {Dict} opts
     */
     function init(opts){
+        $modeInput = $("#selectlang");
+        $backInput = $("#text_type");
 
         $editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             theme: 'monokai',
@@ -537,28 +548,6 @@ var editor = (function (){
             }
         });
 
-        
-    }
-
-    /**
-    * Late Init for the mode
-    */
-    function init_mode(){
-        $modeInput = $("#selectlang");
-        $backInput = $("#text_type");
-
-        var bmode = $backInput.val();
-        if ($.inArray(bmode, ['', 'auto']) >=0 ){
-            autoDetection = 1;
-            update();
-        }
-        else{
-            autoDetection = 0;
-            $modeInput.value = bmode;
-            $editor.setOption("mode", langLike(bmode));
-            isPython(bmode);
-        }
-        
         $editor.on("change", function() {
             if (autoDetection){
                 setTimeout(update, 400);
@@ -567,20 +556,44 @@ var editor = (function (){
     }
 
     /**
+    * Set the editor mode
+    * @param string mode
+    */
+    function setMode(mode){
+        var editor_mode = "";
+        if(language_editor_mode[mode]){
+            editor_mode = language_editor_mode[mode];
+        }
+        $editor.setOption("mode", editor_mode);
+        needIndent(mode);
+    }
+
+    /**
+    * Set indent by mode
+    * @param string mode
+    */
+    function needIndent(mode){
+        if (mode == "python"){
+            $editor.setOption("indentUnit", 4);
+        }
+        else{
+            $editor.setOption("indentUnit", 2);
+        }
+    }
+
+    /**
     * Set the mode selected in the ddl
     */
     function selectMode() {
         var mode = $modeInput.find("option:selected").val();
-        var cmode = langLike(mode.toLowerCase());
-        if (cmode == "auto" || cmode.startsWith("auto_")){
+        if (mode == "auto" || mode.startsWith("auto_")){
             autoDetection = 1;
             update();
         }
         else{
             autoDetection = 0;
-            $editor.setOption("mode", cmode);
-            isPython(cmode);
-            $modeInput.find("option:first").text("auto");
+            setMode(mode);
+            setAutoOption("auto", "auto");
         }
     }
 
@@ -603,78 +616,38 @@ var editor = (function (){
     */
     function looksLike(contents) {
         var info = hljs.highlightAuto(contents.trim());
-        var clang = langLike(info.language);
-        return clang;
-    }
-
-    /**
-    * Get the mode based on the language
-    * @param string lang
-    */
-    function langLike(lang){
-        if ($.inArray(lang, c_languages) >= 0){
-            lang = "clike";
+        if(auto_language[info.language]){
+            return auto_language[info.language];
         }
-        else if (lang == "bash"){
-            lang = "shell";
-        }
-        else if (lang == "html"){
-            lang = "xml";
-        }
-            else if (lang == "json"){
-        lang = "javascript";
-        }
-            else if (lang == "tex"){
-        lang = "stex";
-        }
-        else if ($.inArray(lang, plain_languages) >= 0){
-            lang = "plain text";
-        }
-        else if (typeof lang === "undefined"){
-            lang = "plain text";
-            // "plain text" does not exist,
-            // it is a dummy mode to get easily "plain text" mode
-        }
-        else {
-            //do nothing
-        }
-
-        return lang;
+        return "plain text";
     }
 
     /**
     * Update the mode when language is auto
     */
     function update() {
-        var langMode = looksLike($editor.getValue());
-        $editor.setOption("mode", langMode);
-        isPython(langMode);
-        var modeval = langMode == 'clike' ? 'c++' : langMode;
-        $modeInput.find("option:selected").val("auto_"+modeval);
-        $modeInput.find("option:selected").text("auto: " + capitalise(langMode));
+        var mode = looksLike($editor.getValue());
+        setMode(mode);
+        setAutoOption("auto_" + mode,  "auto: " + findOption(mode).text());
     }
 
-
     /**
-    * Capitalise the text
-    * @param string string
+    * Set the auto option with the language
+    * @param string value
+    * @param string text
     */
-    function capitalise(string){
-        return string.charAt(0).toUpperCase() + string.slice(1);
+    function setAutoOption(value, text){
+        $optionSelected = $modeInput.find('option[value^="auto"]');
+        $optionSelected.val(value);
+        $optionSelected.text(text);
     }
 
-
     /**
-    * Set indent to 4 if python, else 2
-    * @param string mode
-    */
-    function isPython(imode){
-        if (imode == "python"){
-            $editor.setOption("indentUnit", 4);
-        }
-        else{
-            $editor.setOption("indentUnit", 2);
-        }
+     * @param  {string}
+     * @return {jquery option selector}
+     */
+    function findOption(value){
+        return $modeInput.find('option[value="' + value + '"]:first');
     }
 
     var $editor;
@@ -682,15 +655,84 @@ var editor = (function (){
     var $backInput;
 
     var autoDetection = 1;
-    var plain_languages =  ['1c', 'avr', 'assembler', 'actionscript',
-                            'apache', 'applescript', 'axapta', 'bash', 'brainfuck',
-                            'cmake', 'dos', '.bat', 'delphi', 'django', 'glsl',
-                            'ini', 'lisp', 'mel', 'matlab', 'nginx', 'objectivec',
-                            'parser3', 'profile', 'rsl', 'rib', 'vhdl', 'vala'];
-    var c_languages = ['cpp', 'c++', 'cs', 'c#', 'c', 'scala', 'java'];
+    var language_editor_mode = {
+        "c": "text/x-csrc",
+        "c#": "text/x-csharp",
+        "c++": "text/x-c++src",
+        "clojure": "text/x-clojure",
+        "coffeescript": "text/x-coffeescript",
+        "css": "text/css",
+        "d": "text/x-d",
+        "diff": "text/x-diff",
+        "erlang": "text/x-erlang",
+        "go": "text/x-go",
+        "groovy": "text/x-groovy",
+        "haskell": "text/x-haskell",
+        "html": "text/xml",
+        "htmlmixed": "text/html",
+        "http": "message/http",
+        "java": "text/x-java",
+        "javascript": "text/javascript",
+        "json": "application/json",
+        "less": "text/x-less",
+        "lua": "text/x-lua",
+        "markdown": "text/x-markdown",
+        "nginx": "text/nginx",
+        "perl": "text/x-perl",
+        "php": "application/x-httpd-php",
+        "plain text": "",
+        "python": "text/x-python",
+        "r": "text/x-rsrc",
+        "ruby": "text/x-ruby",
+        "scala": "text/x-scala",
+        "shell": "text/x-sh",
+        "smalltalk": "text/x-stsrc",
+        "sql": "text/x-sql",
+        "stex": "text/x-stex",
+        "typescript": "application/typescript",
+        "vbscript": "text/vbscript",
+        "xml": "application/xml",
+        "yaml": "text/x-yaml"
+    };
+    var auto_language = {
+        "bash": "shell",
+        "clojure": "clojure",
+        "coffeescript": "coffeescript",
+        "cpp": "c++",
+        "cs": "c#",
+        "css": "css",
+        "d": "d",
+        "diff": "diff",
+        "erlang": "erlang",
+        "go": "go",
+        "groovy": "groovy",
+        "haskell": "haskell",
+        "http": "http",
+        "java": "java",
+        "javascript": "javascript",
+        "json": "json",
+        "less": "less",
+        "lua": "lua",
+        "markdown": "markdown",
+        "nginx": "nginx",
+        "perl": "perl",
+        "php": "php",
+        "python": "python",
+        "r": "r",
+        "ruby": "ruby",
+        "scala": "scala",
+        "shell": "shell",
+        "smalltalk": "smalltalk",
+        "sql": "sql",
+        "tex": "stex",
+        "typescript": "typescript",
+        "vbscript": "vbscript",
+        "xml": "xml",
+        "yaml": "yaml",
+    };
+
     var module = {
         init: init,
-        init_mode: init_mode,
         selectMode: selectMode,
         val: val
     };

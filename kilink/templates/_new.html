@@ -38,8 +38,8 @@
 <link type="text/css" href="{{ url_for('static', filename='theme/monokai.css') }}" rel="stylesheet">
 <link type="text/css" href="{{ url_for('static', filename='lib/codemirror.css') }}" rel="stylesheet">
 
-<script src='/static/lib/codemirror.min.js'></script>
-<script type="text/javascript" src='/static/js/main.js'></script>
+<script src="{{ url_for('static', filename='lib/codemirror.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 <script type="text/javascript">
     editor.init({});
@@ -50,7 +50,7 @@
 
 <script type="text/javascript" src="{{ url_for('static', filename='addon/display/fullscreen.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='addon/display/placeholder.js') }}"></script>
-<script src="/static/lib/highlight.js/highlight.pack.js"></script>
+<script src="{{ url_for('static', filename='lib/highlight.js/highlight.pack.js') }}"></script>
 
 <!-- Languages -->
     {{ languages() }}
@@ -60,13 +60,11 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/noty.css') }}" rel="stylesheet">
 <script type="text/javascript" src="{{ url_for('static', filename='lib/tooltipster.bundle.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='lib/noty.min.js') }}"></script>
-<script src='/static/lib/d3.min.js'></script>
+<script src="{{ url_for('static', filename='lib/d3.min.js') }}"></script>
 
 <script type="text/javascript">
 
 $(document).ready(function(){
-
-    editor.init_mode();
 
     linkode.init({
         text_new_submit: "{{ _('Create linkode') }}",
