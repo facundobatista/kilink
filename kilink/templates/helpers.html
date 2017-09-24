@@ -41,6 +41,48 @@
     <option value="yaml">YAML</option>
 {% endmacro %}
 
+{% macro script_list()%}
+<script type="text/javascript">
+    const scripts_urls = {
+        "c" : "{{ url_for('static', filename='mode/clike/clike.js') }}",
+        "c#" : "{{ url_for('static', filename='mode/clike/clike.js') }}",
+        "c++" : "{{ url_for('static', filename='mode/clike/clike.js') }}",
+        "clojure": "{{ url_for('static', filename='mode/clojure/clojure.js') }}",
+        "coffeescript": "{{ url_for('static', filename='mode/coffeescript/coffeescript.js') }}",
+        "css": "{{ url_for('static', filename='mode/css/css.js') }}",
+        "d": "{{ url_for('static', filename='mode/d/d.js') }}",
+        "diff": "{{ url_for('static', filename='mode/diff/diff.js') }}",
+        "erlang": "{{ url_for('static', filename='mode/erlang/erlang.js') }}",
+        "go": "{{ url_for('static', filename='mode/go/go.js') }}",
+        "groovy": "{{ url_for('static', filename='mode/groovy/groovy.js') }}",
+        "haskell": "{{ url_for('static', filename='mode/haskell/haskell.js') }}",
+        "html": "{{ url_for('static', filename='mode/htmlmixed/htmlmixed.js') }}",
+        "htmlmixed": "{{ url_for('static', filename='mode/htmlmixed/htmlmixed.js') }}",
+        "http": "{{ url_for('static', filename='mode/http/http.js') }}",
+        "java": "{{ url_for('static', filename='mode/clike/clike.js') }}",
+        "javascript": "{{ url_for('static', filename='mode/javascript/javascript.js') }}",
+        "json": "{{ url_for('static', filename='mode/javascript/javascript.js') }}",
+        "less": "{{ url_for('static', filename='mode/css/css.js') }}",
+        "lua": "{{ url_for('static', filename='mode/lua/lua.js') }}",
+        "markdown": "{{ url_for('static', filename='mode/markdown/markdown.js') }}",
+        "nginx": "{{ url_for('static', filename='mode/nginx/nginx.js') }}",
+        "perl": "{{ url_for('static', filename='mode/perl/perl.js') }}",
+        "php": "{{ url_for('static', filename='mode/php/php.js') }}",
+        "python": "{{ url_for('static', filename='mode/python/python.js') }}",
+        "r": "{{ url_for('static', filename='mode/r/r.js') }}",
+        "ruby": "{{ url_for('static', filename='mode/ruby/ruby.js') }}",
+        "scala": "{{ url_for('static', filename='mode/clike/clike.js') }}",
+        "shell": "{{ url_for('static', filename='mode/shell/shell.js') }}",
+        "smalltalk": "{{ url_for('static', filename='mode/smalltalk/smalltalk.js') }}",
+        "sql": "{{ url_for('static', filename='mode/sql/sql.js') }}",
+        "stex": "{{ url_for('static', filename='mode/stex/stex.js') }}",
+        "typescript": "{{ url_for('static', filename='mode/javascript/javascript.js') }}",
+        "vbscript": "{{ url_for('static', filename='mode/vbscript/vbscript.js') }}",
+        "xml": "{{ url_for('static', filename='mode/xml/xml.js') }}",
+        "yaml": "{{ url_for('static', filename='mode/yaml/yaml.js') }}"
+    }
+</script>
+{% endmacro %}
 
 {% macro languages() %}
     <script src='/static/mode/clike/clike.js'></script>
@@ -64,7 +106,6 @@
     <script src='/static/mode/python/python.js'></script>
     <script src='/static/mode/r/r.js'></script>
     <script src='/static/mode/ruby/ruby.js'></script>
-<!--     <script src='/static/mode/rust/rust.js'></script> -->
     <script src='/static/mode/shell/shell.js'></script>
     <script src='/static/mode/smalltalk/smalltalk.js'></script>
     <script src='/static/mode/sql/sql.js'></script>
