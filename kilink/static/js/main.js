@@ -528,7 +528,7 @@ var editor = (function (){
     function init(opts){
         $modeInput = $("#selectlang");
         $backInput = $("#text_type");
-        scripts_ulrs = opts.scripts_urls;
+        scripts_urls = opts.scripts_urls;
 
         $editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             theme: 'monokai',
@@ -565,7 +565,7 @@ var editor = (function (){
         if(language_editor_mode[mode]){
             editor_mode = language_editor_mode[mode];
         }
-        getScript(scripts_ulrs[mode], function(){
+        getScript(scripts_urls[mode], function(){
             $editor.setOption("mode", editor_mode);
             needIndent(mode);
         });
@@ -674,7 +674,7 @@ var editor = (function (){
     var $backInput;
 
     var autoDetection = 1;
-    var scripts_ulrs;
+    var scripts_urls;
     var language_editor_mode = {
         "c": "text/x-csrc",
         "c#": "text/x-csharp",
