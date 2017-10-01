@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "helpers.html" import text_options, languages%}
+{% from "helpers.html" import text_options, script_list%}
 {% block main %}
 
 <div class="col-md-12">
@@ -41,8 +41,13 @@
 <script src="{{ url_for('static', filename='lib/codemirror.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 
+<!-- Languages -->
+    {{ script_list() }}
+<!-- End Languages -->
 <script type="text/javascript">
-    editor.init({});
+    editor.init({
+        scripts_urls: scripts_urls
+    });
 </script>
 
 <link type="text/css" href="{{ url_for('static', filename='css/placeholder.css') }}" rel="stylesheet">
@@ -52,9 +57,6 @@
 <script type="text/javascript" src="{{ url_for('static', filename='addon/display/placeholder.js') }}"></script>
 <script src="{{ url_for('static', filename='lib/highlight.js/highlight.pack.js') }}"></script>
 
-<!-- Languages -->
-    {{ languages() }}
-<!-- End Languages -->
 
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tooltipster.bundle.css') }}" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/noty.css') }}" rel="stylesheet">

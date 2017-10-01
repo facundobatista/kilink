@@ -528,6 +528,7 @@ var editor = (function (){
     function init(opts){
         $modeInput = $("#selectlang");
         $backInput = $("#text_type");
+        scripts_urls = opts.scripts_urls;
 
         $editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             theme: 'monokai',
@@ -564,8 +565,10 @@ var editor = (function (){
         if(language_editor_mode[mode]){
             editor_mode = language_editor_mode[mode];
         }
-        $editor.setOption("mode", editor_mode);
-        needIndent(mode);
+        getScript(scripts_urls[mode], function(){
+            $editor.setOption("mode", editor_mode);
+            needIndent(mode);
+        });
     }
 
     /**
@@ -650,11 +653,28 @@ var editor = (function (){
         return $modeInput.find('option[value="' + value + '"]:first');
     }
 
+    function getScript(url, callback){
+        if ($.inArray(url, loaded_scripts) < 0) {
+            loaded_scripts.push(url);
+            jQuery.ajax({
+                type: "GET",
+                url: url,
+                dataType: "script",
+                cache: true,
+                success: callback
+            });
+        }
+        else{
+            callback();
+        }
+    };
+
     var $editor;
     var $modeInput;
     var $backInput;
 
     var autoDetection = 1;
+    var scripts_urls;
     var language_editor_mode = {
         "c": "text/x-csrc",
         "c#": "text/x-csharp",
@@ -730,6 +750,8 @@ var editor = (function (){
         "xml": "xml",
         "yaml": "yaml",
     };
+
+    var loaded_scripts = new Array();
 
     var module = {
         init: init,
