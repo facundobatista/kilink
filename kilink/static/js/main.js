@@ -654,7 +654,7 @@ var editor = (function (){
     }
 
     function getScript(url, callback){
-        if ($.inArray(url, loaded_scripts) < 0) {
+        if (url && $.inArray(url, loaded_scripts) < 0) {
             loaded_scripts.push(url);
             jQuery.ajax({
                 type: "GET",
