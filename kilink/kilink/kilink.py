@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Facundo Batista
+# Copyright 2011-2018 Facundo Batista
 # All Rights Reserved
 
 """The server for kilink."""
@@ -10,27 +10,19 @@ from flask import (
     jsonify,
     render_template,
     request,
-    make_response
+    make_response,
 )
 
 from flask_babel import Babel
 from flask_cors import CORS
 from sqlalchemy import create_engine
 
-import backend
-import loghelper
-
-from config import config, LANGUAGES
-from decorators import measure
-from metrics import StatsdClient
-
+from kilink.kilink import backend, loghelper
+from kilink.kilink.config import config, LANGUAGES
+from kilink.kilink.metrics import measure
 
 # logger
 logger = logging.getLogger('kilink.kilink')
-
-# metrics
-metrics = StatsdClient("linkode")
-
 
 # set up flask
 app = Flask(__name__)
@@ -46,15 +38,17 @@ cors = CORS(app)
 @app.errorhandler(backend.KilinkNotFoundError)
 def handle_not_found_error(error):
     """Return 404 on kilink not found"""
-    logger.debug(error.message)
-    return jsonify({'message': error.message}), 404
+    message = str(error)
+    logger.debug(message)
+    return jsonify({'message': message}), 404
 
 
 @app.errorhandler(backend.KilinkDataTooBigError)
 def handle_content_data_too_big_error(error):
     """Return 413 on content data too big"""
-    logger.debug(error.message)
-    return jsonify({'message': error.message}), 413
+    message = str(error)
+    logger.debug(message)
+    return jsonify({'message': message}), 413
 
 
 @babel.localeselector
@@ -65,23 +59,23 @@ def get_locale():
 
 # accesory pages
 @app.route('/about')
-@measure("about", metrics)
+@measure("about")
 def about():
     """Show the about page."""
     return render_template('_about.html')
 
 
 @app.route('/tools')
-@measure("tools", metrics)
+@measure("tools")
 def tools():
     """Show the tools page."""
     return render_template('_tools.html')
 
 
 @app.route('/version')
-@measure("version", metrics)
+@measure("version")
 def version():
-    """Show the project version, very simple, just for developers/admin help."""
+    """Show the project version very simple, just for developers/admin help."""
     return kilinkbackend.get_version()
 
 
@@ -91,7 +85,7 @@ def version():
 @app.route('/<linkode_id>/<revno>')
 @app.route('/l/<linkode_id>')
 @app.route('/l/<linkode_id>/<revno>')
-@measure("index", metrics)
+@measure("index")
 def index(linkode_id=None, revno=None):
     """The base page."""
     return render_template('_new.html')
@@ -99,7 +93,7 @@ def index(linkode_id=None, revno=None):
 
 # API
 @app.route('/api/1/linkodes/', methods=['POST'])
-@measure("api.create", metrics)
+@measure("api.create")
 def api_create():
     """Create a kilink."""
     content = request.form['content']
@@ -113,13 +107,14 @@ def api_create():
         return response, 413
     ret_json = jsonify(linkode_id=klnk.linkode_id, revno=klnk.linkode_id)
     response = make_response(ret_json)
-    response.headers['Location'] = 'http://%s/%s' % (config["server_host"], klnk.linkode_id)
+    response.headers['Location'] = (
+        'http://%s/%s' % (config["server_host"], klnk.linkode_id))
     logger.debug("API create done; linkode_id=%s", klnk.linkode_id)
     return response, 201
 
 
 @app.route('/api/1/linkodes/<linkode_id>', methods=['POST'])
-@measure("api.update", metrics)
+@measure("api.update")
 def api_update(linkode_id):
     """Update a kilink."""
     content = request.form['content']
@@ -141,13 +136,14 @@ def api_update(linkode_id):
     logger.debug("API update done; linkode_id=%r", klnk.linkode_id)
     ret_json = jsonify(revno=klnk.linkode_id)
     response = make_response(ret_json)
-    response.headers['Location'] = 'http://%s/%s' % (config["server_host"], klnk.linkode_id)
+    response.headers['Location'] = (
+        'http://%s/%s' % (config["server_host"], klnk.linkode_id))
     return response, 201
 
 
 @app.route('/api/1/linkodes/<linkode_id>/<revno>', methods=['GET'])
 @app.route('/api/1/linkodes/<linkode_id>', methods=['GET'])
-@measure("api.get", metrics)
+@measure("api.get")
 def api_get(linkode_id, revno=None):
     """Get the kilink and revno content"""
     logger.debug("API get; linkode_id=%r revno=%r", linkode_id, revno)

@@ -1,6 +1,6 @@
 # encoding: utf8
 
-# Copyright 2011-2017 Facundo Batista, Nicolás César
+# Copyright 2011-2018 Facundo Batista, Nicolás César
 # All Rights Reserved
 
 """Backend functionality for Kilink."""
@@ -16,7 +16,7 @@ from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from config import config
+from kilink.kilink.config import config
 
 # DB stuff
 Base = declarative_base()
@@ -40,7 +40,7 @@ TreeNode = collections.namedtuple(
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
-def _get_unique_id():
+def get_unique_id():
     """Returns a unique ID everytime it's called."""
     arr = []
     base = len(ALPHABET)
@@ -105,6 +105,7 @@ class KilinkBackend(object):
         Session = scoped_session(sessionmaker(autocommit=True))
         self.session = Session(bind=db_engine)
         self._cached_version = None
+        self._max_payload = config['max_payload']
 
     def get_version(self):
         """Return the version, reading it from a file (cached)."""
@@ -120,7 +121,7 @@ class KilinkBackend(object):
     def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
         self._check_kilink(content)
-        new_id = _get_unique_id()
+        new_id = get_unique_id()
         klnk = Kilink(linkode_id=new_id, root=new_id,
                       content=content, text_type=text_type)
         self.session.add(klnk)
@@ -134,7 +135,7 @@ class KilinkBackend(object):
         if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
 
-        new_id = _get_unique_id()
+        new_id = get_unique_id()
         klnk = Kilink(linkode_id=new_id, parent=parent_id,
                       root=parent_klnk.root, content=new_content,
                       text_type=text_type)
@@ -142,28 +143,33 @@ class KilinkBackend(object):
         return klnk
 
     def _check_kilink(self, content):
-        if len(content) > config["max_payload"]:
-            raise KilinkDataTooBigError("Content data too large, limit exceeded")
+        """Check kilink max payload"""
+        if len(content) > self._max_payload:
+            raise KilinkDataTooBigError(
+                "Content data too large, limit exceeded")
 
     @session_manager
     def get_kilink(self, linkode_id):
         """Get a specific kilink."""
         klnk = self.session.query(Kilink).get(linkode_id)
         if klnk is None:
-            raise KilinkNotFoundError("Data not found for kilink=%r" % (linkode_id,))
+            raise KilinkNotFoundError(
+                "Data not found for kilink=%r" % (linkode_id,))
         return klnk
 
     @session_manager
     def _get_kilink_tree(self, root):
         """Return all the information about the kilink."""
-        klnk_tree = self.session.query(Kilink).filter_by(root=root).order_by("timestamp").all()
+        klnk_tree = self.session.query(Kilink).filter_by(
+            root=root).order_by("timestamp").all()
         if len(klnk_tree) == 0:
             raise KilinkNotFoundError("Kilink id not found: %r" % (root,))
         klnk_tree.sort(key=operator.attrgetter("timestamp"))
         result = []
         for i, klnk in enumerate(klnk_tree, 1):
-            tn = TreeNode(order=i, linkode_id=klnk.linkode_id, content=klnk.content,
-                          parent=klnk.parent, timestamp=klnk.timestamp, text_type=klnk.text_type)
+            tn = TreeNode(order=i, linkode_id=klnk.linkode_id,
+                          content=klnk.content, parent=klnk.parent,
+                          timestamp=klnk.timestamp, text_type=klnk.text_type)
             result.append(tn)
         return result
 
@@ -172,7 +178,8 @@ class KilinkBackend(object):
         """Return the root node of the kilink."""
         klnk = self.session.query(Kilink).get(linkode_id)
         if klnk is None:
-            raise KilinkNotFoundError("Kilink id not found: %r" % (linkode_id,))
+            raise KilinkNotFoundError(
+                "Kilink id not found: %r" % (linkode_id,))
         return klnk
 
     def build_tree(self, linkode_id):

@@ -10,3 +10,4 @@ tmp/
 .fuse*
 .directory
 .idea/
+.pytest_cache/

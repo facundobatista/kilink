@@ -16,6 +16,7 @@ class Config(dict):
             cfg = yaml.load(fh.read())
         self.update(cfg)
 
+
 config = Config()
 
 LANGUAGES = {

@@ -1,29 +1,29 @@
 # encoding: utf8
 
-# Copyright 2011-2017 Facundo Batista, Nicolás César
+# Copyright 2011-2018 Facundo Batista, Nicolás César
 # All Rights Reserved
 
 """API tests."""
 
 import json
 import datetime
-from unittest import TestCase
+from unittest import TestCase, mock
 
 from sqlalchemy import create_engine
 
-from kilink import kilink, backend
-from kilink.config import config
+from kilink.kilink import kilink, backend
+from kilink.kilink.metrics import metrics
+from kilink.kilink.config import config
 
 
 class _ANY(object):
-    "A helper object that compares equal to everything."
-
+    """A helper object that compares equal to everything."""
     def __eq__(self, other):
         return True
-
+    
     def __ne__(self, other):
         return False
-
+    
     def __repr__(self):
         return '<ANY>'
 
@@ -33,7 +33,6 @@ anything = _ANY()
 
 class BaseTestCase(TestCase):
     """Base for all test using a API."""
-
     def setUp(self):
         """Set up."""
         super(BaseTestCase, self).setUp()
@@ -41,98 +40,100 @@ class BaseTestCase(TestCase):
         engine = create_engine("sqlite://")
         self.backend = kilink.kilinkbackend = backend.KilinkBackend(engine)
         self.app = kilink.app.test_client()
-
+    
     def api_create(self, data, code=201):
         """Helper to hit the api to create."""
-        r = self.app.post("/api/1/linkodes/", data=data)
-        self.assertEqual(r.status_code, code)
+        response = self.app.post("/api/1/linkodes/", data=data)
+        self.assertEqual(response.status_code, code)
         if code == 201:
-            return json.loads(r.data)
-
+            return response.get_json()
+    
     def api_update(self, linkode_id, data, code=201):
         """Helper to hit the api to edit."""
-        r = self.app.post("/api/1/linkodes/%s" % (linkode_id,), data=data)
-        self.assertEqual(r.status_code, code)
-        return json.loads(r.data)
-
+        url = "/api/1/linkodes/%s" % (linkode_id,)
+        response = self.app.post(url, data=data)
+        self.assertEqual(response.status_code, code)
+        return response.get_json()
+    
     def api_get(self, linkode_id, revno=None, code=200):
         """Helper to hit the api to get."""
         if revno is None:
             url = "/api/1/linkodes/%s" % (linkode_id,)
         else:
             url = "/api/1/linkodes/%s/%s" % (linkode_id, revno)
-        r = self.app.get(url)
-        self.assertEqual(r.status_code, code)
-        return json.loads(r.data)
+        response = self.app.get(url)
+        
+        self.assertEqual(response.status_code, code)
+        return response.get_json()
 
 
 class ApiTestCase(BaseTestCase):
     """Tests for API kilink creation and updating."""
     maxDiff = None
-
+    
     def test_create_simple(self):
         """Simple create."""
         content = u'Moñooo()?¿'
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
-
-        with patch.object(kilink, "metrics"):
+        
+        with mock.patch.object(metrics, "count"):
             resp = self.api_create(data=datos)
-            kilink.metrics.count.assert_called_with("api.create.ok", 1)
-
+            metrics.count.assert_called_with("api.create.ok", 1)
+        
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
-
+    
     def test_create_error(self):
-        """Simple create."""
+        """Simple create with error"""
         content = u'Moñooo()?¿'
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
-
+        
         # make it fail!
-
-        with patch.object(self.backend, 'create_kilink') as mock:
-            mock.side_effect = ValueError("foo")
-            with patch.object(kilink, "metrics"):
+        
+        with mock.patch.object(self.backend, 'create_kilink') as mocked:
+            mocked.side_effect = ValueError("foo")
+            with mock.patch.object(metrics, "count"):
                 self.api_create(data=datos, code=500)
-                kilink.metrics.count.assert_called_with(
+                metrics.count.assert_called_with(
                     "api.create.error.ValueError", 1)
-
+    
     def test_create_no_text_type(self):
-        """Simple create."""
+        """Simple createwith not text type"""
         content = u'Moñooo()?¿'
         datos = {'content': content}
         resp = self.api_create(data=datos)
-
+        
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, "")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
-
+    
     def test_update_simple(self):
         """Update a kilink with new content."""
         parent_content = {'content': u'ÑOÑO', 'text_type': 'type1'}
         resp = self.api_create(data=parent_content)
         linkode_id = resp['linkode_id']
         revno0 = resp["revno"]
-
+        
         child_content = {
             'content': u'Moñito',
             'parent': revno0,
             'text_type': 'type2',
         }
-        with patch.object(kilink, "metrics"):
+        with mock.patch.object(metrics, "count"):
             resp = self.api_update(linkode_id, data=child_content)
-            kilink.metrics.count.assert_called_with("api.update.ok", 1)
+            metrics.count.assert_called_with("api.update.ok", 1)
         revno1 = resp["revno"]
-
+        
         klnk = self.backend.get_kilink(revno1)
         self.assertEqual(klnk.content, u"Moñito")
         self.assertEqual(klnk.text_type, u"type2")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
-
+        
         child_content2 = {
             'content': u'Moñito2',
             'parent': revno0,
@@ -140,26 +141,26 @@ class ApiTestCase(BaseTestCase):
         }
         resp = self.api_update(linkode_id, data=child_content2)
         revno2 = resp["revno"]
-
+        
         klnk = self.backend.get_kilink(revno2)
         self.assertEqual(klnk.content, u"Moñito2")
         self.assertEqual(klnk.text_type, u"type3")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
-
+        
         # all three are different
-        self.assertEqual(len(set([revno0, revno1, revno2])), 3)
-
+        self.assertEqual(len({revno0, revno1, revno2}), 3)
+    
     def test_get_simple(self):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
-
+        
         linkode_id = resp['linkode_id']
         revno = resp['revno']
-        with patch.object(kilink, "metrics"):
+        with mock.patch.object(metrics, "count"):
             resp = self.api_get(linkode_id, revno)
-            kilink.metrics.count.assert_called_with("api.get.ok", 1)
-
+            metrics.count.assert_called_with("api.get.ok", 1)
+        
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
         self.assertEqual(resp["timestamp"], anything)
@@ -173,18 +174,18 @@ class ApiTestCase(BaseTestCase):
             u'order': 1,
             u'contents': [],
         })
-
+    
     def test_get_norevno(self):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
         linkode_id = resp['linkode_id']
         revno = resp['revno']
-
-        with patch.object(kilink, "metrics"):
+        
+        with mock.patch.object(metrics, "count"):
             resp = self.api_get(linkode_id)
-            kilink.metrics.count.assert_called_with("api.get.ok", 1)
-
+            metrics.count.assert_called_with("api.get.ok", 1)
+        
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
         self.assertEqual(resp["timestamp"], anything)
@@ -198,29 +199,36 @@ class ApiTestCase(BaseTestCase):
             u'order': 1,
             u'contents': [],
         })
-
+    
     def test_tree(self):
         """Get a good tree when getting a node."""
-
+        
         resp = self.api_create(data={'content': "content 0", 'text_type': ''})
         linkode_id = resp['linkode_id']
         root_revno = resp['revno']
-
+        
         resp = self.api_update(
             linkode_id=linkode_id,
-            data={'content': "content 1", 'text_type': '', 'parent': root_revno})
+            data={
+                'content': "content 1", 'text_type': '', 'parent': root_revno}
+        )
         child1_revno = resp['revno']
-
+        
         resp = self.api_update(
             linkode_id=linkode_id,
-            data={'content': "content 11", 'text_type': '', 'parent': child1_revno})
+            data={
+                'content': "content 11", 'text_type': '',
+                'parent': child1_revno}
+        )
         child11_revno = resp['revno']
-
+        
         resp = self.api_update(
             linkode_id=linkode_id,
-            data={'content': "content 2", 'text_type': '', 'parent': root_revno})
+            data={
+                'content': "content 2", 'text_type': '', 'parent': root_revno}
+        )
         child2_revno = resp['revno']
-
+        
         # get the info
         resp = self.api_get(linkode_id)
         self.assertEqual(resp['tree'], {
@@ -260,21 +268,17 @@ class ApiTestCase(BaseTestCase):
                 u'contents': [],
             }]
         })
-
+    
     def test_invalid_kilink(self):
         resp_klnk = self.api_get('invalid', revno=1, code=404)
         resp_base = self.api_get('invalid', code=404)
-
+        
         self.assertIn('message', resp_base)
         self.assertIn('message', resp_klnk)
-
-
+    
     def test_too_large_content(self):
         """Content data too large."""
         content = u'Moñooo()?¿' + '.' * config["max_payload"]
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
-
-        with patch.object(kilink, "metrics"):
-            resp = self.api_create(data=datos, code=413)
-
+        resp = self.api_create(data=datos, code=413)

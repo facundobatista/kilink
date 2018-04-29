@@ -1,12 +1,12 @@
 """Kilink main module."""
 
 import logging
+from logging.handlers import TimedRotatingFileHandler as TRFHandler
 import os
 import sys
 import threading
 import traceback
 
-from logging.handlers import TimedRotatingFileHandler as TRFHandler
 
 log_setup_lock = threading.Lock()
 
