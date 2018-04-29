@@ -1,5 +1,5 @@
 # Copyright 2013 Facundo Batista
-# All Rigths Reserved
+# All Rights Reserved
 
 """Adapter to send metrics to statsd."""
 
@@ -32,7 +32,11 @@ class StatsdClient(object):
 
     def send(self, bucket, value, metric_type):
         """Send the record to stats daemon via UDP."""
-        record = "{}.{}:{}|{}".format(
-            self.namespace, bucket.encode("utf8"), value, metric_type)
+        record = self._get_record(bucket, metric_type, value).encode("utf8")
         udp_sock = socket(AF_INET, SOCK_DGRAM)
         udp_sock.sendto(record, self.addr)
+
+    def _get_record(self, bucket, metric_type, value):
+        record = "{}.{}:{}|{}".format(
+            self.namespace, bucket.encode("utf8"), value, metric_type)
+        return record

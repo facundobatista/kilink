@@ -1,12 +1,9 @@
 # Copyright 2011-2017 Facundo Batista
-# All Rigths Reserved
+# All Rights Reserved
 
 """The server for kilink."""
 
 import logging
-import time
-
-from functools import update_wrapper
 
 from flask import (
     Flask,
@@ -16,18 +13,24 @@ from flask import (
     make_response
 )
 
-# from flask.ext.assets import Environment
-# from flask_assets import Environment
 from flask_babel import Babel
-from flask_babel import gettext as _
+from flask_cors import CORS
 from sqlalchemy import create_engine
 
 import backend
 import loghelper
 
 from config import config, LANGUAGES
+from decorators import measure
 from metrics import StatsdClient
-from decorators import crossdomain
+
+
+# logger
+logger = logging.getLogger('kilink.kilink')
+
+# metrics
+metrics = StatsdClient("linkode")
+
 
 # set up flask
 app = Flask(__name__)
@@ -37,55 +40,7 @@ app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
 
 babel = Babel(app)
-
-# flask-assets
-# assets = Environment(app)
-# assets.cache = "/tmp/"
-# assets.init_app(app)
-
-# logger
-logger = logging.getLogger('kilink.kilink')
-
-# metrics
-metrics = StatsdClient("linkode")
-
-
-def nocache(f):
-    """Decorator to make a page un-cacheable."""
-    def new_func(*args, **kwargs):
-        """The new function."""
-        resp = make_response(f(*args, **kwargs))
-        resp.headers['Cache-Control'] = 'public, max-age=0'
-        return resp
-    return update_wrapper(new_func, f)
-
-
-def measure(metric_name):
-    """Decorator generator to send metrics counting and with timing."""
-
-    def _decorator(oldf):
-        """The decorator itself."""
-
-        def newf(*args, **kwargs):
-            """The function to replace."""
-            tini = time.time()
-            try:
-                result = oldf(*args, **kwargs)
-            except Exception as exc:
-                name = "%s.error.%s" % (metric_name, exc.__class__.__name__)
-                metrics.count(name, 1)
-                raise
-            else:
-                tdelta = time.time() - tini
-
-                metrics.count(metric_name + '.ok', 1)
-                metrics.timing(metric_name, tdelta)
-                return result
-
-        # need to fix the name because it's used by flask
-        newf.func_name = oldf.func_name
-        return newf
-    return _decorator
+cors = CORS(app)
 
 
 @app.errorhandler(backend.KilinkNotFoundError)
@@ -110,23 +65,23 @@ def get_locale():
 
 # accesory pages
 @app.route('/about')
-@measure("about")
+@measure("about", metrics)
 def about():
     """Show the about page."""
     return render_template('_about.html')
 
 
 @app.route('/tools')
-@measure("tools")
+@measure("tools", metrics)
 def tools():
     """Show the tools page."""
     return render_template('_tools.html')
 
 
 @app.route('/version')
-@measure("version")
+@measure("version", metrics)
 def version():
-    """Show the project version, very very simple, just for developers/admin help."""
+    """Show the project version, very simple, just for developers/admin help."""
     return kilinkbackend.get_version()
 
 
@@ -136,7 +91,7 @@ def version():
 @app.route('/<linkode_id>/<revno>')
 @app.route('/l/<linkode_id>')
 @app.route('/l/<linkode_id>/<revno>')
-@measure("index")
+@measure("index", metrics)
 def index(linkode_id=None, revno=None):
     """The base page."""
     return render_template('_new.html')
@@ -144,8 +99,7 @@ def index(linkode_id=None, revno=None):
 
 # API
 @app.route('/api/1/linkodes/', methods=['POST'])
-@crossdomain(origin='*')
-@measure("api.create")
+@measure("api.create", metrics)
 def api_create():
     """Create a kilink."""
     content = request.form['content']
@@ -165,8 +119,7 @@ def api_create():
 
 
 @app.route('/api/1/linkodes/<linkode_id>', methods=['POST'])
-@crossdomain(origin='*')
-@measure("api.update")
+@measure("api.update", metrics)
 def api_update(linkode_id):
     """Update a kilink."""
     content = request.form['content']
@@ -194,8 +147,7 @@ def api_update(linkode_id):
 
 @app.route('/api/1/linkodes/<linkode_id>/<revno>', methods=['GET'])
 @app.route('/api/1/linkodes/<linkode_id>', methods=['GET'])
-@crossdomain(origin='*')
-@measure("api.get")
+@measure("api.get", metrics)
 def api_get(linkode_id, revno=None):
     """Get the kilink and revno content"""
     logger.debug("API get; linkode_id=%r revno=%r", linkode_id, revno)

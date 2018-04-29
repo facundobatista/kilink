@@ -1,13 +1,12 @@
 # encoding: utf8
 
 # Copyright 2011-2017 Facundo Batista, Nicolás César
-# All Rigths Reserved
+# All Rights Reserved
 
 """Some tests for the serving part."""
 
-from unittest import TestCase
+from unittest import TestCase, mock
 
-from mock import patch
 from sqlalchemy import create_engine
 
 from kilink import kilink, backend
@@ -24,13 +23,9 @@ class ServingTestCase(TestCase):
         kilink.kilinkbackend = self.backend
         self.app = kilink.app.test_client()
 
-        _ctx = patch("kilink.kilink.render_template")
+        _ctx = mock.patch("kilink.kilink.render_template")
         self.mocked_render = _ctx.start()
         self.addCleanup(_ctx.stop)
-
-        # _ctx = patch("kilink.kilink.redirect")
-        # self.mocked_redirect = _ctx.start()
-        # self.addCleanup(_ctx.stop)
 
     def test_root_page(self):
         """Root page."""

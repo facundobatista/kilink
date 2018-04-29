@@ -9,3 +9,4 @@ _trial_temp
 tmp/
 .fuse*
 .directory
+.idea/

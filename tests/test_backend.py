@@ -1,7 +1,7 @@
 # encoding: utf8
 
 # Copyright 2011-2017 Facundo Batista, Nicolás César
-# All Rigths Reserved
+# All Rights Reserved
 
 """Backend tests."""
 

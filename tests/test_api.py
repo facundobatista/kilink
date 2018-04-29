@@ -1,7 +1,7 @@
 # encoding: utf8
 
 # Copyright 2011-2017 Facundo Batista, Nicolás César
-# All Rigths Reserved
+# All Rights Reserved
 
 """API tests."""
 
@@ -9,7 +9,6 @@ import json
 import datetime
 from unittest import TestCase
 
-from mock import patch
 from sqlalchemy import create_engine
 
 from kilink import kilink, backend

@@ -1,7 +1,7 @@
 # encoding: utf8
 
 # Copyright 2011-2017 Facundo Batista, Nicolás César
-# All Rigths Reserved
+# All Rights Reserved
 
 """Backend functionality for Kilink."""
 
@@ -28,8 +28,10 @@ logger = logging.getLogger('kilink.backend')
 class KilinkNotFoundError(Exception):
     """A kilink was specified, we couldn't find it."""
 
+
 class KilinkDataTooBigError(Exception):
     """Content data too big."""
+
 
 TreeNode = collections.namedtuple(
     "TreeNode", "content parent order linkode_id timestamp text_type")
@@ -119,7 +121,8 @@ class KilinkBackend(object):
         """Create a new kilink with given content."""
         self._check_kilink(content)
         new_id = _get_unique_id()
-        klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type)
+        klnk = Kilink(linkode_id=new_id, root=new_id,
+                      content=content, text_type=text_type)
         self.session.add(klnk)
         return klnk
 
@@ -132,15 +135,15 @@ class KilinkBackend(object):
             raise KilinkNotFoundError("Parent kilink not found")
 
         new_id = _get_unique_id()
-        klnk = Kilink(linkode_id=new_id, parent=parent_id, root=parent_klnk.root,
-                      content=new_content, text_type=text_type)
+        klnk = Kilink(linkode_id=new_id, parent=parent_id,
+                      root=parent_klnk.root, content=new_content,
+                      text_type=text_type)
         self.session.add(klnk)
         return klnk
 
     def _check_kilink(self, content):
         if len(content) > config["max_payload"]:
             raise KilinkDataTooBigError("Content data too large, limit exceeded")
-
 
     @session_manager
     def get_kilink(self, linkode_id):
