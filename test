@@ -3,7 +3,7 @@ set -e
 if [ $# -ne 0 ]; then
     nosetests --exe "$@"
 else
-    nosetests --exe kilink.tests
+    nosetests --exe tests
     pylint kilink
     pep8 --repeat kilink
 fi

@@ -1,2 +1,2 @@
 #!/bin/sh
-fades -r requirements-dev.txt -d nose --python=python3.5 -x nosetests -v -s kilink.tests
+fades -r requirements-dev.txt -d nose --python=python3.5 -x nosetests -v -s tests
