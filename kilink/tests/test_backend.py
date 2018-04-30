@@ -14,13 +14,13 @@ from unittest import TestCase
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from kilink.backend import (
+from kilink.app.backend import (
     Kilink,
     KilinkBackend,
     KilinkNotFoundError,
     get_unique_id,
 )
-from kilink.config import config
+from kilink.app.config import config
 
 
 class BaseTestCase(TestCase):
@@ -29,7 +29,7 @@ class BaseTestCase(TestCase):
         """Set up."""
         super(BaseTestCase, self).setUp()
         self.db_engine = create_engine("sqlite://")
-        self.bkend = KilinkBackend(self.db_engine)
+        self.backend = KilinkBackend(self.db_engine)
         config.load_file("configs/development.yaml")
 
 
@@ -47,7 +47,7 @@ class ContentTestCase(BaseTestCase):
         """Simple create."""
         content = "some content"
         text_type = "type"
-        klnk = self.bkend.create_kilink(content, text_type)
+        klnk = self.backend.create_kilink(content, text_type)
         klnk = self.session.query(Kilink).filter_by(
             linkode_id=klnk.linkode_id).one()
         self.assertEqual(klnk.content, content)
@@ -59,8 +59,8 @@ class ContentTestCase(BaseTestCase):
         """Update a kilink with new content."""
         parent_content = "some content"
         child_content = u"moño camión"
-        klnk = self.bkend.create_kilink(parent_content, "type1")
-        new_klnk = self.bkend.update_kilink(klnk.linkode_id, child_content,
+        klnk = self.backend.create_kilink(parent_content, "type1")
+        new_klnk = self.backend.update_kilink(klnk.linkode_id, child_content,
                                             "type2")
         self.assertEqual(new_klnk.parent, klnk.linkode_id)
         self.assertGreater(new_klnk.timestamp, klnk.timestamp)
@@ -75,7 +75,7 @@ class ContentTestCase(BaseTestCase):
     
     def test_update_bad_kilink(self):
         """No kilink to update."""
-        self.assertRaises(KilinkNotFoundError, self.bkend.update_kilink,
+        self.assertRaises(KilinkNotFoundError, self.backend.update_kilink,
                           "unexistant", "content", "")
 
 
@@ -84,31 +84,31 @@ class DataRetrievalTestCase(BaseTestCase):
     def test_getkilink_id_ok(self):
         """Get content for a kilink, indicating a good id."""
         # create a kilink, two contents
-        klnk = self.bkend.create_kilink("content 1", "type1")
-        new_klnk = self.bkend.update_kilink(klnk.linkode_id, "c2", "t2")
+        klnk = self.backend.create_kilink("content 1", "type1")
+        new_klnk = self.backend.update_kilink(klnk.linkode_id, "c2", "t2")
         
         # get content for both revisions
-        klnk = self.bkend.get_kilink(klnk.linkode_id)
+        klnk = self.backend.get_kilink(klnk.linkode_id)
         self.assertEqual(klnk.content, "content 1")
         self.assertEqual(klnk.text_type, "type1")
-        klnk = self.bkend.get_kilink(new_klnk.linkode_id)
+        klnk = self.backend.get_kilink(new_klnk.linkode_id)
         self.assertEqual(klnk.content, "c2")
         self.assertEqual(klnk.text_type, "t2")
     
     def test_getkilink_id_bad(self):
         """Get content for a kilink, indicating a bad id."""
-        self.assertRaises(KilinkNotFoundError, self.bkend.get_kilink,
+        self.assertRaises(KilinkNotFoundError, self.backend.get_kilink,
                           "bad linkode_id")
     
     def test_getkilink_tree_ok(self):
         # create a tree
-        klnk = self.bkend.create_kilink("content 1", "t1")
-        klnk2 = self.bkend.update_kilink(klnk.linkode_id, "content 2", "")
-        self.bkend.update_kilink(klnk2.linkode_id, "content 3", "t3")
-        self.bkend.update_kilink(klnk.linkode_id, "content 4", "")
+        klnk = self.backend.create_kilink("content 1", "t1")
+        klnk2 = self.backend.update_kilink(klnk.linkode_id, "content 2", "")
+        self.backend.update_kilink(klnk2.linkode_id, "content 3", "t3")
+        self.backend.update_kilink(klnk.linkode_id, "content 4", "")
         
         # get it and check structure: id, content, parent, timestamp
-        tree = self.bkend._get_kilink_tree(klnk.root)
+        tree = self.backend._get_kilink_tree(klnk.root)
         self.assertEqual(tree[0].content, "content 1")
         self.assertEqual(tree[1].content, "content 2")
         self.assertEqual(tree[2].content, "content 3")
@@ -135,15 +135,15 @@ class DataRetrievalTestCase(BaseTestCase):
     def test_getkilink_tree_bad(self):
         """Get all the info for a kilink that does not exist"""
         self.assertRaises(
-            KilinkNotFoundError, self.bkend._get_kilink_tree, 'linkode_id')
+            KilinkNotFoundError, self.backend._get_kilink_tree, 'linkode_id')
     
     def test_findroot_ok_one_node(self):
         """Get the root node for a kilink when there's only one."""
         # create a node
-        orig_klnk = self.bkend.create_kilink("content", "type")
+        orig_klnk = self.backend.create_kilink("content", "type")
         
         # get it and check
-        klnk = self.bkend._get_root_node(orig_klnk.linkode_id)
+        klnk = self.backend._get_root_node(orig_klnk.linkode_id)
         self.assertEqual(klnk.linkode_id, orig_klnk.linkode_id)
         self.assertEqual(klnk.parent, None)
         self.assertEqual(klnk.content, "content")
@@ -152,18 +152,18 @@ class DataRetrievalTestCase(BaseTestCase):
     def test_findroot_ok_two_nodes(self):
         """Get the root node for a kilink when there are several."""
         # create a couple of nodes
-        orig_klnk = self.bkend.create_kilink("content", "type")
-        self.bkend.update_kilink(orig_klnk.linkode_id, "c2", "")
-        self.bkend.update_kilink(orig_klnk.linkode_id, "c3", "")
+        orig_klnk = self.backend.create_kilink("content", "type")
+        self.backend.update_kilink(orig_klnk.linkode_id, "c2", "")
+        self.backend.update_kilink(orig_klnk.linkode_id, "c3", "")
         
         # get it and check
-        klnk = self.bkend._get_root_node(orig_klnk.linkode_id)
+        klnk = self.backend._get_root_node(orig_klnk.linkode_id)
         self.assertEqual(klnk.linkode_id, orig_klnk.linkode_id)
         self.assertEqual(klnk.content, orig_klnk.content)
     
     def test_findroot_tree_bad(self):
         """Get the root node for a kilink that does not exist."""
-        self.assertRaises(KilinkNotFoundError, self.bkend._get_root_node,
+        self.assertRaises(KilinkNotFoundError, self.backend._get_root_node,
                           'linkode_id')
 
 
@@ -193,23 +193,23 @@ class HelpersTestCase(BaseTestCase):
         """TGet version"""
         with open(self.tempfile, "wt") as fh:
             fh.write("test version")
-        resp = self.bkend.get_version()
+        resp = self.backend.get_version()
         self.assertEqual(resp, "test version")
     
     def test_version_missing(self):
         """When version is missing"""
         os.remove(self.tempfile)
-        resp = self.bkend.get_version()
+        resp = self.backend.get_version()
         self.assertEqual(resp, "?")
     
     def test_version_assure_cached(self):
         """Version is cached"""
         with open(self.tempfile, "wt") as fh:
             fh.write("test version")
-        resp = self.bkend.get_version()
+        resp = self.backend.get_version()
         self.assertEqual(resp, "test version")
         
         # now remove the file, and response shouldn't change (it's cached!)
         os.remove(self.tempfile)
-        resp = self.bkend.get_version()
+        resp = self.backend.get_version()
         self.assertEqual(resp, "test version")
