@@ -14,13 +14,13 @@ from unittest import TestCase
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from kilink.kilink.backend import (
+from kilink.backend import (
     Kilink,
     KilinkBackend,
     KilinkNotFoundError,
     get_unique_id,
 )
-from kilink.kilink.config import config
+from kilink.config import config
 
 
 class BaseTestCase(TestCase):

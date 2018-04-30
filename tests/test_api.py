@@ -11,9 +11,9 @@ from unittest import TestCase, mock
 
 from sqlalchemy import create_engine
 
-from kilink.kilink import kilink, backend
-from kilink.kilink.metrics import metrics
-from kilink.kilink.config import config
+from kilink.config import config
+from kilink import kilink, backend
+from kilink.metrics import metrics
 
 
 class _ANY(object):

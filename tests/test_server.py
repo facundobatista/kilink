@@ -9,7 +9,7 @@ from unittest import TestCase, mock
 
 from sqlalchemy import create_engine
 
-from kilink.kilink import kilink, backend
+from kilink import kilink, backend
 
 
 class ServingTestCase(TestCase):
@@ -23,7 +23,7 @@ class ServingTestCase(TestCase):
         kilink.kilinkbackend = self.backend
         self.app = kilink.app.test_client()
 
-        _ctx = mock.patch("kilink.kilink.kilink.render_template")
+        _ctx = mock.patch("kilink.kilink.render_template")
         self.mocked_render = _ctx.start()
         self.addCleanup(_ctx.stop)
 

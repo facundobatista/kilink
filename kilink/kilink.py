@@ -17,9 +17,10 @@ from flask_babel import Babel
 from flask_cors import CORS
 from sqlalchemy import create_engine
 
-from kilink.kilink import backend, loghelper
-from kilink.kilink.config import config, LANGUAGES
-from kilink.kilink.metrics import measure
+from kilink import backend
+from kilink import loghelper
+from kilink.config import config, LANGUAGES
+from kilink.metrics import measure
 
 # logger
 logger = logging.getLogger('kilink.kilink')
@@ -31,8 +32,8 @@ app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
 
-babel = Babel(app)
-cors = CORS(app)
+app.babel = Babel(app)
+app.cors = CORS(app)
 
 
 @app.errorhandler(backend.KilinkNotFoundError)
@@ -51,7 +52,7 @@ def handle_content_data_too_big_error(error):
     return jsonify({'message': message}), 413
 
 
-@babel.localeselector
+@app.babel.localeselector
 def get_locale():
     """Return the best matched language supported."""
     return request.accept_languages.best_match(LANGUAGES.keys())

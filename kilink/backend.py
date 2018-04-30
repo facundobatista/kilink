@@ -16,7 +16,7 @@ from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from kilink.kilink.config import config
+from kilink.config import config
 
 # DB stuff
 Base = declarative_base()
