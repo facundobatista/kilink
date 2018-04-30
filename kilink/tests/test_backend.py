@@ -17,9 +17,9 @@ from sqlalchemy.orm import sessionmaker
 from kilink.app.backend import (
     Kilink,
     KilinkBackend,
-    KilinkNotFoundError,
     get_unique_id,
 )
+from kilink.app.exceptions import KilinkNotFoundError
 from kilink.app.config import config
 
 

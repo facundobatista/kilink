@@ -16,22 +16,14 @@ from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from .config import config
+from kilink.app.exceptions import KilinkNotFoundError, KilinkDataTooBigError
+from kilink.app.config import config
 
 # DB stuff
 Base = declarative_base()
 
 # logger
 logger = logging.getLogger('kilink.backend')
-
-
-class KilinkNotFoundError(Exception):
-    """A kilink was specified, we couldn't find it."""
-
-
-class KilinkDataTooBigError(Exception):
-    """Content data too big."""
-
 
 TreeNode = collections.namedtuple(
     "TreeNode", "content parent order linkode_id timestamp text_type")
@@ -63,22 +55,22 @@ class Kilink(Base, object):
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     text_type = Column(String)
 
-    def _get_content(self):
+    @property
+    def content(self):
         """Return the content, uncompressed."""
         data = zlib.decompress(self.compressed)
         return data.decode("utf8")
 
-    def _set_content(self, data):
+    @content.setter
+    def content(self, data):
         """Compress the content and set it."""
         data = data.encode("utf8")
         self.compressed = zlib.compress(data)
 
-    content = property(_get_content, _set_content)
-
-    def __repr__(self):
+    def __str__(self):
         return "<Kilink id={} root={}>".format(self.linkode_id, self.root)
 
-    __str__ = __repr__
+    __repr__ = __str__
 
 
 def session_manager(orig_func):
@@ -122,8 +114,8 @@ class KilinkBackend(object):
         """Create a new kilink with given content."""
         self._check_kilink(content)
         new_id = get_unique_id()
-        klnk = Kilink(linkode_id=new_id, root=new_id,
-                      content=content, text_type=text_type)
+        klnk = Kilink(linkode_id=new_id, root=new_id, content=content,
+                      text_type=text_type)
         self.session.add(klnk)
         return klnk
 

@@ -12,16 +12,16 @@ from flask import (
     make_response,
 )
 
-from kilink.app.config import LANGUAGES
 from kilink.app.metrics import measure
+from kilink.app.exceptions import KilinkDataTooBigError, KilinkNotFoundError
 
-from kilink.app import app, backend, kilinkbackend, config
+from kilink.app import app, kilinkbackend
 
 # logger
 logger = logging.getLogger('kilink.kilink')
 
 
-@app.errorhandler(backend.KilinkNotFoundError)
+@app.errorhandler(KilinkNotFoundError)
 def handle_not_found_error(error):
     """Return 404 on kilink not found"""
     message = str(error)
@@ -29,18 +29,12 @@ def handle_not_found_error(error):
     return jsonify({'message': message}), 404
 
 
-@app.errorhandler(backend.KilinkDataTooBigError)
+@app.errorhandler(KilinkDataTooBigError)
 def handle_content_data_too_big_error(error):
     """Return 413 on content data too big"""
     message = str(error)
     logger.debug(message)
     return jsonify({'message': message}), 413
-
-
-@app.babel.localeselector
-def get_locale():
-    """Return the best matched language supported."""
-    return request.accept_languages.best_match(LANGUAGES.keys())
 
 
 # accesory pages
@@ -87,14 +81,12 @@ def api_create():
     logger.debug("API create start; type=%r size=%d", text_type, len(content))
     try:
         klnk = kilinkbackend.create_kilink(content, text_type)
-    except backend.KilinkDataTooBigError:
+    except KilinkDataTooBigError:
         logger.debug("Content data too big; on creation")
         response = make_response()
         return response, 413
     ret_json = jsonify(linkode_id=klnk.linkode_id, revno=klnk.linkode_id)
     response = make_response(ret_json)
-    response.headers['Location'] = (
-        'http://%s/%s' % (config["server_host"], klnk.linkode_id))
     logger.debug("API create done; linkode_id=%s", klnk.linkode_id)
     return response, 201
 
@@ -110,11 +102,11 @@ def api_update(linkode_id):
                  linkode_id, parent, text_type, len(content))
     try:
         klnk = kilinkbackend.update_kilink(parent, content, text_type)
-    except backend.KilinkNotFoundError:
+    except KilinkNotFoundError:
         logger.debug("API update done; linkode_id %r not found", linkode_id)
         response = make_response()
         return response, 404
-    except backend.KilinkDataTooBigError:
+    except KilinkDataTooBigError:
         logger.debug("Content data too big.; linkode_id %r", linkode_id)
         response = make_response()
         return response, 413
@@ -122,8 +114,6 @@ def api_update(linkode_id):
     logger.debug("API update done; linkode_id=%r", klnk.linkode_id)
     ret_json = jsonify(revno=klnk.linkode_id)
     response = make_response(ret_json)
-    response.headers['Location'] = (
-        'http://%s/%s' % (config["server_host"], klnk.linkode_id))
     return response, 201
 
 

@@ -40,7 +40,8 @@ class BaseTestCase(TestCase):
         config.load_file("configs/development.yaml")
         engine = create_engine("sqlite://")
         self.app = kilink.app.test_client()
-        self.app.backend = kilink.linkode.kilinkbackend = backend.KilinkBackend(engine)
+        test_engine = backend.KilinkBackend(engine)
+        self.app.kilinkbackend = kilink.linkode.kilinkbackend = test_engine
     
     def api_create(self, data, code=201):
         """Helper to hit the api to create."""
@@ -82,12 +83,12 @@ class ApiTestCase(BaseTestCase):
         with mock.patch.object(metrics, "count"):
             resp = self.api_create(data=datos)
             metrics.count.assert_called_with("api.create.ok", 1)
+        klnk = self.app.kilinkbackend.get_kilink(resp["linkode_id"])
         
-        klnk = self.app.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
-    
+        
     def test_create_error(self):
         """Simple create with error"""
         content = u'Moñooo()?¿'
@@ -96,7 +97,7 @@ class ApiTestCase(BaseTestCase):
         
         # make it fail!
         
-        with mock.patch.object(self.app.backend, 'create_kilink') as mocked:
+        with mock.patch.object(self.app.kilinkbackend, 'create_kilink') as mocked:
             mocked.side_effect = ValueError("foo")
             with mock.patch.object(metrics, "count"):
                 self.api_create(data=datos, code=500)
@@ -109,7 +110,7 @@ class ApiTestCase(BaseTestCase):
         datos = {'content': content}
         resp = self.api_create(data=datos)
         
-        klnk = self.app.backend.get_kilink(resp["linkode_id"])
+        klnk = self.app.kilinkbackend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, "")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -131,7 +132,7 @@ class ApiTestCase(BaseTestCase):
             metrics.count.assert_called_with("api.update.ok", 1)
         revno1 = resp["revno"]
         
-        klnk = self.app.backend.get_kilink(revno1)
+        klnk = self.app.kilinkbackend.get_kilink(revno1)
         self.assertEqual(klnk.content, u"Moñito")
         self.assertEqual(klnk.text_type, u"type2")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -144,7 +145,7 @@ class ApiTestCase(BaseTestCase):
         resp = self.api_update(linkode_id, data=child_content2)
         revno2 = resp["revno"]
         
-        klnk = self.app.backend.get_kilink(revno2)
+        klnk = self.app.kilinkbackend.get_kilink(revno2)
         self.assertEqual(klnk.content, u"Moñito2")
         self.assertEqual(klnk.text_type, u"type3")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
