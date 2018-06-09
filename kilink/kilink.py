@@ -19,7 +19,6 @@ from flask import (
 # from flask.ext.assets import Environment
 # from flask_assets import Environment
 from flask_babel import Babel
-from flask_babel import gettext as _
 from sqlalchemy import create_engine
 
 import backend
@@ -139,6 +138,16 @@ def version():
 @measure("index")
 def index(linkode_id=None, revno=None):
     """The base page."""
+    if linkode_id is not None and linkode_id.startswith('#'):
+        if 'text/plain' in request.headers.get('Accept'):
+            # serving plainly the linkode content
+            real_id = linkode_id[1:]  # without the initial `#`
+            logger.debug("Serving plain content; linkode_id=%s", real_id)
+            klnk = kilinkbackend.get_kilink(real_id)
+            response = make_response(klnk.content)
+            response.headers['Content-Type'] = "text/{}".format(klnk.text_type)
+            return response
+
     return render_template('_new.html')
 
 
