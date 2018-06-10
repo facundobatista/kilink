@@ -141,8 +141,15 @@ def index(linkode_id=None, revno=None):
     if linkode_id is not None and linkode_id.startswith('#'):
         if 'text/plain' in request.headers.get('Accept'):
             # serving plainly the linkode content
-            real_id = linkode_id[1:]  # without the initial `#`
-            logger.debug("Serving plain content; linkode_id=%s", real_id)
+            logger.debug("Serving plain content; linkode_id=%s revno=%s", linkode_id, revno)
+
+            # decide the real id, with backwards compatibility
+            if revno is None:
+                real_id = linkode_id[1:]  # root, without the initial `#`
+            else:
+                real_id = revno
+
+            # retrieve and serve
             klnk = kilinkbackend.get_kilink(real_id)
             response = make_response(klnk.content)
             response.headers['Content-Type'] = "text/{}".format(klnk.text_type)
