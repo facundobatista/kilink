@@ -18,3 +18,4 @@ wsgiref==0.1.2
 Flask-Babel
 Flask-Assets
 nose
+Flask-Cors==3.0.4

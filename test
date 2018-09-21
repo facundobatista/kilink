@@ -1,9 +1,9 @@
 set -e
 
 if [ $# -ne 0 ]; then
-    nosetests --exe "$@"
+    nosetests --exe -v -s "$@"
 else
-    nosetests --exe tests
+    nosetests --exe -v -s tests
     pylint kilink
     pep8 --repeat kilink
 fi
