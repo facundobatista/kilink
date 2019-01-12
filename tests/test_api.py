@@ -109,7 +109,18 @@ class ApiTestCase(BaseTestCase):
 
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
-        self.assertEqual(klnk.text_type, "")
+        self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
+        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
+
+    def test_create_empty_text_type(self):
+        """Simple create with an empty text type."""
+        content = u'Moñooo()?¿'
+        datos = {'content': content, 'text_type': ""}
+        resp = self.api_create(data=datos)
+
+        klnk = self.backend.get_kilink(resp["linkode_id"])
+        self.assertEqual(klnk.content, content)
+        self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
     @patch("kilink.decorators.metrics")
@@ -275,5 +286,4 @@ class ApiTestCase(BaseTestCase):
         content = u'Moñooo()?¿' + '.' * config["max_payload"]
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
-        resp = self.api_create(data=datos, code=413)
-
+        self.api_create(data=datos, code=413)

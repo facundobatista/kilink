@@ -18,6 +18,7 @@ from kilink.backend import (
     Kilink,
     KilinkBackend,
     KilinkNotFoundError,
+    PLAIN_TEXT,
     _get_unique_id,
 )
 from kilink.config import config
@@ -110,9 +111,9 @@ class DataRetrievalTestCase(BaseTestCase):
         self.assertEqual(tree[2].content, "content 3")
         self.assertEqual(tree[3].content, "content 4")
         self.assertEqual(tree[0].text_type, "t1")
-        self.assertEqual(tree[1].text_type, "")
+        self.assertEqual(tree[1].text_type, PLAIN_TEXT)
         self.assertEqual(tree[2].text_type, "t3")
-        self.assertEqual(tree[3].text_type, "")
+        self.assertEqual(tree[3].text_type, PLAIN_TEXT)
         for i, item in enumerate(tree, 1):
             self.assertTrue(isinstance(item.linkode_id.encode("ascii"), str))
             if item.parent is not None:

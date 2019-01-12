@@ -18,6 +18,9 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 from config import config
 
+# what we use for plain text
+PLAIN_TEXT = 'plain text'
+
 # DB stuff
 Base = declarative_base()
 
@@ -28,8 +31,10 @@ logger = logging.getLogger('kilink.backend')
 class KilinkNotFoundError(Exception):
     """A kilink was specified, we couldn't find it."""
 
+
 class KilinkDataTooBigError(Exception):
     """Content data too big."""
+
 
 TreeNode = collections.namedtuple(
     "TreeNode", "content parent order linkode_id timestamp text_type")
@@ -59,7 +64,7 @@ class Kilink(Base, object):
     parent = Column(String, default=None)
     compressed = Column(LargeBinary)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
-    text_type = Column(String)
+    _text_type = Column('text_type', String)
 
     def _get_content(self):
         """Return the content, uncompressed."""
@@ -72,6 +77,16 @@ class Kilink(Base, object):
         self.compressed = zlib.compress(data)
 
     content = property(_get_content, _set_content)
+
+    def _get_text_type(self):
+        """Get the text type; if empty or non existant, return plain text."""
+        return self._text_type or PLAIN_TEXT
+
+    def _set_text_type(self, value):
+        """Directly set the text type."""
+        self._text_type = value
+
+    text_type = property(_get_text_type, _set_text_type)
 
     def __repr__(self):
         return "<Kilink id={} root={}>".format(self.linkode_id, self.root)
@@ -89,7 +104,7 @@ def session_manager(orig_func):
             resp = orig_func(self, *a, **k)
             self.session.commit()
             return resp
-        except:
+        except Exception:
             self.session.rollback()
             raise
     return new_func
@@ -110,7 +125,7 @@ class KilinkBackend(object):
             try:
                 with open(config['version_file'], 'rt') as fh:
                     self._cached_version = fh.read()
-            except:
+            except Exception:
                 self._cached_version = '?'
         return self._cached_version
 
@@ -140,7 +155,6 @@ class KilinkBackend(object):
     def _check_kilink(self, content):
         if len(content) > config["max_payload"]:
             raise KilinkDataTooBigError("Content data too large, limit exceeded")
-
 
     @session_manager
     def get_kilink(self, linkode_id):
