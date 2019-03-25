@@ -18,6 +18,14 @@ Some awesome details:
 * private URLs: because you can not guess UUIDs
 
 
+There is a Telegram bot!
+------------------------
+
+Try it [here](https://t.me/linkode_bot). 
+
+Note this bot has a project on its own, [check it!](https://gitlab.com/c0x6a/linkode-bot)
+
+
 Collaboration
 -------------
 
