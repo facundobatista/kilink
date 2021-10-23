@@ -1,17 +1,15 @@
-# encoding: utf8
-
-# Copyright 2011-2017 Facundo Batista, Nicolás César
+# Copyright 2011-2021 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Some tests for the serving part."""
 
 import json
 from unittest import TestCase
+from unittest.mock import patch
 
-from mock import patch
 from sqlalchemy import create_engine
 
-from kilink import kilink, backend
+from kilink import main, backend
 from kilink.config import config
 
 
@@ -23,22 +21,18 @@ class ServingTestCase(TestCase):
         super(ServingTestCase, self).setUp()
         engine = create_engine("sqlite://")
         self.backend = backend.KilinkBackend(engine)
-        kilink.kilinkbackend = self.backend
-        self.app = kilink.app.test_client()
+        main.kilinkbackend = self.backend
+        self.app = main.app.test_client()
 
-        _ctx = patch("kilink.kilink.render_template")
+        _ctx = patch("kilink.main.render_template")
         self.mocked_render = _ctx.start()
         self.addCleanup(_ctx.stop)
 
         config.load_file("configs/development.yaml")
 
-        # _ctx = patch("kilink.kilink.redirect")
-        # self.mocked_redirect = _ctx.start()
-        # self.addCleanup(_ctx.stop)
-
     def test_root_page(self):
         """Root page."""
-        kilink.index()
+        main.index()
 
         self.mocked_render.assert_called_once_with("_new.html")
 
@@ -68,7 +62,7 @@ class ServingTestCase(TestCase):
         content = json.loads(resp.data)
         child_revno = content['revno']
 
-        url = "/#{}/{}".format(linkode_id, child_revno)
+        url = "/{}/{}".format(linkode_id, child_revno)
         resp = self.app.get(url, headers={'Accept': 'text/plain'})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data.decode("utf8"), u"other")

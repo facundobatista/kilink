@@ -1,6 +1,4 @@
-# encoding: utf8
-
-# Copyright 2011-2017 Facundo Batista, Nicolás César
+# Copyright 2011-2021 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Backend functionality for Kilink."""
@@ -16,7 +14,7 @@ from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from config import config
+from kilink.config import config
 
 # what we use for plain text
 PLAIN_TEXT = 'plain text'

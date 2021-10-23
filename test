@@ -1,13 +1,3 @@
-set -e
-
-if [ $# -ne 0 ]; then
-    nosetests --exe -v -s "$@"
-else
-    nosetests --exe -v -s tests
-    pylint kilink
-    pep8 --repeat kilink
-fi
-
-rm -rf _trial_temp
-rm -rf _logs_temp
-rm -rf tmp
+#!/bin/sh
+fades -r requirements.txt -d pytest -m pytest tests
+fades -r requirements.txt -d flake8 -x flake8 kilink

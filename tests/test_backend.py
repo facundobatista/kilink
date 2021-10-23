@@ -1,6 +1,4 @@
-# encoding: utf8
-
-# Copyright 2011-2017 Facundo Batista, Nicolás César
+# Copyright 2011-2021 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Backend tests."""
@@ -30,6 +28,7 @@ class BaseTestCase(TestCase):
     def setUp(self):
         """Set up."""
         super(BaseTestCase, self).setUp()
+        config.load_file("configs/development.yaml")
         self.db_engine = create_engine("sqlite://")
         self.bkend = KilinkBackend(self.db_engine)
 
@@ -115,9 +114,9 @@ class DataRetrievalTestCase(BaseTestCase):
         self.assertEqual(tree[2].text_type, "t3")
         self.assertEqual(tree[3].text_type, PLAIN_TEXT)
         for i, item in enumerate(tree, 1):
-            self.assertTrue(isinstance(item.linkode_id.encode("ascii"), str))
+            self.assertTrue(isinstance(item.linkode_id, str))
             if item.parent is not None:
-                self.assertTrue(isinstance(item.parent.encode("ascii"), str))
+                self.assertTrue(isinstance(item.parent, str))
             self.assertTrue(isinstance(item.timestamp, datetime.datetime))
             self.assertEqual(item.order, i)
         self.assertEqual(tree[0].parent, None)  # root node

@@ -8,11 +8,11 @@
 import json
 import datetime
 from unittest import TestCase
+from unittest.mock import patch
 
-from mock import patch
 from sqlalchemy import create_engine
 
-from kilink import kilink, backend
+from kilink import main, backend
 from kilink.config import config
 
 
@@ -40,8 +40,8 @@ class BaseTestCase(TestCase):
         super(BaseTestCase, self).setUp()
         config.load_file("configs/development.yaml")
         engine = create_engine("sqlite://")
-        self.backend = kilink.kilinkbackend = backend.KilinkBackend(engine)
-        self.app = kilink.app.test_client()
+        self.backend = main.kilinkbackend = backend.KilinkBackend(engine)
+        self.app = main.app.test_client()
 
     def api_create(self, data, code=201):
         """Helper to hit the api to create."""
@@ -71,23 +71,20 @@ class ApiTestCase(BaseTestCase):
     """Tests for API kilink creation and updating."""
     maxDiff = None
 
-    @patch("kilink.decorators.metrics")
-    def test_create_simple(self, patched_metrics):
+    def test_create_simple(self):
         """Simple create."""
         content = u'Moñooo()?¿'
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
 
         resp = self.api_create(data=datos)
-        patched_metrics.count.assert_called_with("api.create.ok", 1)
 
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
-    @patch("kilink.decorators.metrics")
-    def test_create_error(self, patched_metrics):
+    def test_create_error(self):
         """Simple create."""
         content = u'Moñooo()?¿'
         text_type = "type1"
@@ -98,8 +95,6 @@ class ApiTestCase(BaseTestCase):
         with patch.object(self.backend, 'create_kilink') as mock:
             mock.side_effect = ValueError("foo")
             self.api_create(data=datos, code=500)
-            patched_metrics.count.assert_called_with(
-                "api.create.error.ValueError", 1)
 
     def test_create_no_text_type(self):
         """Simple create."""
@@ -123,8 +118,7 @@ class ApiTestCase(BaseTestCase):
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
-    @patch("kilink.decorators.metrics")
-    def test_update_simple(self, patched_metrics):
+    def test_update_simple(self):
         """Update a kilink with new content."""
         parent_content = {'content': u'ÑOÑO', 'text_type': 'type1'}
         resp = self.api_create(data=parent_content)
@@ -137,7 +131,6 @@ class ApiTestCase(BaseTestCase):
             'text_type': 'type2',
         }
         resp = self.api_update(linkode_id, data=child_content)
-        patched_metrics.count.assert_called_with("api.update.ok", 1)
         revno1 = resp["revno"]
 
         klnk = self.backend.get_kilink(revno1)
@@ -161,8 +154,7 @@ class ApiTestCase(BaseTestCase):
         # all three are different
         self.assertEqual(len(set([revno0, revno1, revno2])), 3)
 
-    @patch("kilink.decorators.metrics")
-    def test_get_simple(self, patched_metrics):
+    def test_get_simple(self):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
@@ -170,7 +162,6 @@ class ApiTestCase(BaseTestCase):
         linkode_id = resp['linkode_id']
         revno = resp['revno']
         resp = self.api_get(linkode_id, revno)
-        patched_metrics.count.assert_called_with("api.get.ok", 1)
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
@@ -186,8 +177,7 @@ class ApiTestCase(BaseTestCase):
             u'contents': [],
         })
 
-    @patch("kilink.decorators.metrics")
-    def test_get_norevno(self, patched_metrics):
+    def test_get_norevno(self):
         """Get a kilink and revno content."""
         content = {'content': u'ÑOÑO', 'text_type': 'type'}
         resp = self.api_create(data=content)
@@ -195,7 +185,6 @@ class ApiTestCase(BaseTestCase):
         revno = resp['revno']
 
         resp = self.api_get(linkode_id)
-        patched_metrics.count.assert_called_with("api.get.ok", 1)
 
         self.assertEqual(resp["content"], u"ÑOÑO")
         self.assertEqual(resp["text_type"], u"type")
@@ -280,8 +269,7 @@ class ApiTestCase(BaseTestCase):
         self.assertIn('message', resp_base)
         self.assertIn('message', resp_klnk)
 
-    @patch("kilink.decorators.metrics")
-    def test_too_large_content(self, patched_metrics):
+    def test_too_large_content(self):
         """Content data too large."""
         content = u'Moñooo()?¿' + '.' * config["max_payload"]
         text_type = "type1"

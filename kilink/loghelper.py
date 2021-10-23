@@ -15,7 +15,7 @@ def exception_handler(exc_type, exc_value, tb):
     """Handle an unhandled exception."""
     exception = traceback.format_exception(exc_type, exc_value, tb)
     msg = "".join(exception)
-    print >> sys.stderr, msg
+    print(msg, file=sys.stderr)
 
     # log
     logger = logging.getLogger('kilink')

@@ -1,27 +1,17 @@
-# Copyright 2011-2017 Facundo Batista
+# Copyright 2011-2021 Facundo Batista
 # All Rigths Reserved
 
 """The server for kilink."""
 
 import logging
 
-from flask import (
-    Flask,
-    jsonify,
-    render_template,
-    request,
-    make_response
-)
-
+from flask import Flask, jsonify, render_template, request, make_response
 from flask_cors import CORS
 from flask_babel import Babel
 from sqlalchemy import create_engine
 
-import backend
-import loghelper
-
-from config import config, LANGUAGES
-from decorators import measure
+from kilink import backend, loghelper
+from kilink.config import config, LANGUAGES
 
 # set up flask
 app = Flask(__name__)
@@ -40,8 +30,9 @@ logger = logging.getLogger('kilink.kilink')
 @app.errorhandler(backend.KilinkNotFoundError)
 def handle_not_found_error(error):
     """Return 404 on kilink not found"""
-    logger.debug(error.message)
-    return jsonify({'message': error.message}), 404
+    msg = str(error)
+    logger.debug(msg)
+    return jsonify({'message': msg}), 404
 
 
 @app.errorhandler(backend.KilinkDataTooBigError)
@@ -59,21 +50,18 @@ def get_locale():
 
 # accessory pages
 @app.route('/about')
-@measure("about")
 def about():
     """Show the about page."""
     return render_template('_about.html')
 
 
 @app.route('/tools')
-@measure("tools")
 def tools():
     """Show the tools page."""
     return render_template('_tools.html')
 
 
 @app.route('/version')
-@measure("version")
 def version():
     """Show the project version, very very simple, just for developers/admin help."""
     return kilinkbackend.get_version()
@@ -85,7 +73,6 @@ def version():
 @app.route('/<linkode_id>/<revno>')
 @app.route('/l/<linkode_id>')
 @app.route('/l/<linkode_id>/<revno>')
-@measure("index")
 def index(linkode_id=None, revno=None):
     """The base page."""
     if linkode_id is not None and linkode_id.startswith('#'):
@@ -110,7 +97,6 @@ def index(linkode_id=None, revno=None):
 
 # API
 @app.route('/api/1/linkodes/', methods=['POST'])
-@measure("api.create")
 def api_create():
     """Create a kilink."""
     content = request.form['content']
@@ -130,7 +116,6 @@ def api_create():
 
 
 @app.route('/api/1/linkodes/<linkode_id>', methods=['POST'])
-@measure("api.update")
 def api_update(linkode_id):
     """Update a kilink."""
     content = request.form['content']
@@ -158,7 +143,6 @@ def api_update(linkode_id):
 
 @app.route('/api/1/linkodes/<linkode_id>/<revno>', methods=['GET'])
 @app.route('/api/1/linkodes/<linkode_id>', methods=['GET'])
-@measure("api.get")
 def api_get(linkode_id, revno=None):
     """Get the kilink and revno content"""
     logger.debug("API get; linkode_id=%r revno=%r", linkode_id, revno)
