@@ -8,10 +8,11 @@ import logging
 from flask import Flask, jsonify, render_template, request, make_response
 from flask_cors import CORS
 from flask_babel import Babel
-from sqlalchemy import create_engine
+
 
 from kilink import backend, loghelper
 from kilink.config import config, LANGUAGES
+from kilink.backend import db
 
 # set up flask
 app = Flask(__name__)
@@ -19,14 +20,14 @@ app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = config.get('db_engine', 'sqlite://')#'sqlite:///tmp/kilink.db')
 
-babel = Babel(app)
 cors = CORS(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
 
-
+db.init_app(app)
 @app.errorhandler(backend.KilinkNotFoundError)
 def handle_not_found_error(error):
     """Return 404 on kilink not found"""
@@ -42,11 +43,12 @@ def handle_content_data_too_big_error(error):
     return jsonify({'message': error.message}), 413
 
 
-@babel.localeselector
 def get_locale():
     """Return the best matched language supported."""
     return request.accept_languages.best_match(LANGUAGES.keys())
 
+babel = Babel()
+babel.init_app(app, locale_selector=get_locale)
 
 # accessory pages
 @app.route('/about')
@@ -174,6 +176,5 @@ if __name__ == "__main__":
     app.logger.setLevel(logging.DEBUG)
 
     # set up the backend
-    engine = create_engine(config["db_engine"], echo=True)
-    kilinkbackend = backend.KilinkBackend(engine)
+    kilinkbackend = backend.KilinkBackend(db)
     app.run(debug=True, host='0.0.0.0')

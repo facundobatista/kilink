@@ -10,9 +10,7 @@ import operator
 import uuid
 import zlib
 
-from sqlalchemy import Column, DateTime, String, LargeBinary
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from flask_sqlalchemy import SQLAlchemy
 
 from kilink.config import config
 
@@ -20,7 +18,7 @@ from kilink.config import config
 PLAIN_TEXT = 'plain text'
 
 # DB stuff
-Base = declarative_base()
+db = SQLAlchemy()
 
 # logger
 logger = logging.getLogger('kilink.backend')
@@ -52,17 +50,17 @@ def _get_unique_id():
     return ''.join(arr)
 
 
-class Kilink(Base, object):
+class Kilink(db.Model):
     """Kilink data."""
 
     __tablename__ = 'kilink'
 
-    linkode_id = Column(String, primary_key=True)
-    root = Column(String, nullable=False)
-    parent = Column(String, default=None)
-    compressed = Column(LargeBinary)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
-    _text_type = Column('text_type', String)
+    linkode_id = db.Column(db.String, primary_key=True)
+    root = db.Column(db.String, nullable=False)
+    parent = db.Column(db.String, default=None)
+    compressed = db.Column(db.LargeBinary)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    _text_type = db.Column('text_type', db.String)
 
     def _get_content(self):
         """Return the content, uncompressed."""
@@ -92,29 +90,11 @@ class Kilink(Base, object):
     __str__ = __repr__
 
 
-def session_manager(orig_func):
-    """Decorator to wrap function with the session."""
-
-    def new_func(self, *a, **k):
-        """Wrappend function to manage DB session."""
-        self.session.begin()
-        try:
-            resp = orig_func(self, *a, **k)
-            self.session.commit()
-            return resp
-        except Exception:
-            self.session.rollback()
-            raise
-    return new_func
-
-
 class KilinkBackend(object):
     """Backend for Kilink."""
 
-    def __init__(self, db_engine):
-        Base.metadata.create_all(db_engine)
-        Session = scoped_session(sessionmaker(autocommit=True))
-        self.session = Session(bind=db_engine)
+    def __init__(self,):
+        db.create_all()
         self._cached_version = None
 
     def get_version(self):
@@ -127,45 +107,43 @@ class KilinkBackend(object):
                 self._cached_version = '?'
         return self._cached_version
 
-    @session_manager
     def create_kilink(self, content, text_type):
         """Create a new kilink with given content."""
         self._check_kilink(content)
         new_id = _get_unique_id()
         klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type)
-        self.session.add(klnk)
+        db.session.add(klnk)
+        db.session.commit()
         return klnk
 
-    @session_manager
+
     def update_kilink(self, parent_id, new_content, text_type):
         """Add a new child to a kilink."""
         self._check_kilink(new_content)
-        parent_klnk = self.session.query(Kilink).get(parent_id)
+        parent_klnk = db.session.query(Kilink).get(parent_id)
         if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
 
         new_id = _get_unique_id()
         klnk = Kilink(linkode_id=new_id, parent=parent_id, root=parent_klnk.root,
                       content=new_content, text_type=text_type)
-        self.session.add(klnk)
+        db.session.add(klnk)
         return klnk
 
     def _check_kilink(self, content):
         if len(content) > config["max_payload"]:
             raise KilinkDataTooBigError("Content data too large, limit exceeded")
 
-    @session_manager
     def get_kilink(self, linkode_id):
         """Get a specific kilink."""
-        klnk = self.session.query(Kilink).get(linkode_id)
+        klnk = db.session.query(Kilink).get(linkode_id)
         if klnk is None:
             raise KilinkNotFoundError("Data not found for kilink=%r" % (linkode_id,))
         return klnk
 
-    @session_manager
     def _get_kilink_tree(self, root):
         """Return all the information about the kilink."""
-        klnk_tree = self.session.query(Kilink).filter_by(root=root).order_by("timestamp").all()
+        klnk_tree = db.session.query(Kilink).filter_by(root=root).order_by("timestamp").all()
         if len(klnk_tree) == 0:
             raise KilinkNotFoundError("Kilink id not found: %r" % (root,))
         klnk_tree.sort(key=operator.attrgetter("timestamp"))
@@ -176,10 +154,9 @@ class KilinkBackend(object):
             result.append(tn)
         return result
 
-    @session_manager
     def _get_root_node(self, linkode_id):
         """Return the root node of the kilink."""
-        klnk = self.session.query(Kilink).get(linkode_id)
+        klnk = db.session.query(Kilink).get(linkode_id)
         if klnk is None:
             raise KilinkNotFoundError("Kilink id not found: %r" % (linkode_id,))
         return klnk
