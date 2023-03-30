@@ -3,11 +3,9 @@
 
 """Some tests for the serving part."""
 
-import json
 from unittest import TestCase
 from unittest.mock import patch
-
-from sqlalchemy import create_engine
+from urllib.parse import quote as urlquote
 
 from kilink import main, backend
 from kilink.config import config
@@ -19,8 +17,8 @@ class ServingTestCase(TestCase):
     def setUp(self):
         """Set up."""
         super(ServingTestCase, self).setUp()
-        engine = create_engine("sqlite://")
-        self.backend = backend.KilinkBackend(engine)
+        main.app.app_context().push()
+        self.backend = backend.KilinkBackend()
         main.kilinkbackend = self.backend
         self.app = main.app.test_client()
 
@@ -40,9 +38,9 @@ class ServingTestCase(TestCase):
         # create a linkode
         resp = self.app.post("/api/1/linkodes/", data={'content': u'ÑOÑO', 'text_type': 'type'})
         assert resp.status_code == 201
-        linkode_id = json.loads(resp.data)['linkode_id']
-
-        url = "/#{}".format(linkode_id)
+        linkode_id = resp.json['linkode_id']
+        # urlquote is needed because the # is parsed as fragment during request creation.
+        url = urlquote("/#{}".format(linkode_id))
         resp = self.app.get(url, headers={'Accept': 'text/plain'})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data.decode("utf8"), u"ÑOÑO")
@@ -52,16 +50,17 @@ class ServingTestCase(TestCase):
         # create a linkode, and update it
         resp = self.app.post("/api/1/linkodes/", data={'content': u'ÑOÑO', 'text_type': 'type'})
         assert resp.status_code == 201
-        content = json.loads(resp.data)
+        content = resp.json
         linkode_id = content['linkode_id']
         root_revno = content['revno']
         resp = self.app.post(
             "/api/1/linkodes/%s" % (linkode_id,),
             data={'content': u'other', 'text_type': 'type2', 'parent': root_revno})
         assert resp.status_code == 201
-        content = json.loads(resp.data)
+        content = resp.json
         child_revno = content['revno']
 
+        # FIXME: revno is not working as expected.
         url = "/{}/{}".format(linkode_id, child_revno)
         resp = self.app.get(url, headers={'Accept': 'text/plain'})
         self.assertEqual(resp.status_code, 200)

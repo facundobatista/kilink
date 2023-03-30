@@ -94,7 +94,6 @@ class KilinkBackend(object):
     """Backend for Kilink."""
 
     def __init__(self,):
-        db.create_all()
         self._cached_version = None
 
     def get_version(self):
@@ -128,6 +127,7 @@ class KilinkBackend(object):
         klnk = Kilink(linkode_id=new_id, parent=parent_id, root=parent_klnk.root,
                       content=new_content, text_type=text_type)
         db.session.add(klnk)
+        db.session.commit()
         return klnk
 
     def _check_kilink(self, content):

@@ -12,7 +12,10 @@ from flask_babel import Babel
 
 from kilink import backend, loghelper
 from kilink.config import config, LANGUAGES
-from kilink.backend import db
+from kilink.backend import db  # TODO: Refactor backend to models.
+
+# TODO: Refactor this to a proper app factory.
+#       and allow to cofnigure the app with a different db_engine
 
 # set up flask
 app = Flask(__name__)
@@ -20,14 +23,15 @@ app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = config.get('db_engine', 'sqlite://')#'sqlite:///tmp/kilink.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = config.get('db_engine', 'sqlite://')
 
 cors = CORS(app)
 
 # logger
 logger = logging.getLogger('kilink.kilink')
-
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 @app.errorhandler(backend.KilinkNotFoundError)
 def handle_not_found_error(error):
     """Return 404 on kilink not found"""
@@ -176,5 +180,5 @@ if __name__ == "__main__":
     app.logger.setLevel(logging.DEBUG)
 
     # set up the backend
-    kilinkbackend = backend.KilinkBackend(db)
+    kilinkbackend = backend.KilinkBackend()
     app.run(debug=True, host='0.0.0.0')

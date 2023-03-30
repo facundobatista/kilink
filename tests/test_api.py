@@ -10,8 +10,6 @@ import datetime
 from unittest import TestCase
 from unittest.mock import patch
 
-from flask_sqlalchemy import SQLAlchemy
-
 from kilink import main, backend
 from kilink.config import config
 
@@ -40,8 +38,8 @@ class BaseTestCase(TestCase):
         super(BaseTestCase, self).setUp()
         config.load_file("configs/development.yaml")
         self.app = main.app.test_client()
-        with main.app.app_context():
-            self.backend = main.kilinkbackend = backend.KilinkBackend()
+        main.app.app_context().push()
+        self.backend = main.kilinkbackend = backend.KilinkBackend()
 
     def api_create(self, data, code=201):
         """Helper to hit the api to create."""
@@ -76,9 +74,8 @@ class ApiTestCase(BaseTestCase):
         content = u'Moñooo()?¿'
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
-        with main.app.app_context():
-            resp = self.api_create(data=datos)
-            klnk = self.backend.get_kilink(resp["linkode_id"])
+        resp = self.api_create(data=datos)
+        klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -93,16 +90,14 @@ class ApiTestCase(BaseTestCase):
 
         with patch.object(self.backend, 'create_kilink') as mock:
             mock.side_effect = ValueError("foo")
-            with main.app.app_context():
-                self.api_create(data=datos, code=500)
+            self.api_create(data=datos, code=500)
 
     def test_create_no_text_type(self):
         """Simple create."""
         content = u'Moñooo()?¿'
         datos = {'content': content}
-        with main.app.app_context():
-            resp = self.api_create(data=datos)
-            klnk = self.backend.get_kilink(resp["linkode_id"])
+        resp = self.api_create(data=datos)
+        klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -111,9 +106,8 @@ class ApiTestCase(BaseTestCase):
         """Simple create with an empty text type."""
         content = u'Moñooo()?¿'
         datos = {'content': content, 'text_type': ""}
-        with main.app.app_context():
-            resp = self.api_create(data=datos)
-            klnk = self.backend.get_kilink(resp["linkode_id"])
+        resp = self.api_create(data=datos)
+        klnk = self.backend.get_kilink(resp["linkode_id"])
 
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
@@ -122,33 +116,32 @@ class ApiTestCase(BaseTestCase):
     def test_update_simple(self):
         """Update a kilink with new content."""
         parent_content = {'content': u'ÑOÑO', 'text_type': 'type1'}
-        with main.app.app_context():
-            resp = self.api_create(data=parent_content)
-            linkode_id = resp['linkode_id']
-            revno0 = resp["revno"]
+        resp = self.api_create(data=parent_content)
+        linkode_id = resp['linkode_id']
+        revno0 = resp["revno"]
 
-            child_content = {
-                'content': u'Moñito',
-                'parent': revno0,
-                'text_type': 'type2',
-            }
-            resp = self.api_update(linkode_id, data=child_content)
-            revno1 = resp["revno"]
+        child_content = {
+            'content': u'Moñito',
+            'parent': revno0,
+            'text_type': 'type2',
+        }
+        resp = self.api_update(linkode_id, data=child_content)
+        revno1 = resp["revno"]
 
-            klnk = self.backend.get_kilink(revno1)
-            self.assertEqual(klnk.content, u"Moñito")
-            self.assertEqual(klnk.text_type, u"type2")
-            self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
+        klnk = self.backend.get_kilink(revno1)
+        self.assertEqual(klnk.content, u"Moñito")
+        self.assertEqual(klnk.text_type, u"type2")
+        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
 
-            child_content2 = {
-                'content': u'Moñito2',
-                'parent': revno0,
-                'text_type': 'type3',
-            }
-            resp = self.api_update(linkode_id, data=child_content2)
-            revno2 = resp["revno"]
+        child_content2 = {
+            'content': u'Moñito2',
+            'parent': revno0,
+            'text_type': 'type3',
+        }
+        resp = self.api_update(linkode_id, data=child_content2)
+        revno2 = resp["revno"]
 
-            klnk = self.backend.get_kilink(revno2)
+        klnk = self.backend.get_kilink(revno2)
         self.assertEqual(klnk.content, u"Moñito2")
         self.assertEqual(klnk.text_type, u"type3")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -204,28 +197,27 @@ class ApiTestCase(BaseTestCase):
 
     def test_tree(self):
         """Get a good tree when getting a node."""
-        with main.app.app_context():
-            resp = self.api_create(data={'content': "content 0", 'text_type': ''})
-            linkode_id = resp['linkode_id']
-            root_revno = resp['revno']
+        resp = self.api_create(data={'content': "content 0", 'text_type': ''})
+        linkode_id = resp['linkode_id']
+        root_revno = resp['revno']
 
-            resp = self.api_update(
-                linkode_id=linkode_id,
-                data={'content': "content 1", 'text_type': '', 'parent': root_revno})
-            child1_revno = resp['revno']
+        resp = self.api_update(
+            linkode_id=linkode_id,
+            data={'content': "content 1", 'text_type': '', 'parent': root_revno})
+        child1_revno = resp['revno']
 
-            resp = self.api_update(
-                linkode_id=linkode_id,
-                data={'content': "content 11", 'text_type': '', 'parent': child1_revno})
-            child11_revno = resp['revno']
+        resp = self.api_update(
+            linkode_id=linkode_id,
+            data={'content': "content 11", 'text_type': '', 'parent': child1_revno})
+        child11_revno = resp['revno']
 
-            resp = self.api_update(
-                linkode_id=linkode_id,
-                data={'content': "content 2", 'text_type': '', 'parent': root_revno})
-            child2_revno = resp['revno']
+        resp = self.api_update(
+            linkode_id=linkode_id,
+            data={'content': "content 2", 'text_type': '', 'parent': root_revno})
+        child2_revno = resp['revno']
 
-            # get the info
-            resp = self.api_get(linkode_id)
+        # get the info
+        resp = self.api_get(linkode_id)
         self.assertEqual(resp['tree'], {
             u'revno': root_revno,
             u'linkode_id': linkode_id,
