@@ -9,10 +9,9 @@ import tempfile
 
 from unittest import TestCase
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from kilink.backend import (
+    db,
     Kilink,
     KilinkBackend,
     KilinkNotFoundError,
@@ -20,6 +19,7 @@ from kilink.backend import (
     _get_unique_id,
 )
 from kilink.config import config
+from kilink import main
 
 
 class BaseTestCase(TestCase):
@@ -29,26 +29,19 @@ class BaseTestCase(TestCase):
         """Set up."""
         super(BaseTestCase, self).setUp()
         config.load_file("configs/development.yaml")
-        self.db_engine = create_engine("sqlite://")
-        self.bkend = KilinkBackend(self.db_engine)
+        main.app.app_context().push()
+        self.bkend = KilinkBackend()
 
 
 class ContentTestCase(BaseTestCase):
     """Tests for kilink creation and updating."""
-
-    def setUp(self):
-        """Set up."""
-        super(ContentTestCase, self).setUp()
-        Session = sessionmaker()
-        conn = self.db_engine.connect()
-        self.session = Session(bind=conn)
 
     def test_create_simple(self):
         """Simple create."""
         content = "some content"
         text_type = "type"
         klnk = self.bkend.create_kilink(content, text_type)
-        klnk = self.session.query(Kilink).filter_by(linkode_id=klnk.linkode_id).one()
+        klnk = db.session.query(Kilink).filter_by(linkode_id=klnk.linkode_id).one()
         self.assertEqual(klnk.content, content)
         self.assertTrue(isinstance(klnk.linkode_id.encode("ascii"), bytes))
         self.assertEqual(klnk.parent, None)
@@ -64,9 +57,9 @@ class ContentTestCase(BaseTestCase):
         self.assertGreater(new_klnk.timestamp, klnk.timestamp)
         self.assertEqual(new_klnk.text_type, "type2")
 
-        parent = self.session.query(Kilink).filter_by(linkode_id=klnk.linkode_id).one()
+        parent = db.session.query(Kilink).filter_by(linkode_id=klnk.linkode_id).one()
         self.assertEqual(parent.content, parent_content)
-        child = self.session.query(Kilink).filter_by(linkode_id=new_klnk.linkode_id).one()
+        child = db.session.query(Kilink).filter_by(linkode_id=new_klnk.linkode_id).one()
         self.assertEqual(child.content, child_content)
 
     def test_update_bad_kilink(self):

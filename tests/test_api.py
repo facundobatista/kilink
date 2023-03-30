@@ -10,8 +10,6 @@ import datetime
 from unittest import TestCase
 from unittest.mock import patch
 
-from sqlalchemy import create_engine
-
 from kilink import main, backend
 from kilink.config import config
 
@@ -39,9 +37,9 @@ class BaseTestCase(TestCase):
         """Set up."""
         super(BaseTestCase, self).setUp()
         config.load_file("configs/development.yaml")
-        engine = create_engine("sqlite://")
-        self.backend = main.kilinkbackend = backend.KilinkBackend(engine)
         self.app = main.app.test_client()
+        main.app.app_context().push()
+        self.backend = main.kilinkbackend = backend.KilinkBackend()
 
     def api_create(self, data, code=201):
         """Helper to hit the api to create."""
@@ -76,9 +74,7 @@ class ApiTestCase(BaseTestCase):
         content = u'Moñooo()?¿'
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
-
         resp = self.api_create(data=datos)
-
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
@@ -101,7 +97,6 @@ class ApiTestCase(BaseTestCase):
         content = u'Moñooo()?¿'
         datos = {'content': content}
         resp = self.api_create(data=datos)
-
         klnk = self.backend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
@@ -112,8 +107,8 @@ class ApiTestCase(BaseTestCase):
         content = u'Moñooo()?¿'
         datos = {'content': content, 'text_type': ""}
         resp = self.api_create(data=datos)
-
         klnk = self.backend.get_kilink(resp["linkode_id"])
+
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -202,7 +197,6 @@ class ApiTestCase(BaseTestCase):
 
     def test_tree(self):
         """Get a good tree when getting a node."""
-
         resp = self.api_create(data={'content': "content 0", 'text_type': ''})
         linkode_id = resp['linkode_id']
         root_revno = resp['revno']
