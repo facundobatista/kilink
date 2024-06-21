@@ -144,14 +144,10 @@ def api_get(linkode_id, revno=None):
 
 if __name__ == "__main__":
     # load config
-    config.load_file("configs/development.yaml")
+    config.load_config(environment="dev")
 
-    # log setup
-    handlers = loghelper.setup_logging(config['log_directory'], verbose=True)
-    for h in handlers:
-        app.logger.addHandler(h)
-        h.setLevel(logging.DEBUG)
-    app.logger.setLevel(logging.DEBUG)
+    # logging setup
+    loghelper.setup_logging(app.logger, verbose=True)
 
     # set up the backend
     engine = create_engine(config["db_engine"], echo=True)

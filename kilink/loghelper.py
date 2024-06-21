@@ -8,6 +8,8 @@ import traceback
 
 from logging.handlers import TimedRotatingFileHandler as TRFHandler
 
+from kilink.config import config
+
 log_setup_lock = threading.Lock()
 
 
@@ -46,14 +48,23 @@ def _setup(logdir, verbose):
     sys.excepthook = exception_handler
 
 
-def setup_logging(logdir, verbose=False):
+def setup_logging(_logger, verbose=False):
     """Set up the logging.
 
     This is thread-safe; it will only call the setup if logger doesn't have
     handlers already set.
     """
+    logdir = config['log_directory']
+
     with log_setup_lock:
-        logger = logging.getLogger('kilink')
-        if not logger.handlers:
+        kilink_logger = logging.getLogger('kilink')
+        if not kilink_logger.handlers:
             _setup(logdir, verbose)
-    return logger.handlers
+
+    for h in kilink_logger.handlers:
+        if config['environment'] != 'prod':
+            h.setLevel(logging.DEBUG)
+        _logger.addHandler(h)
+
+    if config['environment'] != 'prod':
+        _logger.setLevel(logging.DEBUG)

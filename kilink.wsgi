@@ -8,7 +8,8 @@ from kilink import backend, main, loghelper
 from sqlalchemy import create_engine
 from kilink.config import config 
 
-config.load_file("/home/kilink/project/production/configs/production.yaml")
+config.load_config()
+loghelper.setup_logging(kilink.app.logger)
 
 # get config data
 auth_config = config["db_auth_config"]
@@ -17,11 +18,6 @@ with open(auth_file) as fh:
     vals = [x.strip() for x in fh.readlines()]
 auth_data = dict(zip(("user", "pass"), vals))
 engine_data = config["db_engine"].format(**auth_data)
-
-# log setup
-handlers = loghelper.setup_logging(config['log_directory'])
-for h in handlers:
-    main.app.logger.addHandler(h)
 
 # set up the backend
 engine = create_engine(engine_data)

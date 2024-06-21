@@ -17,6 +17,13 @@ class Config(dict):
             cfg = yaml.safe_load(fh)
         self.update(cfg)
 
+    def load_config(self, environment="prod"):
+        self.update(environment=environment)
+
+        if environment == "prod":
+            self.load_file("/home/kilink/project/production/configs/production.yaml")
+        else:
+            self.load_file("configs/development.yaml")
 
 config = Config()
 
