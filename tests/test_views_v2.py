@@ -102,3 +102,52 @@ class TestGetLinkode:
         response = test_client.get("/api/2/linkode/SomeUnexistingId/")
 
         assert response.status_code == 404
+
+
+class TestGetTree:
+    def test_get_tree_happy_path(self):
+        parent = kilinkbackend.create_linkode("x", "python")
+        child_1 = kilinkbackend.create_linkode("x", "python", parent.linkode_id)
+        child_2 = kilinkbackend.create_linkode("x", "python", parent.linkode_id)
+        grandchild = kilinkbackend.create_linkode("x", "python", child_1.linkode_id)
+
+        response = test_client.get(f"/api/2/tree/{parent.linkode_id}/")
+
+        assert response.status_code == 200
+
+        assert response.json == {
+            "linkode_id": parent.linkode_id,
+            "timestamp": str(parent.timestamp),
+            "children": [
+                {
+                    "linkode_id": child_1.linkode_id,
+                    "timestamp": str(child_1.timestamp),
+                    "children": [
+                        {
+                            "linkode_id": grandchild.linkode_id,
+                            "timestamp": str(grandchild.timestamp),
+                            "children": []
+                        }
+                    ],
+                },
+                {
+                    "linkode_id": child_2.linkode_id,
+                    "timestamp": str(child_2.timestamp),
+                    "children": []
+                }
+            ]
+        }
+
+    def test_get_tree_when_linkode_not_found(self):
+        response = test_client.get("/api/2/tree/SomeNotExistingId/")
+
+        assert response.status_code == 404
+
+    def test_get_tree_when_linkode_is_not_root(self):
+        parent = kilinkbackend.create_linkode("x", "python")
+        child = kilinkbackend.create_linkode("x", "python", parent.linkode_id)
+
+        response = test_client.get(f"/api/2/tree/{child.linkode_id}/")
+
+        assert response.status_code == 404
+        assert "not a tree root" in str(response.data)
