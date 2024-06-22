@@ -34,6 +34,10 @@ class KilinkDataTooBigError(Exception):
     """Content data too big."""
 
 
+class LinkodeNotRootNodeError(Exception):
+    """Linkode is not a root node"""
+
+
 TreeNode = collections.namedtuple(
     "TreeNode", "content parent order linkode_id timestamp text_type")
 
@@ -211,7 +215,9 @@ class KilinkBackend(object):
         return klnk
 
     def build_tree(self, linkode_id):
-        """Build the tree for a given kilink id."""
+        """Build the tree for a given kilink id.
+        Needed for api v1.
+        """
         # get the kilink to find out the root
         klnk = self._get_root_node(linkode_id)
 
@@ -242,6 +248,42 @@ class KilinkBackend(object):
             fringe.extend(children)
 
         return root_node, len(nodes)
+
+
+    def build_tree_from_root_id(self, linkode_id):
+        """Build the tree for a given kilink id."""
+        # get the kilink to find out the root
+        linkode = self._get_root_node(linkode_id)
+
+        if linkode.root != linkode_id:
+            raise LinkodeNotRootNodeError()
+
+        # get and process all nodes for that root
+        nodes = []
+        root_node = None
+        tree_nodes = self._get_kilink_tree(linkode_id)
+
+        for treenode in self._get_kilink_tree(linkode_id):
+            node_dict = {
+                'timestamp': str(treenode.timestamp),
+                'linkode_id': treenode.linkode_id,
+                'parent': treenode.parent,
+            }
+            if treenode.parent is None:
+                root_node = node_dict
+            nodes.append(node_dict)
+
+        fringe = [root_node]
+        while fringe:
+            current_node = fringe.pop()
+            children = [n for n in nodes if n.get('parent') == current_node['linkode_id']]
+
+            current_node.pop
+            current_node['children'] = children
+            fringe.extend(children)
+
+        tree = root_node
+        return tree
 
 
 kilinkbackend = KilinkBackend()

@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint
 from flask import Flask, jsonify, render_template, request, make_response, url_for
 
-from kilink.backend import kilinkbackend, KilinkDataTooBigError, KilinkNotFoundError
+from kilink.backend import kilinkbackend, KilinkDataTooBigError, KilinkNotFoundError, LinkodeNotRootNodeError
 from kilink.config import config
 
 logger = logging.getLogger(__name__)
@@ -127,3 +127,18 @@ def get_linkode(linkode_id):
     )
 
     return ret_json, 200
+
+
+@linkode_v2.route('/tree/<linkode_id>', methods=['GET'])
+def get_tree(linkode_id, revno=None):
+    """Get the kilink and revno content"""
+
+    # get the tree
+    try:
+        tree = kilinkbackend.build_tree_from_root_id(linkode_id)
+
+    except (LinkodeNotRootNodeError, KilinkNotFoundError):
+        return "id not found or it is not a root", 404
+
+    ret_json = jsonify(tree)
+    return ret_json
