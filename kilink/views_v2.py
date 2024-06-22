@@ -11,64 +11,6 @@ logger = logging.getLogger(__name__)
 
 linkode_v2 = Blueprint("linkode_v2", __name__)
 
-"""
-/linkode POST -> crea un nodo raiz
-- toma:
-    - content
-    - text_type [opt]
-- devuelve:
-    - linkode_metadata
-        - linkode_id
-        - root_id (self)
-        - linkode_url
-        - root_url
-
-/linkode/id/
-    - POST -> Crea un hijo de ese id
-        - toma lo mismo que /linkode/
-        - devuelve lo mismo que /linkode/
-
-    - GET -> devuelve details de ese id
-        - devuelve lo mismo que lo otro + extra info:
-            - content
-            - text_type
-            - timestamp, etc....
-
-/tree/id/ GET solo funciona con id de root (sino 404)
-    - devuelve:
-        - estructura de arbol, cada nodo con su metadata:
-            - linkode_id
-            - timestamp
-
-NO HAY PUT en ningun endpoint. Todas las entidades son inmutables, para cambios crear uno nuevo.
-"""
-class LinkodeCreateParams:
-    def validate_params(self):
-        """Tiene que venir esta estructura en la request
-        """
-        return {
-            "content": str,
-            "text_type": str, # opcional en key o value=None
-        }
-
-class LinkodeReference:
-    """
-    Respuesta de creación de linkodes
-    """
-    def response(self):
-        {
-            "linkode_id": str,
-            "root_id": str,
-            "likode_url": str,
-            "root_url": str,
-        }
-
-
-class LinkodeGetDetails:
-    def serialize(self):
-        return {}
-
-
 
 @linkode_v2.route('/linkode/', methods=['POST'])
 @linkode_v2.route('/linkode/<linkode_id>/', methods=['POST'])
@@ -131,14 +73,23 @@ def get_linkode(linkode_id):
 
 @linkode_v2.route('/tree/<linkode_id>', methods=['GET'])
 def get_tree(linkode_id, revno=None):
-    """Get the kilink and revno content"""
+    """Get the Tree of the given linkode.
 
-    # get the tree
+    The linkode_id must be the root of the tree."""
+
     try:
         tree = kilinkbackend.build_tree_from_root_id(linkode_id)
 
-    except (LinkodeNotRootNodeError, KilinkNotFoundError):
-        return "id not found or it is not a root", 404
+    except LinkodeNotRootNodeError:
+        msg = f"Linkode id '{linkode_id}' is not a tree root."
+        logger.debug(msg)
+        return msg, 404
+
+    except KilinkNotFoundError:
+        msg = f"Linkode id '{linkode_id}' not found"
+        logger.debug(msg)
+        return msg, 404
 
     ret_json = jsonify(tree)
+
     return ret_json
