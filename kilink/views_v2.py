@@ -1,4 +1,5 @@
-# API
+"""API v2."""
+
 import logging
 
 from flask import Blueprint
@@ -16,7 +17,6 @@ linkode_v2 = Blueprint("linkode_v2", __name__)
 @linkode_v2.route('/linkode/<linkode_id>/', methods=['POST'])
 def create_linkode(linkode_id=None):
     """Create a linkode."""
-
     if "content" not in request.json:
         return "missing content", 400
 
@@ -49,7 +49,7 @@ def create_linkode(linkode_id=None):
 
 @linkode_v2.route('/linkode/<linkode_id>', methods=['GET'])
 def get_linkode(linkode_id):
-    """Get a linkode"""
+    """Get a linkode."""
     try:
         linkode = kilinkbackend.get_kilink(linkode_id)
 
@@ -75,8 +75,8 @@ def get_linkode(linkode_id):
 def get_tree(linkode_id, revno=None):
     """Get the Tree of the given linkode.
 
-    The linkode_id must be the root of the tree."""
-
+    The linkode_id must be the root of the tree.
+    """
     try:
         tree = kilinkbackend.build_tree_from_root_id(linkode_id)
 

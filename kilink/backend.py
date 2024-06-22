@@ -35,7 +35,7 @@ class KilinkDataTooBigError(Exception):
 
 
 class LinkodeNotRootNodeError(Exception):
-    """Linkode is not a root node"""
+    """Linkode is not a root node."""
 
 
 TreeNode = collections.namedtuple(
@@ -216,6 +216,7 @@ class KilinkBackend(object):
 
     def build_tree(self, linkode_id):
         """Build the tree for a given kilink id.
+
         Needed for api v1.
         """
         # get the kilink to find out the root
@@ -252,7 +253,6 @@ class KilinkBackend(object):
 
     def build_tree_from_root_id(self, linkode_id):
         """Build the tree of the given linkode root."""
-
         linkode = self.get_kilink(linkode_id)
 
         if linkode.root != linkode_id:
