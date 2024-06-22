@@ -14,7 +14,7 @@ from sqlalchemy import Column, DateTime, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from kilink.config import config
+from kilink.config import config, DB_ENGINE_INSTANCE_KEY
 
 # what we use for plain text
 PLAIN_TEXT = 'plain text'
@@ -111,11 +111,19 @@ def session_manager(orig_func):
 class KilinkBackend(object):
     """Backend for Kilink."""
 
-    def __init__(self, db_engine):
-        Base.metadata.create_all(db_engine)
-        Session = scoped_session(sessionmaker(autocommit=True))
-        self.session = Session(bind=db_engine)
+    def __init__(self):
         self._cached_version = None
+        self._session = None
+
+    @property
+    def session(self):
+        if self._session is None:
+            db_engine = config[DB_ENGINE_INSTANCE_KEY]
+            Base.metadata.create_all(db_engine)
+            Session = scoped_session(sessionmaker(autocommit=True))
+            self._session = Session(bind=db_engine)
+
+        return self._session
 
     def get_version(self):
         """Return the version, reading it from a file (cached)."""
@@ -216,3 +224,5 @@ class KilinkBackend(object):
             fringe.extend(children)
 
         return root_node, len(nodes)
+
+kilinkbackend = KilinkBackend()

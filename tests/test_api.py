@@ -13,7 +13,7 @@ from unittest.mock import patch
 from sqlalchemy import create_engine
 
 from kilink import main, backend
-from kilink.config import config
+from kilink.config import config, UNITTESTING_ENVIRONMENT_VALUE
 
 
 class _ANY(object):
@@ -38,9 +38,7 @@ class BaseTestCase(TestCase):
     def setUp(self):
         """Set up."""
         super(BaseTestCase, self).setUp()
-        config.load_file("configs/development.yaml")
-        engine = create_engine("sqlite://")
-        self.backend = main.kilinkbackend = backend.KilinkBackend(engine)
+        config.load_config(UNITTESTING_ENVIRONMENT_VALUE)
         self.app = main.app.test_client()
 
     def api_create(self, data, code=201):
@@ -79,7 +77,7 @@ class ApiTestCase(BaseTestCase):
 
         resp = self.api_create(data=datos)
 
-        klnk = self.backend.get_kilink(resp["linkode_id"])
+        klnk = backend.kilinkbackend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -92,7 +90,7 @@ class ApiTestCase(BaseTestCase):
 
         # make it fail!
 
-        with patch.object(self.backend, 'create_kilink') as mock:
+        with patch.object(backend.kilinkbackend, 'create_kilink') as mock:
             mock.side_effect = ValueError("foo")
             self.api_create(data=datos, code=500)
 
@@ -102,7 +100,7 @@ class ApiTestCase(BaseTestCase):
         datos = {'content': content}
         resp = self.api_create(data=datos)
 
-        klnk = self.backend.get_kilink(resp["linkode_id"])
+        klnk = backend.kilinkbackend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -113,7 +111,7 @@ class ApiTestCase(BaseTestCase):
         datos = {'content': content, 'text_type': ""}
         resp = self.api_create(data=datos)
 
-        klnk = self.backend.get_kilink(resp["linkode_id"])
+        klnk = backend.kilinkbackend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -133,7 +131,7 @@ class ApiTestCase(BaseTestCase):
         resp = self.api_update(linkode_id, data=child_content)
         revno1 = resp["revno"]
 
-        klnk = self.backend.get_kilink(revno1)
+        klnk = backend.kilinkbackend.get_kilink(revno1)
         self.assertEqual(klnk.content, u"Moñito")
         self.assertEqual(klnk.text_type, u"type2")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
@@ -146,7 +144,7 @@ class ApiTestCase(BaseTestCase):
         resp = self.api_update(linkode_id, data=child_content2)
         revno2 = resp["revno"]
 
-        klnk = self.backend.get_kilink(revno2)
+        klnk = backend.kilinkbackend.get_kilink(revno2)
         self.assertEqual(klnk.content, u"Moñito2")
         self.assertEqual(klnk.text_type, u"type3")
         self.assertLess(klnk.timestamp, datetime.datetime.utcnow())

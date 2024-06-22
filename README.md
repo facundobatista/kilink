@@ -67,8 +67,7 @@ cd kilink
 git clone https://github.com/facundobatista/kilink.git
 source bin/activate
 pip install -r requirements.txt
-./test
-python2 kilink/kilink.py
+PYTHONPATH=. python kilink/main.py
 ```
 
 Or if you prefer to use Docker
