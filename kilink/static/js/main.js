@@ -54,8 +54,7 @@ var linkode = (function (){
         if (new_linkode_id) {
             window.location.hash = new_linkode_id;
             current_linkode_id = new_linkode_id;
-        } 
-        else {
+        } else {
             if(!current_linkode_id){
                 hash = window.location.hash.replace("#", "");
                 path = window.location.pathname.split("/").pop();
@@ -75,15 +74,17 @@ var linkode = (function (){
         }
     }
 
+    /**
+     * Object definition to handle parameters to send to the API for Linkode creation.
+     */
     const LinkodeCreationParamsPrototype = {
         toJSON() {
-          return JSON.stringify({
+            return JSON.stringify({
             content: this.content,
             text_type: this.text_type,
-          });
+            });
         },
-      };
-      
+    };
     function LinkodeCreationParams(content, text_type) {
         this.content = content;
         this.text_type = text_type;
@@ -95,7 +96,7 @@ var linkode = (function (){
      * @param  {string}
      */
     function api_post(current_retry){
-        var api_post_url = URL_BASE + "/api/2/linkode/";
+        var api_post_url = API_URL;
         var text_type = $("#selectlang").val().replace("auto_", "");
         var creation_params = new LinkodeCreationParams(editor.val(), text_type);
 
@@ -104,16 +105,14 @@ var linkode = (function (){
             post_data.parent = linkode_id_val();
         }
 
-        var jqxhr = $.ajax({
+        $.ajax({
             url:         api_post_url,
             type:        "POST",
             data:        creation_params.toJSON(),
             contentType: "application/json; charset=utf-8",
             dataType:    "json",
-
         })
         .done(function(data, textStatus, jqXHR) {
-            console.log("Llegó", data);
             if(first_load_success){
                 linkode_id_val(data.linkode_id);
                 $("#selectlang").val(text_type);
@@ -127,38 +126,19 @@ var linkode = (function (){
             }
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
-          console.log(textStatus, errorThrown);
+            current_retry = current_retry ? current_retry : 0;
+            if (current_retry < RETRY_TIMES && jqXHR.status != 404 && jqXHR.status != 413){
+                var retry_delay = RETRY_DELAYS[current_retry];
+                current_retry++;
+                show_retry_noty(retry_delay);
+                setTimeout(function(){
+                    api_post(current_retry);
+                }, retry_delay);
+            }
+            else{
+                show_error_noty(jqXHR.status, true, api_post, []);
+            }
         })
-
-        // $.post(api_post_url,post_data)
-        //     .done(function(data) {
-        //         var posted_linkode = data;
-        //         if(first_load_success){
-        //             linkode_id_val(posted_linkode.revno);
-        //             $("#selectlang").val(text_type);
-        //             editor.selectMode();
-        //             api_after_post_get(posted_linkode.revno);
-        //             $("#btn-submit").text(text_update_submit);
-        //             show_success_noty(posted_linkode.revno);
-        //         }
-        //         else{
-        //             window.location.replace(URL_BASE + "/#" + posted_linkode.revno);
-        //         }
-        //     })
-        //     .fail(function(data, error) {
-        //         current_retry = current_retry ? current_retry : 0;
-        //         if (current_retry < RETRY_TIMES && data.status != 404 && data.status != 413){
-        //             retry_delay = RETRY_DELAYS[current_retry];
-        //             current_retry++;
-        //             show_retry_noty(retry_delay);
-        //             setTimeout(function(){
-        //                 api_post(current_retry);
-        //             }, retry_delay);
-        //         }
-        //         else{
-        //             show_error_noty(data.status, true, api_post, []);
-        //         }
-        //     });
     }
 
     /**
@@ -167,13 +147,14 @@ var linkode = (function (){
      */
     function api_after_post_get(linkode_id){
         var api_get_url = API_URL + linkode_id;
+        // TODO: use the API V2 URL
         return $.get(api_get_url)
                 .done(function(data) {
                     node_list = data.tree;
                     $("#tree-toggle-panel").show();
                     if (node_list !== false) {
                         $(".klk-tree").empty();
-                        create_tree(linkode_id);
+                        create_tree(linkode_id, node_list);
                         if(node_list.children){
                             toggleTree(true);
                         }
@@ -198,7 +179,7 @@ var linkode = (function (){
                         node_list = data.tree;
                         if (node_list !== false) {
                             $(".klk-tree").empty();
-                            create_tree(linkode_id);
+                            create_tree(linkode_id, node_list);
                             $("#tree-toggle-panel").show();
 
                             // Only if nodes >= 2 
@@ -264,6 +245,7 @@ var linkode = (function (){
      */
     function load_linkode(content, text_type, timestamp){
         //Reset the auto option.
+        console.log("DATA HERE", timestamp);
         $("#selectlang option[value^='auto']").text("auto");
         $("#selectlang option[value^='auto']").val("auto");
         $("#selectlang").val(text_type);
@@ -300,9 +282,10 @@ var linkode = (function (){
 
     /**
      * Generate the Tree Node
-     * @param  {string}
+     * @param  {string} linkode_id
+     * @param  {string} node_list
      */
-    function create_tree(linkode_id){
+    function create_tree(linkode_id, node_list){
         var tree_size = {};
         var layout_size = {};
         tree_size.width = 200;
@@ -520,7 +503,7 @@ var linkode = (function (){
 
     // constants
     var URL_BASE = window.location.protocol + "//" + window.location.host;
-    var API_URL = URL_BASE + "/api/1/linkodes/";
+    var API_URL = URL_BASE + "/api/2/linkode/";
     var RETRY_TIMES = 3;
     var RETRY_DELAYS = [2000, 10000, 30000]; // in miliseconds
 
