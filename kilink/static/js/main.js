@@ -75,52 +75,90 @@ var linkode = (function (){
         }
     }
 
+    const LinkodeCreationParamsPrototype = {
+        toJSON() {
+          return JSON.stringify({
+            content: this.content,
+            text_type: this.text_type,
+          });
+        },
+      };
+      
+    function LinkodeCreationParams(content, text_type) {
+        this.content = content;
+        this.text_type = text_type;
+    }
+    Object.assign(LinkodeCreationParams.prototype, LinkodeCreationParamsPrototype);
+
     /**
      * Post the new linkode
      * @param  {string}
      */
     function api_post(current_retry){
-        var api_post_url = API_URL;
+        var api_post_url = URL_BASE + "/api/2/linkode/";
         var text_type = $("#selectlang").val().replace("auto_", "");
-        var post_data = {
-            'content': editor.val(),
-            'text_type': text_type
-        };
+        var creation_params = new LinkodeCreationParams(editor.val(), text_type);
 
         if(first_load_success && linkode_id_val()){
             api_post_url = api_post_url + linkode_id_val();
             post_data.parent = linkode_id_val();
         }
 
-        $.post(api_post_url,post_data)
-            .done(function(data) {
-                var posted_linkode = data;
-                if(first_load_success){
-                    linkode_id_val(posted_linkode.revno);
-                    $("#selectlang").val(text_type);
-                    editor.selectMode();
-                    api_after_post_get(posted_linkode.revno);
-                    $("#btn-submit").text(text_update_submit);
-                    show_success_noty(posted_linkode.revno);
-                }
-                else{
-                    window.location.replace(URL_BASE + "/#" + posted_linkode.revno);
-                }
-            })
-            .fail(function(data, error) {
-                current_retry = current_retry ? current_retry : 0;
-                if (current_retry < RETRY_TIMES && data.status != 404 && data.status != 413){
-                    retry_delay = RETRY_DELAYS[current_retry];
-                    current_retry++;
-                    show_retry_noty(retry_delay);
-                    setTimeout(function(){
-                        api_post(current_retry);
-                    }, retry_delay);
-                }
-                else{
-                    show_error_noty(data.status, true, api_post, []);
-                }
-            });
+        var jqxhr = $.ajax({
+            url:         api_post_url,
+            type:        "POST",
+            data:        creation_params.toJSON(),
+            contentType: "application/json; charset=utf-8",
+            dataType:    "json",
+
+        })
+        .done(function(data, textStatus, jqXHR) {
+            console.log("Llegó", data);
+            if(first_load_success){
+                linkode_id_val(data.linkode_id);
+                $("#selectlang").val(text_type);
+                editor.selectMode();
+                api_after_post_get(data.linkode_id);
+                $("#btn-submit").text(text_update_submit);
+                show_success_noty(data.linkode_id);
+            }
+            else{
+                window.location.replace(URL_BASE + "/#" + data.linkode_id);
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          console.log(textStatus, errorThrown);
+        })
+
+        // $.post(api_post_url,post_data)
+        //     .done(function(data) {
+        //         var posted_linkode = data;
+        //         if(first_load_success){
+        //             linkode_id_val(posted_linkode.revno);
+        //             $("#selectlang").val(text_type);
+        //             editor.selectMode();
+        //             api_after_post_get(posted_linkode.revno);
+        //             $("#btn-submit").text(text_update_submit);
+        //             show_success_noty(posted_linkode.revno);
+        //         }
+        //         else{
+        //             window.location.replace(URL_BASE + "/#" + posted_linkode.revno);
+        //         }
+        //     })
+        //     .fail(function(data, error) {
+        //         current_retry = current_retry ? current_retry : 0;
+        //         if (current_retry < RETRY_TIMES && data.status != 404 && data.status != 413){
+        //             retry_delay = RETRY_DELAYS[current_retry];
+        //             current_retry++;
+        //             show_retry_noty(retry_delay);
+        //             setTimeout(function(){
+        //                 api_post(current_retry);
+        //             }, retry_delay);
+        //         }
+        //         else{
+        //             show_error_noty(data.status, true, api_post, []);
+        //         }
+        //     });
     }
 
     /**
