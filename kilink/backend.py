@@ -112,10 +112,7 @@ def session_manager(orig_func):
 class KilinkBackend(object):
     """Backend for Kilink."""
 
-    def __init__(self, db_engine):
-        Base.metadata.create_all(db_engine)
-        Session = scoped_session(sessionmaker())
-        self.session = Session(bind=db_engine)
+    def __init__(self):
         self._cached_version = None
         self._session = None
 
@@ -124,7 +121,7 @@ class KilinkBackend(object):
         if self._session is None:
             db_engine = config[DB_ENGINE_INSTANCE_KEY]
             Base.metadata.create_all(db_engine)
-            Session = scoped_session(sessionmaker(autocommit=True))
+            Session = scoped_session(sessionmaker())
             self._session = Session(bind=db_engine)
 
         return self._session
