@@ -8,7 +8,6 @@ import logging
 from flask import Flask, jsonify, render_template, request, make_response
 from flask_cors import CORS
 from flask_babel import Babel
-from sqlalchemy import create_engine
 
 from kilink import backend, loghelper
 from kilink.config import config, LANGUAGES

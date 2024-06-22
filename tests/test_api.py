@@ -1,6 +1,4 @@
-# encoding: utf8
-
-# Copyright 2011-2017 Facundo Batista, Nicolás César
+# Copyright 2011-2024 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """API tests."""
@@ -9,8 +7,6 @@ import json
 import datetime
 from unittest import TestCase
 from unittest.mock import patch
-
-from sqlalchemy import create_engine
 
 from kilink import main, backend
 from kilink.config import config, UNITTESTING_ENVIRONMENT_VALUE

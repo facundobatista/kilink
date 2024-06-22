@@ -28,7 +28,7 @@ class Config(dict):
         self.update(cfg)
 
     def load_config(self, environment=PROD_ENVIRONMENT_VALUE):
-
+        """Load the config."""
         if environment == PROD_ENVIRONMENT_VALUE:
             self.load_file("/home/kilink/project/production/configs/production.yaml")
             db_engine = self._prod_database_engine()

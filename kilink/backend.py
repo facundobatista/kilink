@@ -117,6 +117,7 @@ class KilinkBackend(object):
 
     @property
     def session(self):
+        """Return the cached or just built session."""
         if self._session is None:
             db_engine = config[DB_ENGINE_INSTANCE_KEY]
             Base.metadata.create_all(db_engine)
@@ -224,5 +225,6 @@ class KilinkBackend(object):
             fringe.extend(children)
 
         return root_node, len(nodes)
+
 
 kilinkbackend = KilinkBackend()
