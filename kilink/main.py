@@ -1,4 +1,4 @@
-# Copyright 2011-2021 Facundo Batista
+# Copyright 2011-2024 Facundo Batista
 # All Rigths Reserved
 
 """The server for kilink."""
@@ -48,7 +48,14 @@ def get_locale():
     return request.accept_languages.best_match(LANGUAGES.keys())
 
 
-# accessory pages
+# -- main root view and accessory pages
+
+@app.route('/')
+def index(linkode_id=None, revno=None):
+    """Just return the main big HTML with its JS to work as a single page application."""
+    return render_template('_main.html')
+
+
 @app.route('/about')
 def about():
     """Show the about page."""
@@ -67,35 +74,8 @@ def version():
     return kilinkbackend.get_version()
 
 
-# views
-@app.route('/')
-@app.route('/<linkode_id>')
-@app.route('/<linkode_id>/<revno>')
-@app.route('/l/<linkode_id>')
-@app.route('/l/<linkode_id>/<revno>')
-def index(linkode_id=None, revno=None):
-    """The base page."""
-    if linkode_id is not None and linkode_id.startswith('#'):
-        if 'text/plain' in request.headers.get('Accept'):
-            # serving plainly the linkode content
-            logger.debug("Serving plain content; linkode_id=%s revno=%s", linkode_id, revno)
+# --- API
 
-            # decide the real id, with backwards compatibility
-            if revno is None:
-                real_id = linkode_id[1:]  # root, without the initial `#`
-            else:
-                real_id = revno
-
-            # retrieve and serve
-            klnk = kilinkbackend.get_kilink(real_id)
-            response = make_response(klnk.content)
-            response.headers['Content-Type'] = "text/{}".format(klnk.text_type)
-            return response
-
-    return render_template('_new.html')
-
-
-# API
 @app.route('/api/1/linkodes/', methods=['POST'])
 def api_create():
     """Create a kilink."""
