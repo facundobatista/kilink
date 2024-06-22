@@ -55,7 +55,6 @@ def index(linkode_id=None, revno=None):
     return render_template('_main.html')
 
 
-# accessory pages
 @app.route('/about')
 def about():
     """Show the about page."""
