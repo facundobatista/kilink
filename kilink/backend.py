@@ -271,12 +271,14 @@ class KilinkBackend(object):
                 root_node = node_dict
             nodes.append(node_dict)
 
+        # at this point 'nodes' is a flat list of linkodes represented as dicts.
+        # in the following loop we will nest the children linkodes inside their parents.
         fringe = [root_node]
         while fringe:
             current_node = fringe.pop()
             children = [n for n in nodes if n.get('parent') == current_node['linkode_id']]
 
-            current_node.pop('parent')
+            current_node.pop('parent')  # we don't want to expose the concept of 'parent' in the api
             current_node['children'] = children
             fringe.extend(children)
 
