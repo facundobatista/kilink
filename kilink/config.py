@@ -11,6 +11,7 @@ class Config(dict):
 
     It starts empty, and then the config can be set at any time.
     """
+
     def load_file(self, filename):
         """Set the configuration from a YAML file."""
         with open(filename, "rt", encoding="utf8") as fh:

@@ -42,7 +42,7 @@ ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 def _get_unique_id():
-    """Returns a unique ID everytime it's called."""
+    """Return a unique ID everytime it's called."""
     arr = []
     base = len(ALPHABET)
     num = uuid.uuid4().int
@@ -93,7 +93,7 @@ class Kilink(Base, object):
 
 
 def session_manager(orig_func):
-    """Decorator to wrap function with the session."""
+    """Wrap function with the session."""
 
     def new_func(self, *a, **k):
         """Wrappend function to manage DB session."""
