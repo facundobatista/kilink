@@ -8,7 +8,6 @@ import logging
 from flask import Flask, jsonify, render_template, request, make_response
 from flask_cors import CORS
 from flask_babel import Babel
-from sqlalchemy import create_engine
 
 from kilink import backend, loghelper
 from kilink.config import config, LANGUAGES
@@ -29,7 +28,7 @@ logger = logging.getLogger('kilink.kilink')
 
 @app.errorhandler(backend.KilinkNotFoundError)
 def handle_not_found_error(error):
-    """Return 404 on kilink not found"""
+    """Return 404 on kilink not found."""
     msg = str(error)
     logger.debug(msg)
     return jsonify({'message': msg}), 404
@@ -37,7 +36,7 @@ def handle_not_found_error(error):
 
 @app.errorhandler(backend.KilinkDataTooBigError)
 def handle_content_data_too_big_error(error):
-    """Return 413 on content data too big"""
+    """Return 413 on content data too big."""
     logger.debug(error.message)
     return jsonify({'message': error.message}), 413
 
@@ -124,7 +123,7 @@ def api_update(linkode_id):
 @app.route('/api/1/linkodes/<linkode_id>/<revno>', methods=['GET'])
 @app.route('/api/1/linkodes/<linkode_id>', methods=['GET'])
 def api_get(linkode_id, revno=None):
-    """Get the kilink and revno content"""
+    """Get the kilink and revno content."""
     logger.debug("API get; linkode_id=%r revno=%r", linkode_id, revno)
     if revno is not None:
         # the linkode_id to get the info from is the second token

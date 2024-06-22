@@ -1,4 +1,4 @@
-# Copyright 2011-2021 Facundo Batista, Nicolás César
+# Copyright 2011-2024 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Backend tests."""
@@ -9,7 +9,6 @@ import tempfile
 
 from unittest import TestCase
 
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from kilink.backend import (

@@ -1,3 +1,0 @@
-#!/bin/sh
-fades -r requirements.txt -r requirements-dev.txt -m pytest tests
-fades -r requirements.txt -r requirements-dev.txt flake8 -x flake8 kilink

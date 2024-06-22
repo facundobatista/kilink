@@ -21,7 +21,7 @@ Some awesome details:
 There is a Telegram bot!
 ------------------------
 
-Try it [here](https://t.me/linkode_bot). 
+Try it [here](https://t.me/linkode_bot).
 
 Note this bot has a project on its own, [check it!](https://gitlab.com/c0x6a/linkode-bot)
 
@@ -76,6 +76,13 @@ Or if you prefer to use Docker
 docker build -t kilink .
 docker run -it -p 5000:5000 kilink
 ```
+
+To run the tests: in the virtualenv, do:
+
+```
+python -m pytest
+```
+
 
 How to Translate
 ----------------
@@ -174,8 +181,8 @@ cd linkode_app
 pip install -r requirements.txt
 ```
 
-    
-The WSGI configuration file is already in the project, ready to use; for develop 
+
+The WSGI configuration file is already in the project, ready to use; for develop
 or debugging you can add to it:
 
 ```
@@ -189,7 +196,7 @@ application = EvalException(application)
 
 Create a virtual host configuration file in /etc/apache2/sites-enabled/
 with the name that you want, in this case "linkode"
-    
+
 `sudo vi /etc/apache2/sites-enabled/linkode`
 
 And paste this:
