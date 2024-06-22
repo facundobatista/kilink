@@ -11,7 +11,7 @@ import uuid
 import zlib
 
 from sqlalchemy import Column, DateTime, String, LargeBinary
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from kilink.config import config, DB_ENGINE_INSTANCE_KEY
@@ -97,7 +97,8 @@ def session_manager(orig_func):
 
     def new_func(self, *a, **k):
         """Wrappend function to manage DB session."""
-        self.session.begin()
+        if not self.session.in_transaction():
+            self.session.begin()
         try:
             resp = orig_func(self, *a, **k)
             self.session.commit()
@@ -111,7 +112,10 @@ def session_manager(orig_func):
 class KilinkBackend(object):
     """Backend for Kilink."""
 
-    def __init__(self):
+    def __init__(self, db_engine):
+        Base.metadata.create_all(db_engine)
+        Session = scoped_session(sessionmaker())
+        self.session = Session(bind=db_engine)
         self._cached_version = None
         self._session = None
 
