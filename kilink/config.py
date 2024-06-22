@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 
 ENVIRONMENT_KEY = "environment"
 PROD_ENVIRONMENT_VALUE = "prod"
+UNITTESTING_ENVIRONMENT_VALUE = "unittesting"
 
 DB_ENGINE_INSTANCE_KEY = "db_engine_instance"
 
@@ -25,12 +26,18 @@ class Config(dict):
             cfg = yaml.safe_load(fh)
         self.update(cfg)
 
-    def load_config(self, environment="prod"):
+    def load_config(self, environment=PROD_ENVIRONMENT_VALUE):
 
-        if environment == "prod":
+        if environment == PROD_ENVIRONMENT_VALUE:
             self.load_file("/home/kilink/project/production/configs/production.yaml")
             db_engine = self._prod_database_engine()
+
+        elif environment == UNITTESTING_ENVIRONMENT_VALUE:
+            self.load_file("configs/development.yaml")
+            db_engine = self._unittesting_database_engine()
+
         else:
+            # defaults to dev environment
             self.load_file("configs/development.yaml")
             db_engine = self._dev_database_engine()
 
@@ -48,6 +55,9 @@ class Config(dict):
 
     def _dev_database_engine(self):
         return create_engine(self.get("db_engine"), echo=True)
+
+    def _unittesting_database_engine(self):
+        return create_engine("sqlite://")
 
 
 config = Config()
