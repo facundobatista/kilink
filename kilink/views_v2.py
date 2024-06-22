@@ -92,4 +92,4 @@ def get_tree(linkode_id, revno=None):
 
     ret_json = jsonify(tree)
 
-    return ret_json
+    return ret_json, 200
