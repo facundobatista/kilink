@@ -19,7 +19,7 @@ from kilink.backend import (
     PLAIN_TEXT,
     _get_unique_id,
 )
-from kilink.config import config
+from kilink.config import config, UNITTESTING_ENVIRONMENT_VALUE, DB_ENGINE_INSTANCE_KEY
 
 
 class BaseTestCase(TestCase):
@@ -28,9 +28,9 @@ class BaseTestCase(TestCase):
     def setUp(self):
         """Set up."""
         super(BaseTestCase, self).setUp()
-        config.load_file("configs/development.yaml")
-        self.db_engine = create_engine("sqlite://")
-        self.bkend = KilinkBackend(self.db_engine)
+        config.load_config(environment=UNITTESTING_ENVIRONMENT_VALUE)
+        self.db_engine = config[DB_ENGINE_INSTANCE_KEY]
+        self.bkend = KilinkBackend()
 
 
 class ContentTestCase(BaseTestCase):
