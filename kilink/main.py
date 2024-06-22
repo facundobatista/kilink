@@ -71,7 +71,7 @@ def tools():
 @app.route('/version')
 def version():
     """Show the project version, very very simple, just for developers/admin help."""
-    return kilinkbackend.get_version()
+    return backend.kilinkbackend.get_version()
 
 
 # --- API
@@ -83,7 +83,7 @@ def api_create():
     text_type = request.form.get('text_type', "")
     logger.debug("API create start; type=%r size=%d", text_type, len(content))
     try:
-        klnk = kilinkbackend.create_kilink(content, text_type)
+        klnk = backend.kilinkbackend.create_kilink(content, text_type)
     except backend.KilinkDataTooBigError:
         logger.debug("Content data too big; on creation")
         response = make_response()
@@ -104,7 +104,7 @@ def api_update(linkode_id):
     logger.debug("API update start; linkode_id=%r parent=%r type=%r size=%d",
                  linkode_id, parent, text_type, len(content))
     try:
-        klnk = kilinkbackend.update_kilink(parent, content, text_type)
+        klnk = backend.kilinkbackend.update_kilink(parent, content, text_type)
     except backend.KilinkNotFoundError:
         logger.debug("API update done; linkode_id %r not found", linkode_id)
         response = make_response()
@@ -130,10 +130,10 @@ def api_get(linkode_id, revno=None):
         # the linkode_id to get the info from is the second token
         linkode_id = revno
 
-    klnk = kilinkbackend.get_kilink(linkode_id)
+    klnk = backend.kilinkbackend.get_kilink(linkode_id)
 
     # get the tree
-    tree, nodeq = kilinkbackend.build_tree(linkode_id)
+    tree, nodeq = backend.kilinkbackend.build_tree(linkode_id)
 
     logger.debug("API get done; type=%r size=%d len_tree=%d",
                  klnk.text_type, len(klnk.content), nodeq)
@@ -149,7 +149,4 @@ if __name__ == "__main__":
     # logging setup
     loghelper.setup_logging(app.logger, verbose=True)
 
-    # set up the backend
-    engine = create_engine(config["db_engine"], echo=True)
-    kilinkbackend = backend.KilinkBackend(engine)
     app.run(debug=True, host='0.0.0.0')

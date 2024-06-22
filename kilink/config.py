@@ -3,7 +3,15 @@
 
 """Config management."""
 
+import os
 import yaml
+
+from sqlalchemy import create_engine
+
+ENVIRONMENT_KEY = "environment"
+PROD_ENVIRONMENT_VALUE = "prod"
+
+DB_ENGINE_INSTANCE_KEY = "db_engine_instance"
 
 
 class Config(dict):
@@ -18,12 +26,29 @@ class Config(dict):
         self.update(cfg)
 
     def load_config(self, environment="prod"):
-        self.update(environment=environment)
 
         if environment == "prod":
             self.load_file("/home/kilink/project/production/configs/production.yaml")
+            db_engine = self._prod_database_engine()
         else:
             self.load_file("configs/development.yaml")
+            db_engine = self._dev_database_engine()
+
+        self.update({ENVIRONMENT_KEY: environment, DB_ENGINE_INSTANCE_KEY: db_engine})
+
+    def _prod_database_engine(self):
+        auth_config = self.get("db_auth_config")
+        auth_file = os.path.abspath(os.path.join(os.path.dirname(__file__), auth_config))
+        with open(auth_file) as fh:
+            vals = [x.strip() for x in fh.readlines()]
+        auth_data = dict(zip(("user", "pass"), vals))
+        engine_data = self.get("db_engine").format(**auth_data)
+
+        return create_engine(engine_data)
+
+    def _dev_database_engine(self):
+        return create_engine(self.get("db_engine"), echo=True)
+
 
 config = Config()
 
