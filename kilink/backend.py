@@ -165,7 +165,7 @@ class KilinkBackend(object):
         return klnk
 
     def create_linkode(self, content, text_type, linkode_parent_id=None):
-        """Create a new linkode"""
+        """Create a new linkode as root node or as a child of another linkode."""
         if linkode_parent_id:
             linkode = self.update_kilink(
                 parent_id=linkode_parent_id,
@@ -251,9 +251,9 @@ class KilinkBackend(object):
 
 
     def build_tree_from_root_id(self, linkode_id):
-        """Build the tree for a given kilink id."""
-        # get the kilink to find out the root
-        linkode = self._get_root_node(linkode_id)
+        """Build the tree of the given linkode root."""
+
+        linkode = self.get_kilink(linkode_id)
 
         if linkode.root != linkode_id:
             raise LinkodeNotRootNodeError()
@@ -278,7 +278,7 @@ class KilinkBackend(object):
             current_node = fringe.pop()
             children = [n for n in nodes if n.get('parent') == current_node['linkode_id']]
 
-            current_node.pop
+            current_node.pop('parent')
             current_node['children'] = children
             fringe.extend(children)
 
