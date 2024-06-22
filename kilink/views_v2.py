@@ -3,10 +3,15 @@
 import logging
 
 from flask import Blueprint
-from flask import Flask, jsonify, render_template, request, make_response, url_for
+from flask import jsonify, request, url_for
 
-from kilink.backend import kilinkbackend, KilinkDataTooBigError, KilinkNotFoundError, LinkodeNotRootNodeError
-from kilink.config import config
+from kilink.backend import (
+    kilinkbackend,
+    KilinkDataTooBigError,
+    KilinkNotFoundError,
+    LinkodeNotRootNodeError,
+)
+
 
 logger = logging.getLogger(__name__)
 

@@ -250,7 +250,6 @@ class KilinkBackend(object):
 
         return root_node, len(nodes)
 
-
     def build_tree_from_root_id(self, linkode_id):
         """Build the tree of the given linkode root."""
         linkode = self.get_kilink(linkode_id)
@@ -261,7 +260,6 @@ class KilinkBackend(object):
         # get and process all nodes for that root
         nodes = []
         root_node = None
-        tree_nodes = self._get_kilink_tree(linkode_id)
 
         for treenode in self._get_kilink_tree(linkode_id):
             node_dict = {
