@@ -1,8 +1,6 @@
 """API v2 tests."""
 import json
 
-import pytest
-
 from kilink.backend import kilinkbackend, KilinkDataTooBigError
 from kilink.config import config, UNITTESTING_ENVIRONMENT_VALUE
 from kilink.main import app
@@ -10,6 +8,7 @@ from kilink.main import app
 config.load_config(UNITTESTING_ENVIRONMENT_VALUE)
 
 test_client = app.test_client()
+
 
 class TestCreateLinkode:
     EXPECTED_KEYS_IN_RESPONSE = [
@@ -74,7 +73,10 @@ class TestCreateLinkode:
         assert response.status_code == 400
 
     def test_creates_linkode_when_content_too_long(self, mocker):
-        mocker.patch("kilink.views_v2.kilinkbackend.create_linkode", side_effect=KilinkDataTooBigError)
+        mocker.patch(
+            "kilink.views_v2.kilinkbackend.create_linkode",
+            side_effect=KilinkDataTooBigError
+        )
         response = test_client.post("/api/2/linkode/", json={"content": "x"})
 
         assert response.status_code == 413
