@@ -11,7 +11,7 @@ import uuid
 import zlib
 
 from sqlalchemy import Column, DateTime, String, LargeBinary
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from kilink.config import config, DB_ENGINE_INSTANCE_KEY
@@ -97,7 +97,8 @@ def session_manager(orig_func):
 
     def new_func(self, *a, **k):
         """Wrappend function to manage DB session."""
-        self.session.begin()
+        if not self.session.in_transaction():
+            self.session.begin()
         try:
             resp = orig_func(self, *a, **k)
             self.session.commit()
@@ -121,7 +122,7 @@ class KilinkBackend(object):
         if self._session is None:
             db_engine = config[DB_ENGINE_INSTANCE_KEY]
             Base.metadata.create_all(db_engine)
-            Session = scoped_session(sessionmaker(autocommit=True))
+            Session = scoped_session(sessionmaker())
             self._session = Session(bind=db_engine)
 
         return self._session
@@ -149,7 +150,7 @@ class KilinkBackend(object):
     def update_kilink(self, parent_id, new_content, text_type):
         """Add a new child to a kilink."""
         self._check_kilink(new_content)
-        parent_klnk = self.session.query(Kilink).get(parent_id)
+        parent_klnk = self.session.get(Kilink, parent_id)
         if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
 
@@ -166,7 +167,7 @@ class KilinkBackend(object):
     @session_manager
     def get_kilink(self, linkode_id):
         """Get a specific kilink."""
-        klnk = self.session.query(Kilink).get(linkode_id)
+        klnk = self.session.get(Kilink, linkode_id)
         if klnk is None:
             raise KilinkNotFoundError("Data not found for kilink=%r" % (linkode_id,))
         return klnk
@@ -188,7 +189,7 @@ class KilinkBackend(object):
     @session_manager
     def _get_root_node(self, linkode_id):
         """Return the root node of the kilink."""
-        klnk = self.session.query(Kilink).get(linkode_id)
+        klnk = self.session.get(Kilink, linkode_id)
         if klnk is None:
             raise KilinkNotFoundError("Kilink id not found: %r" % (linkode_id,))
         return klnk

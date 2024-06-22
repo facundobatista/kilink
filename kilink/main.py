@@ -19,7 +19,13 @@ app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
 
-babel = Babel(app)
+
+def get_locale():
+    """Return the best matched language supported."""
+    return request.accept_languages.best_match(LANGUAGES.keys())
+
+
+babel = Babel(app, locale_selector=get_locale)
 cors = CORS(app)
 
 # logger
@@ -39,12 +45,6 @@ def handle_content_data_too_big_error(error):
     """Return 413 on content data too big."""
     logger.debug(error.message)
     return jsonify({'message': error.message}), 413
-
-
-@babel.localeselector
-def get_locale():
-    """Return the best matched language supported."""
-    return request.accept_languages.best_match(LANGUAGES.keys())
 
 
 # -- main root view and accessory pages
