@@ -8,7 +8,7 @@ import traceback
 
 from logging.handlers import TimedRotatingFileHandler as TRFHandler
 
-from kilink.config import config
+from kilink.config import config, ENVIRONMENT_KEY, PROD_ENVIRONMENT_VALUE
 
 log_setup_lock = threading.Lock()
 
@@ -62,9 +62,9 @@ def setup_logging(_logger, verbose=False):
             _setup(logdir, verbose)
 
     for h in kilink_logger.handlers:
-        if config['environment'] != 'prod':
+        if config[ENVIRONMENT_KEY] != PROD_ENVIRONMENT_VALUE:
             h.setLevel(logging.DEBUG)
         _logger.addHandler(h)
 
-    if config['environment'] != 'prod':
+    if config[ENVIRONMENT_KEY] != PROD_ENVIRONMENT_VALUE:
         _logger.setLevel(logging.DEBUG)
