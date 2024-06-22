@@ -67,6 +67,11 @@ class TestCreateLinkode:
         assert content["linkode_id"] != parent_id
         assert content["root_id"] == parent_id
 
+    def test_creates_new_revision_when_parent_not_found(self):
+        response = test_client.post("/api/2/linkode/someNonExistingLinkodeId/", json={"content": "x"})
+
+        assert response.status_code == 404
+
     def test_creates_linkode_without_content_returns_bad_request(self):
         response = test_client.post("/api/2/linkode/", json={})
 
