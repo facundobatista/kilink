@@ -11,6 +11,7 @@ from flask_babel import Babel
 
 from kilink import backend, loghelper
 from kilink.config import config, LANGUAGES
+from kilink.views_v2 import linkode_v2
 
 # set up flask
 app = Flask(__name__)
@@ -18,6 +19,9 @@ app.config.from_object(__name__)
 app.config["STATIC_URL"] = 'static'
 app.config["STATIC_ROOT"] = 'static'
 app.config["PROPAGATE_EXCEPTIONS"] = False
+app.url_map.strict_slashes = False
+
+app.register_blueprint(linkode_v2, url_prefix="/api/2")
 
 
 def get_locale():

@@ -160,6 +160,22 @@ class KilinkBackend(object):
         self.session.add(klnk)
         return klnk
 
+    def create_linkode(self, content, text_type, linkode_parent_id=None):
+        """Create a new linkode"""
+        if linkode_parent_id:
+            linkode = self.update_kilink(
+                parent_id=linkode_parent_id,
+                text_type=text_type,
+                new_content=content,
+            )
+        else:
+            linkode = self.create_kilink(
+                text_type=text_type,
+                content=content,
+            )
+
+        return linkode
+
     def _check_kilink(self, content):
         if len(content) > config["max_payload"]:
             raise KilinkDataTooBigError("Content data too large, limit exceeded")
