@@ -10,3 +10,4 @@ tmp/
 .fuse*
 .directory
 .idea/
+.python-version
