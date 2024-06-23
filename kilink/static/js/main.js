@@ -75,40 +75,25 @@ var linkode = (function (){
     }
 
     /**
-     * Object definition to handle parameters to send to the API for Linkode creation.
-     */
-    const LinkodeCreationParamsPrototype = {
-        toJSON() {
-            return JSON.stringify({
-            content: this.content,
-            text_type: this.text_type,
-            });
-        },
-    };
-    function LinkodeCreationParams(content, text_type) {
-        this.content = content;
-        this.text_type = text_type;
-    }
-    Object.assign(LinkodeCreationParams.prototype, LinkodeCreationParamsPrototype);
-
-    /**
      * Post the new linkode
      * @param  {string}
      */
     function api_post(current_retry){
         var api_post_url = API_URL;
         var text_type = $("#selectlang").val().replace("auto_", "");
-        var creation_params = new LinkodeCreationParams(editor.val(), text_type);
+        var creation_params = {
+            content: editor.val(), 
+            text_type: text_type,
+        };
 
         if(first_load_success && linkode_id_val()){
             api_post_url = api_post_url + linkode_id_val();
-            //post_data.parent = linkode_id_val();
         }
 
         $.ajax({
             url:         api_post_url,
             type:        "POST",
-            data:        creation_params.toJSON(),
+            data:        JSON.stringify(creation_params),
             contentType: "application/json; charset=utf-8",
             dataType:    "json",
         })
@@ -162,12 +147,12 @@ var linkode = (function (){
             url: TREE_URL + root_id,
             type: "GET"
         })
-        .done(function(data, textStatus, jqXHR) {
+        .done(function(data) {
             $(".klk-tree").empty();
             
             if (data !== false) {
                 $(".klk-tree").empty();
-                display_tree(linkode_id, root_id, data);
+                display_tree(linkode_id, data);
                 $("#tree-toggle-panel").show();
 
                 if(data.children.length > 0){
@@ -177,7 +162,7 @@ var linkode = (function (){
             }
 
         })
-        .fail(function(jqXHR, textStatus, errorThrown) {
+        .fail(function() {
             $(".klk-tree").empty();
             toggleTree(true);
             toggleTree();
@@ -298,10 +283,10 @@ var linkode = (function (){
 
     /**
      * Generate the Tree Node
-     * @param  {string} linkode_id
-     * @param  {string} node_list
+     * @param  {string} linkode_id, to paint the proper node
+     * @param  {string} data, with all the nodes
      */
-    function display_tree(linkode_id, root_id, data){
+    function display_tree(linkode_id, data){
         var tree_size = {};
         var layout_size = {};
         tree_size.width = 200;
