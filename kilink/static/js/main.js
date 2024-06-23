@@ -102,7 +102,7 @@ var linkode = (function (){
 
         if(first_load_success && linkode_id_val()){
             api_post_url = api_post_url + linkode_id_val();
-            post_data.parent = linkode_id_val();
+            //post_data.parent = linkode_id_val();
         }
 
         $.ajax({
@@ -138,7 +138,7 @@ var linkode = (function (){
             else{
                 show_error_noty(jqXHR.status, true, api_post, []);
             }
-        })
+        });
     }
 
     /**
@@ -150,19 +150,43 @@ var linkode = (function (){
         // TODO: use the API V2 URL
         return $.get(api_get_url)
                 .done(function(data) {
-                    node_list = data.tree;
                     $("#tree-toggle-panel").show();
-                    if (node_list !== false) {
-                        $(".klk-tree").empty();
-                        create_tree(linkode_id, node_list);
-                        if(node_list.children){
-                            toggleTree(true);
-                        }
-                    }
+                    fetch_and_render_tree(linkode_id, data.root_id);
                     set_timestamp(data.timestamp);
                 });
     }
 
+
+    function fetch_and_render_tree(linkode_id, root_id) {
+        $.ajax({
+            url: TREE_URL + root_id,
+            type: "GET"
+        })
+        .done(function(tree, textStatus, jqXHR) {
+            console.log("Tis the tree", tree);
+            $(".klk-tree").empty();
+            if(tree.children.length > 0){
+                toggleTree(true);
+            }
+            
+            if (tree !== false) {
+                $(".klk-tree").empty();
+
+                display_tree(linkode_id, root_id, tree);
+                $("#tree-toggle-panel").show();
+
+                // Only if nodes >= 2 
+                if(tree.children){
+                    toggleTree();
+                }
+            }
+
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+        });
+
+
+    }
     /**
      * Get the linkode
      * @param  {string}
@@ -176,21 +200,11 @@ var linkode = (function (){
                 .done(function(data) {
                     load_linkode(data.content, data.text_type, data.timestamp);
                     if(include_tree){
-                        node_list = data.tree;
-                        if (node_list !== false) {
-                            $(".klk-tree").empty();
-                            create_tree(linkode_id, node_list);
-                            $("#tree-toggle-panel").show();
-
-                            // Only if nodes >= 2 
-                            if(node_list.children){
-                                toggleTree();
-                            }
-                        }
-                    }
-                    else{
+                        fetch_and_render_tree(linkode_id, data.root_id);
+                    } else {
                         color_node(linkode_id);
                     }
+                    
                     if(!first_load){
                         linkode_id_val(linkode_id);
                     }
@@ -206,7 +220,7 @@ var linkode = (function (){
                     else{
                         current_retry = current_retry ? current_retry : 0;
                         if (current_retry < RETRY_TIMES){
-                            retry_delay = RETRY_DELAYS[current_retry];
+                            var retry_delay = RETRY_DELAYS[current_retry];
                             current_retry++;
                             show_retry_noty(retry_delay);
                             setTimeout(function(){
@@ -245,7 +259,6 @@ var linkode = (function (){
      */
     function load_linkode(content, text_type, timestamp){
         //Reset the auto option.
-        console.log("DATA HERE", timestamp);
         $("#selectlang option[value^='auto']").text("auto");
         $("#selectlang option[value^='auto']").val("auto");
         $("#selectlang").val(text_type);
@@ -285,7 +298,7 @@ var linkode = (function (){
      * @param  {string} linkode_id
      * @param  {string} node_list
      */
-    function create_tree(linkode_id, node_list){
+    function display_tree(linkode_id, root_id, tree){
         var tree_size = {};
         var layout_size = {};
         tree_size.width = 200;
@@ -295,13 +308,10 @@ var linkode = (function (){
 
         var tree = d3.layout.tree()
             .sort(null)
-            .size([tree_size.width, tree_size.height])
-            .children(function(d){
-                return (!d.contents || d.contents.length === 0) ? null : d.contents;
-            });
+            .size([tree_size.width, tree_size.height]);
 
-        var nodes = tree.nodes(node_list);
-        var links = tree.links(nodes);
+        var nodes = tree.nodes(tree);
+        //var links = tree.links(nodes);
 
 
         var layoutRoot = d3.select(".klk-tree")
@@ -504,6 +514,7 @@ var linkode = (function (){
     // constants
     var URL_BASE = window.location.protocol + "//" + window.location.host;
     var API_URL = URL_BASE + "/api/2/linkode/";
+    var TREE_URL = URL_BASE + "/api/2/tree/";
     var RETRY_TIMES = 3;
     var RETRY_DELAYS = [2000, 10000, 30000]; // in miliseconds
 
