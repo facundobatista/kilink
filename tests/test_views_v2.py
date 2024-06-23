@@ -118,22 +118,26 @@ class TestGetTree:
         assert response.json == {
             "linkode_id": parent.linkode_id,
             "timestamp": str(parent.timestamp),
+            "order": 1, 
             "children": [
                 {
                     "linkode_id": child_1.linkode_id,
                     "timestamp": str(child_1.timestamp),
+                    "order": 2,
                     "children": [
                         {
                             "linkode_id": grandchild.linkode_id,
                             "timestamp": str(grandchild.timestamp),
-                            "children": []
+                            "children": [],
+                            "order": 4,
                         }
                     ],
                 },
                 {
                     "linkode_id": child_2.linkode_id,
                     "timestamp": str(child_2.timestamp),
-                    "children": []
+                    "children": [],
+                    "order": 3,
                 }
             ]
         }
