@@ -230,9 +230,9 @@ class KilinkBackend(object):
             node = {
                 'order': treenode.order,
                 'parent': treenode.parent,
-                #'revno': treenode.linkode_id,
+                'revno': treenode.linkode_id,
                 'url': url,
-                #'timestamp': str(treenode.timestamp),
+                'timestamp': str(treenode.timestamp),
                 'selected': treenode.linkode_id == linkode_id,
                 'linkode_id': treenode.linkode_id,
             }
@@ -246,7 +246,6 @@ class KilinkBackend(object):
             children = [n for n in nodes if n['parent'] == node['linkode_id']]
 
             node['contents'] = children
-            del node["parent"]
             fringe.extend(children)
 
         return root_node, len(nodes)
@@ -267,6 +266,7 @@ class KilinkBackend(object):
                 'timestamp': str(treenode.timestamp),
                 'linkode_id': treenode.linkode_id,
                 'parent': treenode.parent,
+                'order': treenode.order,
             }
             if treenode.parent is None:
                 root_node = node_dict
