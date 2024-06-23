@@ -170,7 +170,7 @@ var linkode = (function (){
                 display_tree(linkode_id, root_id, data);
                 $("#tree-toggle-panel").show();
 
-                if(data.contents.length > 0){
+                if(data.children.length > 0){
                     // Open only if there are children in the tree
                     toggleTree(true);
                 }
@@ -311,10 +311,7 @@ var linkode = (function (){
 
         var tree = d3.layout.tree()
             .sort(null)
-            .size([tree_size.width, tree_size.height])
-            .children(function(d){
-                return (!d.contents || d.contents.length === 0) ? null : d.contents;
-            });
+            .size([tree_size.width, tree_size.height]);
 
         var nodes = tree.nodes(data);
         var links = tree.links(nodes);
@@ -520,7 +517,7 @@ var linkode = (function (){
     // constants
     var URL_BASE = window.location.protocol + "//" + window.location.host;
     var API_URL = URL_BASE + "/api/2/linkode/";
-    var TREE_URL = URL_BASE + "/api/2/tree_bff/";
+    var TREE_URL = URL_BASE + "/api/2/tree/";
     var RETRY_TIMES = 3;
     var RETRY_DELAYS = [2000, 10000, 30000]; // in miliseconds
 
