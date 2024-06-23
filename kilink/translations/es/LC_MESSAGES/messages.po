@@ -168,3 +168,5 @@ msgstr "Volver arriba"
 #~ msgid "Some terms and conditions"
 #~ msgstr "Algunos términos y condiciones"
 
+#~ msgid "External Tools"
+#~ msgstr "Herramientas externas"
