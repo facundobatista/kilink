@@ -156,3 +156,23 @@ def get_tree(linkode_id, revno=None):
     ret_json = jsonify(tree)
 
     return ret_json, HTTPStatus.OK
+
+
+@linkode_v2.route('/tree_bff/<linkode_id>', methods=['GET'])
+def api_get(linkode_id, revno=None):
+    """Get the kilink and revno content."""
+    logger.debug("API get; linkode_id=%r revno=%r", linkode_id, revno)
+    if revno is not None:
+        # the linkode_id to get the info from is the second token
+        linkode_id = revno
+
+    klnk = kilinkbackend.get_kilink(linkode_id)
+
+    # get the tree
+    tree, nodeq = kilinkbackend.build_tree(linkode_id)
+
+    logger.debug("API get done; type=%r size=%d len_tree=%d",
+                 klnk.text_type, len(klnk.content), nodeq)
+
+    ret_json = jsonify(tree)
+    return ret_json
