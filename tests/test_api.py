@@ -76,7 +76,7 @@ class ApiTestCase(BaseTestCase):
         klnk = backend.kilinkbackend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, text_type)
-        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
+        self.assertLess(klnk.timestamp, datetime.datetime.now())
 
     def test_create_error(self):
         """Simple create."""
@@ -99,7 +99,7 @@ class ApiTestCase(BaseTestCase):
         klnk = backend.kilinkbackend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
-        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
+        self.assertLess(klnk.timestamp, datetime.datetime.now())
 
     def test_create_empty_text_type(self):
         """Simple create with an empty text type."""
@@ -110,7 +110,7 @@ class ApiTestCase(BaseTestCase):
         klnk = backend.kilinkbackend.get_kilink(resp["linkode_id"])
         self.assertEqual(klnk.content, content)
         self.assertEqual(klnk.text_type, backend.PLAIN_TEXT)
-        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
+        self.assertLess(klnk.timestamp, datetime.datetime.now())
 
     def test_update_simple(self):
         """Update a kilink with new content."""
@@ -130,7 +130,7 @@ class ApiTestCase(BaseTestCase):
         klnk = backend.kilinkbackend.get_kilink(revno1)
         self.assertEqual(klnk.content, u"Moñito")
         self.assertEqual(klnk.text_type, u"type2")
-        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
+        self.assertLess(klnk.timestamp, datetime.datetime.now())
 
         child_content2 = {
             'content': u'Moñito2',
@@ -143,7 +143,7 @@ class ApiTestCase(BaseTestCase):
         klnk = backend.kilinkbackend.get_kilink(revno2)
         self.assertEqual(klnk.content, u"Moñito2")
         self.assertEqual(klnk.text_type, u"type3")
-        self.assertLess(klnk.timestamp, datetime.datetime.utcnow())
+        self.assertLess(klnk.timestamp, datetime.datetime.now())
 
         # all three are different
         self.assertEqual(len(set([revno0, revno1, revno2])), 3)

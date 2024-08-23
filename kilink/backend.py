@@ -65,7 +65,7 @@ class Kilink(Base, object):
     root = Column(String, nullable=False)
     parent = Column(String, default=None)
     compressed = Column(LargeBinary)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    timestamp = Column(DateTime, default=datetime.datetime.now)
     _text_type = Column('text_type', String)
 
     def _get_content(self):
