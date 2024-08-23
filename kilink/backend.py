@@ -263,7 +263,7 @@ class KilinkBackend(object):
 
         for treenode in self._get_kilink_tree(linkode_id):
             node_dict = {
-                'timestamp': str(treenode.timestamp),
+                'timestamp': treenode.timestamp.isoformat(),
                 'linkode_id': treenode.linkode_id,
                 'parent': treenode.parent,
             }

@@ -29,7 +29,13 @@ class TestCreateLinkode:
         assert response.status_code == 201
 
         # created linkode is the root of its tree
-        assert response.json["linkode_id"] == response.json["root_id"]
+        linkode_id = response.json["linkode_id"]
+        root_id = response.json["root_id"]
+        assert linkode_id == root_id
+
+        # proper urls
+        assert response.json["linkode_url"] == f"http://localhost/api/2/linkode/{linkode_id}"
+        assert response.json["root_url"] == f"http://localhost/api/2/linkode/{root_id}"
 
     def test_creates_new_root_without_text_type(self):
         payload = {
@@ -56,9 +62,15 @@ class TestCreateLinkode:
 
         assert response.status_code == 201
 
-        # new linkoded created with id different than its parent
-        assert response.json["linkode_id"] != parent_id
-        assert response.json["root_id"] == parent_id
+        # new linkode created with id different than its parent
+        linkode_id = response.json["linkode_id"]
+        root_id = response.json["root_id"]
+        assert linkode_id != parent_id
+        assert root_id == parent_id
+
+        # proper urls
+        assert response.json["linkode_url"] == f"http://localhost/api/2/linkode/{linkode_id}"
+        assert response.json["root_url"] == f"http://localhost/api/2/linkode/{root_id}"
 
     def test_creates_new_revision_when_parent_not_found(self):
         response = test_client.post(
@@ -94,9 +106,11 @@ class TestGetLinkode:
         assert response.json["text_type"] == "python"
         assert response.json["linkode_id"] == linkode.linkode_id
         assert response.json["root_id"] == linkode.root
-        assert "timestamp" in response.json
-        assert "linkode_url" in response.json
-        assert "root_id" in response.json
+        assert response.json["timestamp"] == linkode.timestamp.isoformat()
+        assert (
+            response.json["linkode_url"] == f"http://localhost/api/2/linkode/{linkode.linkode_id}"
+        )
+        assert response.json["root_url"] == f"http://localhost/api/2/linkode/{linkode.root}"
 
     def test_get_linkode_when_not_found(self):
         response = test_client.get("/api/2/linkode/SomeUnexistingId/")
@@ -117,22 +131,22 @@ class TestGetTree:
 
         assert response.json == {
             "linkode_id": parent.linkode_id,
-            "timestamp": str(parent.timestamp),
+            "timestamp": parent.timestamp.isoformat(),
             "children": [
                 {
                     "linkode_id": child_1.linkode_id,
-                    "timestamp": str(child_1.timestamp),
+                    "timestamp": child_1.timestamp.isoformat(),
                     "children": [
                         {
                             "linkode_id": grandchild.linkode_id,
-                            "timestamp": str(grandchild.timestamp),
+                            "timestamp": grandchild.timestamp.isoformat(),
                             "children": []
                         }
                     ],
                 },
                 {
                     "linkode_id": child_2.linkode_id,
-                    "timestamp": str(child_2.timestamp),
+                    "timestamp": child_2.timestamp.isoformat(),
                     "children": []
                 }
             ]
