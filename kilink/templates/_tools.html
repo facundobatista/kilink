@@ -15,93 +15,65 @@
   </ul>
 
   <h2 id="api">The API</h2>
-    This is the version 1 of the API.<br><br>
+ <p>This is the version 2 of the API.</p>
 
   <h4 id="api-intro">Some introduction</h4>
   <p>Before getting into the hard definitions, here are some words to help you understand the rest better.</p>
 
-  <p>The basic idea is: each Linkode can have several revisions. When you create a linkode, and then you add a change, the linkode will be the same, different revisions. Specifically, you will have two nodes, with the same "linkode id", and different "revision numbers".</p>
-
-  <p>Every linkode has a root node. When you "create" a new linkode, you'll receive the revision number of that root. After that basic creation, you will be able to add children to the different nodes, specifying the parent revno in the process.</p>
+  <p>The basic idea is: each linkode can have several nodes, it's a tree with only one root. The initial version of a linkode is created without specifying an id, and it will be the root. Subsequent versions will be children of already created nodes; all share the same root id.</p>
 
   <h4 id="api-create">To create a new linkode</h4>
   <pre>
 - type: POST
-- url: /api/1/linkodes/
-- data: 
+- url: /api/2/linkode/
+- data:
     content: the content of the linkode (Unicode!)
     text_type: the type of the content (plain text, Python, diff, C, etc.) [optional]
 - returns:
-    linkode_id: the unique id of the new linkode
-    revno: the revision number of its root node
+    linkode_id: the unique id of the new node
+    linkode_url: the URL to access that node
+    root_id: the id of the root of all the structure (as in this case a brand new linkode was created, it matches the node id)
+    root_url: the URL to access the linkode
   </pre>
 
   <div class="tabbable"> <!-- Only required for left/right tabs -->
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#tab11" data-toggle="tab">Python 3 (just stdlib)</a></li>
-      <li><a href="#tab12" data-toggle="tab">Python 2 (using requests)</a></li>
-      <li><a href="#tab13" data-toggle="tab">Javascript (with jQuery)</a></li>
-      <li><a href="#tab17" data-toggle="tab">PHP</a></li>
-      <li><a href="#tab18" data-toggle="tab">Java</a></li>
+      <li class="active"><a href="#tab11" data-toggle="tab">Python</a></li>
+      <li><a href="#tab12" data-toggle="tab">curl</a></li>
       <li><a href="#tab19" data-toggle="tab">...</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane active" id="tab11">
-        <pre>
->>> import json
->>> from urllib import parse, request
->>> data = {'content': 'The content for your linkode', 'text_type': 'python'}
->>> raw = parse.urlencode(data).encode("ascii")
->>> u = request.urlopen("http://linkode.org/api/1/linkodes/", data=raw)
->>> u.code
+<pre>
+>>> import requests
+>>> data = {'content': 'The content of a Python script', 'text_type': 'python'}
+>>> response = requests.post("https://linkode.org/api/2/linkode", json=data)
+>>> response.status_code
 201
->>> raw = u.read()
->>> json.loads(raw.decode("utf8"))
-{'revno': 'BEpK7XUDWluFuvFOmjdBQ2', 'linkode_id': 'RbWZRBGGV5kmmQFcpyX8i6'}
-        </pre>
+>>> response.json()
+{'linkode_id': '7bxvJqtvFIggJnyNXba1K4',
+ 'linkode_url': '/api/2/linkode/7bxvJqtvFIggJnyNXba1K4',
+ 'root_id': '7bxvJqtvFIggJnyNXba1K4',
+ 'root_url': '/api/2/linkode/7bxvJqtvFIggJnyNXba1K4'}
+</pre>
       </div>
-      
+
       <div class="tab-pane" id="tab12">
-        <pre>
-In [1]: import requests
-In [2]: data = {'content': u'The content for your linkode', 'text_type': 'python'}
-In [3]: r = requests.post("http://linkode.org/api/1/linkodes/", data=data)
-In [4]: r.json()
-Out[4]:
-{u'linkode_id': u'557b9746-af4c-4131-aed3-7bdb2caed0d4',
- u'revno': u'e594500e-00d8-4a20-b2b8-92508099b0a6'}
-In [5]: r.status_code
-Out[5]: 201
-        </pre>
+<pre>
+$ curl -s -H 'Content-type: application/json' -d '
+> {"content": "The content of a Python script", "text_type": "python"}' \
+> "https://linkode.org/api/2/linkode"
+{
+  "linkode_id": "SrDotVY03btcJBxSAtINC6",
+  "linkode_url": "/api/2/linkode/SrDotVY03btcJBxSAtINC6",
+  "root_id": "SrDotVY03btcJBxSAtINC6",
+  "root_url": "/api/2/linkode/SrDotVY03btcJBxSAtINC6"
+}
+</pre>
       </div>
-          
-      <div class="tab-pane" id="tab13">
-        <div class="tab-pane" id="tab13">
-          <pre>
-$.post(
-    'http://linkode.org/api/1/linkodes/',
-    {
-        'content': 'The content for your linkode',
-        'text_type': 'javascript'
-    },
-    function(data) {
-        console.log(data);
-});
->> Object { linkode_id="etGrenFvoib6HLY2jnkQr4", revno="JNxQG6PIJyqlrcjHdYtgt3"}
-          </pre>
-        </div>
-      </div>
-          
-      <div class="tab-pane" id="tab17">
-        <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
-      </div>
-          
-      <div class="tab-pane" id="tab18">
-        <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
-      </div>
-          
+
       <div class="tab-pane" id="tab19">
-        <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+        <p>To get here an example in your favorite programming language please <a href="https://github.com/facundobatista/kilink/issues/new">open an issue</a>.</p>
       </div>
     </div>
   </div>
@@ -111,75 +83,75 @@ $.post(
   <h4 id="api-createchild">To create a child of an existing linkode node</h4>
   <pre>
 - type: POST
-- url: /api/1/linkodes/&lt;linkode_id&gt;
-- data: 
+- url: /api/2/linkode/&lt;parent_linkode_id&gt;/
+- data:
     content: the content of the new node (Unicode!)
-    parent: the revision number of the node that is parent to this new one
+    text_type: the type of the content (plain text, Python, diff, C, etc.) [optional]
 - returns:
-    revno: the revision number of the new node
+    linkode_id: the unique id of the new node
+    linkode_url: the URL to access that node
+    root_id: the id of the root of all the structure
+    root_url: the URL to access the root linkode
   </pre>
 
   <div class="tabbable"> <!-- Only required for left/right tabs -->
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#tab21" data-toggle="tab">Python 3 (just stdlib)</a></li>
-      <li><a href="#tab22" data-toggle="tab">Python 2 (using requests)</a></li>
-      <li><a href="#tab23" data-toggle="tab">Javascript (with jQuery)</a></li>
-      <li><a href="#tab27" data-toggle="tab">PHP</a></li>
-      <li><a href="#tab28" data-toggle="tab">Java</a></li>
+      <li class="active"><a href="#tab21" data-toggle="tab">Python</a></li>
+      <li><a href="#tab22" data-toggle="tab">curl</a></li>
       <li><a href="#tab29" data-toggle="tab">...</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane active" id="tab21">
-        <pre>
->>> from urllib import parse, request
->>> import json
->>> update = {'content': 'new content', 'text_type': 'python', 'parent': 'BEpK7XUDWluFuvFOmjdBQ2'}
->>> raw = parse.urlencode(update).encode("ascii")
->>> u = request.urlopen("http://linkode.org/api/1/linkodes/RbWZRBGGV5kmmQFcpyX8i6", data=raw)
->>> u.code
+<pre>
+>>> # a children of root
+>>> update = {'content': 'new content', 'text_type': 'python'}
+>>> response = requests.post("https://linkode.org/api/2/linkode/7bxvJqtvFIggJnyNXba1K4/", json=update)
+>>> response.status_code
 201
->>> raw = u.read()
->>> json.loads(raw.decode("utf8"))
-{'revno': 'QRHIfvoaGdflbI0bAr6zN4'}
-        </pre>
+>>> response.json()
+{'linkode_id': 'TRgCnj5fXrcEC66dALDxt7',
+ 'linkode_url': '/api/2/linkode/TRgCnj5fXrcEC66dALDxt7',
+ 'root_id': '7bxvJqtvFIggJnyNXba1K4',
+ 'root_url': '/api/2/linkode/7bxvJqtvFIggJnyNXba1K4'}
+>>>
+>>> # a children of the just created node
+>>> update = {'content': 'even newer content', 'text_type': 'python'}
+>>> response = requests.post("https://linkode.org/api/2/linkode/TRgCnj5fXrcEC66dALDxt7/", json=update)
+>>> response.status_code
+201
+>>> response.json()
+{'linkode_id': 'dkaj4P3pJrdpMZomSKuQb7',
+ 'linkode_url': '/api/2/linkode/dkaj4P3pJrdpMZomSKuQb7',
+ 'root_id': '7bxvJqtvFIggJnyNXba1K4',
+ 'root_url': '/api/2/linkode/7bxvJqtvFIggJnyNXba1K4'}
+</pre>
       </div>
       <div class="tab-pane" id="tab22">
-        <pre>
-In [1]: import requests
-In [2]: update = {'content': u'new content', 'text_type': 'python', 'parent': '796d0e80-a178-44a3-8226-2046768cf6f7'}
-In [3]: r = requests.post("http://linkode.org/api/1/linkodes/a5bdba03-82fd-4e89-a2db-1f4deb68d070", data=update)
-In [4]: r.json()
-Out[4]:
-{u'revno': u'9dca0df5-3291-42a8-a78e-5dba5a516f51'}
-In [5]: r.status_code
-Out[5]: 201
-        </pre>
-      </div>
-      <div class="tab-pane" id="tab23">
-        <div class="tab-pane" id="tab23">
-          <pre>
-$.post(
-    'http://linkode.org/api/1/linkodes/etGrenFvoib6HLY2jnkQr4',
-    {
-        'content': 'New Content',
-        'text_type': 'javascript',
-        'parent': 'JNxQG6PIJyqlrcjHdYtgt3'
-    },
-    function(data) {
-        console.log(data);
-});
->> Object { revno="dB5VdK2n212ilyOr5tmFq7"}
-          </pre>
-        </div>
-      </div>
-      <div class="tab-pane" id="tab27">
-        <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
-      </div>
-      <div class="tab-pane" id="tab28">
-        <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+<pre>
+$ # a children of root
+$ curl -s -H 'Content-type: application/json' -d '
+> {"content": "new content", "text_type": "python"}' \
+> "https://linkode.org/api/2/linkode/SrDotVY03btcJBxSAtINC6/"
+{
+  "linkode_id": "x1F110pkRqWclAhXVcqtD1",
+  "linkode_url": "/api/2/linkode/x1F110pkRqWclAhXVcqtD1",
+  "root_id": "SrDotVY03btcJBxSAtINC6",
+  "root_url": "/api/2/linkode/SrDotVY03btcJBxSAtINC6"
+}
+$
+$ # a children of the just created node
+$ curl -s -H 'Content-type: application/json' -d '
+> {"content": "even newer content", "text_type": "python"}' \
+> "https://linkode.org/api/2/linkode/x1F110pkRqWclAhXVcqtD1/"
+{
+  "linkode_id": "ww9RtsVzx6srGGjYmlpiY5",
+  "linkode_url": "/api/2/linkode/ww9RtsVzx6srGGjYmlpiY5",
+  "root_id": "SrDotVY03btcJBxSAtINC6",
+  "root_url": "/api/2/linkode/SrDotVY03btcJBxSAtINC6"
+</pre>
       </div>
       <div class="tab-pane" id="tab29">
-        <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+        <p>To get here an example in your favorite programming language please <a href="https://github.com/facundobatista/kilink/issues/new">open an issue</a>.</p>
       </div>
     </div>
   </div>
@@ -190,66 +162,54 @@ $.post(
   <h4 id="api-get">To get a specific linkode node</h4>
   <pre>
 - type: GET
-- url: /api/1/linkodes/&lt;linkode_id&gt;/<revno>
+- url: /api/2/linkode/&lt;linkode_id&gt;/
 - returns:
-linkode_id: the unique id of the new linkode
-revno: the revision number of its root node
+    linkode_id: the unique id of the new node
+    linkode_url: the URL to access that node
+    content: the text of the node
+    text_type: its text type
+    timestamp: when it was created
+    root_id: the id of the root of all the structure
+    root_url: the URL to access the linkode
   </pre>
   <div class="tabbable"> <!-- Only required for left/right tabs -->
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#tab31" data-toggle="tab">Python 3 (just stdlib)</a></li>
-      <li><a href="#tab32" data-toggle="tab">Python 2 (using requests)</a></li>
-      <li><a href="#tab33" data-toggle="tab">Javascript (with jQuery)</a></li>
-      <li><a href="#tab37" data-toggle="tab">PHP</a></li>
-      <li><a href="#tab38" data-toggle="tab">Java</a></li>
+      <li class="active"><a href="#tab31" data-toggle="tab">Python</a></li>
+      <li><a href="#tab32" data-toggle="tab">curl</a></li>
       <li><a href="#tab39" data-toggle="tab">...</a></li>
     </ul>
     <div class="tab-content">
-      
+
       <div class="tab-pane active" id="tab31">
-        <pre>
->>> from urllib import request
->>> import json
->>> u = request.urlopen("http://linkode.org/api/1/linkodes/RbWZRBGGV5kmmQFcpyX8i6/QRHIfvoaGdflbI0bAr6zN4")
->>> u.code
+<pre>
+>>> response = requests.get("https://linkode.org/api/2/linkode/TRgCnj5fXrcEC66dALDxt7/")
+>>> response.status_code
 200
->>> raw = u.read()
->>> json.loads(raw.decode("utf8"))
-{'text_type': 'python', 'content': 'new content'}
-        </pre>
+>>> response.json()
+{'content': 'even newer content',
+ 'linkode_id': 'TRgCnj5fXrcEC66dALDxt7',
+ 'linkode_url': '/api/2/linkode/TRgCnj5fXrcEC66dALDxt7',
+ 'root_id': '7bxvJqtvFIggJnyNXba1K4',
+ 'root_url': '/api/2/linkode/7bxvJqtvFIggJnyNXba1K4',
+ 'text_type': 'python',
+ 'timestamp': 'Thu, 22 Aug 2024 19:57:22 GMT'}
+</pre>
       </div>
       <div class="tab-pane" id="tab32">
-        <pre>
-In [1]: import requests
-In [2]: r = requests.get("http://linkode.org/api/1/linkodes/a5bdba03-82fd-4e89-a2db-1f4deb68d070/ca8aa7a1-59e8-491c-9025-363f1fd7b908")
-In [3]: r.json()
-Out[3]:
-{u'content': u'The content for this linkode node'}
-In [4]: r.status_code
-Out[4]: 200
-        </pre>
-      </div>
-      
-      <div class="tab-pane" id="tab33">
-        <pre>
-$.get(
-'http://linkode.org/api/1/linkodes/etGrenFvoib6HLY2jnkQr4/dB5VdK2n212ilyOr5tmFq7',
-function(data) {
-console.log(data);
+<pre>
+$ curl -s "https://linkode.org/api/2/linkode/x1F110pkRqWclAhXVcqtD1/"{
+  "content": "new content",
+  "linkode_id": "x1F110pkRqWclAhXVcqtD1",
+  "linkode_url": "/api/2/linkode/x1F110pkRqWclAhXVcqtD1",
+  "root_id": "SrDotVY03btcJBxSAtINC6",
+  "root_url": "/api/2/linkode/SrDotVY03btcJBxSAtINC6",
+  "text_type": "python",
+  "timestamp": "Thu, 22 Aug 2024 20:12:38 GMT"
 }
-);
->> Object { content="New Content", text_type="javascript"}
-        </pre>
-      </div>
-
-      <div class="tab-pane" id="tab37">
-        <p>Please send an example in PHP to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
-      </div>
-      <div class="tab-pane" id="tab38">
-        <p>Please send an example in Java to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+</pre>
       </div>
       <div class="tab-pane" id="tab39">
-        <p>Please send an example in your favorite programming language to <a href="mailto:kilink@python.org.ar">kilink@python.org.ar</a></p>
+        <p>To get here an example in your favorite programming language please <a href="https://github.com/facundobatista/kilink/issues/new">open an issue</a>.</p>
       </div>
     </div>
   </div>
@@ -257,12 +217,66 @@ console.log(data);
   <br>
   <br>
 
+
   <h4 id="api-gettree">To get all the tree of a linkode</h4>
   <pre>
 - type: GET
-- url: /api/1/linkodes/&lt;linkode_id&gt;
+- url: /api/2/tree/&lt;linkode_id&gt;/  # only for the root id
+- returns:
+    A tree structure, each node having:
+      linkode_id: the node id
+      timestamp: when it was created
+      children: a list of nodes (each with exactly this info, recursive) for whose this node is the parent
   </pre>
+  <div class="tabbable"> <!-- Only required for left/right tabs -->
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab41" data-toggle="tab">Python</a></li>
+      <li><a href="#tab42" data-toggle="tab">curl</a></li>
+      <li><a href="#tab49" data-toggle="tab">...</a></li>
+    </ul>
+    <div class="tab-content">
 
-As we don't know if the "get all the tree of a linkode" is going to be used, it has not been implemented yet, but it will have the API above ;-)
+      <div class="tab-pane active" id="tab41">
+<pre>
+>>> response = requests.get("https://linkode.org/api/2/tree/7bxvJqtvFIggJnyNXba1K4/")
+>>> response.status_code
+200
+>>> response.json()
+{'linkode_id': '7bxvJqtvFIggJnyNXba1K4',
+ 'timestamp': '2024-08-22 12:31:53.237094',
+ 'children': [{'children': [{'children': [],
+                             'linkode_id': 'dkaj4P3pJrdpMZomSKuQb7',
+                             'timestamp': '2024-08-22 19:57:54.454925'}],
+               'linkode_id': 'TRgCnj5fXrcEC66dALDxt7',
+               'timestamp': '2024-08-22 19:57:22.270264'}]}
+</pre>
+      </div>
+      <div class="tab-pane" id="tab42">
+<pre>
+$ curl -s "https://linkode.org/api/2/tree/SrDotVY03btcJBxSAtINC6/"
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "linkode_id": "ww9RtsVzx6srGGjYmlpiY5",
+          "timestamp": "2024-08-22 20:13:24.673839"
+        }
+      ],
+      "linkode_id": "x1F110pkRqWclAhXVcqtD1",
+      "timestamp": "2024-08-22 20:12:38.499254"
+    }
+  ],
+  "linkode_id": "SrDotVY03btcJBxSAtINC6",
+  "timestamp": "2024-08-22 12:49:29.845979"
+}
+</pre>
+      </div>
+      <div class="tab-pane" id="tab49">
+        <p>To get here an example in your favorite programming language please <a href="https://github.com/facundobatista/kilink/issues/new">open an issue</a>.</p>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
