@@ -19,6 +19,14 @@ logger = logging.getLogger(__name__)
 linkode_v2 = Blueprint("linkode_v2", __name__)
 
 
+def external_url_for(*args, **kwargs):
+    """Provide the full url (including host) for some params.
+
+    Always use this one, not 'url_for' directly.
+    """
+    return url_for(*args, **kwargs, _external=True)
+
+
 @linkode_v2.route('/linkode/', methods=['POST'])
 @linkode_v2.route('/linkode/<linkode_id>/', methods=['POST'])
 def create_linkode(linkode_id=None):
@@ -66,9 +74,9 @@ def create_linkode(linkode_id=None):
 
     ret_json = jsonify(
         linkode_id=linkode.linkode_id,
-        linkode_url=url_for("linkode_v2.get_linkode", linkode_id=linkode.linkode_id),
+        linkode_url=external_url_for("linkode_v2.get_linkode", linkode_id=linkode.linkode_id),
         root_id=linkode.root,
-        root_url=url_for("linkode_v2.get_linkode", linkode_id=linkode.root),
+        root_url=external_url_for("linkode_v2.get_linkode", linkode_id=linkode.root),
     )
     logger.debug("API create done; linkode_id=%s", linkode.linkode_id)
     return ret_json, HTTPStatus.CREATED
@@ -101,11 +109,11 @@ def get_linkode(linkode_id):
     ret_json = jsonify(
         content=linkode.content,
         text_type=linkode.text_type,
-        timestamp=linkode.timestamp,
+        timestamp=linkode.timestamp.isoformat(),
         linkode_id=linkode.linkode_id,
-        linkode_url=url_for("linkode_v2.get_linkode", linkode_id=linkode.linkode_id),
+        linkode_url=external_url_for("linkode_v2.get_linkode", linkode_id=linkode.linkode_id),
         root_id=linkode.root,
-        root_url=url_for("linkode_v2.get_linkode", linkode_id=linkode.root),
+        root_url=external_url_for("linkode_v2.get_linkode", linkode_id=linkode.root),
     )
 
     return ret_json, HTTPStatus.OK
