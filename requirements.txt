@@ -2,4 +2,4 @@ flask==3.0.3
 flask-cors==4.0.1
 flask-babel==4.0.0
 sqlalchemy==2.0.32
-pyyaml==6.0.1
+pyyaml==6.0.2
