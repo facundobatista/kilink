@@ -20,7 +20,7 @@ linkode_v2 = Blueprint("linkode_v2", __name__)
 
 
 def external_url_for(*args, **kwargs):
-    """Provide the url for some params, always external.
+    """Provide the full url (including host) for some params.
 
     Always use this one, not 'url_for' directly.
     """
