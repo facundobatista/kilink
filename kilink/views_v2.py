@@ -131,18 +131,18 @@ def get_tree(linkode_id, revno=None):
                 linkode_id: <linkode id>,
                 timestamp: <linkode creation timestamp>,
                 order: 1,
-                children": [
+                children: [
                     {
                         linkode_id: <linkode id>,
                         timestamp: <linkode creation timestamp>,
                         order: 2,
-                        children": [...]
+                        children: [...]
                     },
                     {
                         linkode_id: <linkode id>,
                         timestamp: <linkode creation timestamp>,
                         order: 3,
-                        children": [...]
+                        children: [...]
                     },
                 ]
             }
