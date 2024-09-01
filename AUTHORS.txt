@@ -4,12 +4,23 @@ The project is Copyright from 2009 of Facundo Batista
 These are the developers that most participated in the project
 (in alphabetical order):
 
+- Carlos de la Torre
 - Damián Ávila
+- Diego Mascialino
 - Ezequiel M. Chan
 - Facundo Batista
 - Hugo Ruscitti
 - Jose C. Massón
 - Juan Carizza
+- Juan Pedro Fisanotti
+- Leandro Poblet
+- Martín Gaitán
+- María Andrea Vignau
 - Mati Barriento
+- Melina Lucía Coronel
 - Miss Filly
 - Nico César
+- Pablo Ziliani
+- Ricardo Kirkner
+- Rodrigo Bistolfi
+- Sofia Denner
