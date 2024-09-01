@@ -132,7 +132,6 @@ var linkode = (function (){
      */
     function api_after_post_get(linkode_id){
         var api_get_url = API_URL + linkode_id;
-        // TODO: use the API V2 URL
         return $.get(api_get_url)
                 .done(function(data) {
                     //$("#tree-toggle-panel").show();

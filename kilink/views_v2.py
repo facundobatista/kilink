@@ -128,17 +128,20 @@ def get_tree(linkode_id, revno=None):
     Expected responses:
         200 - OK - The tree is represented by a dict with the following structure:
             {
-                "linkode_id": <linkode id>,
-                "timestamp": <linkode creation timestamp>,
+                linkode_id: <linkode id>,
+                timestamp: <linkode creation timestamp>,
+                order: 1,
                 children": [
                     {
-                        "linkode_id": <linkode id>,
-                        "timestamp": <linkode creation timestamp>,
+                        linkode_id: <linkode id>,
+                        timestamp: <linkode creation timestamp>,
+                        order: 2,
                         children": [...]
                     },
                     {
-                        "linkode_id": <linkode id>,
-                        "timestamp": <linkode creation timestamp>,
+                        linkode_id: <linkode id>,
+                        timestamp: <linkode creation timestamp>,
+                        order: 3,
                         children": [...]
                     },
                 ]
