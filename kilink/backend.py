@@ -1,4 +1,4 @@
-# Copyright 2011-2021 Facundo Batista, Nicolás César
+# Copyright 2011-2024 Facundo Batista, Nicolás César
 # All Rigths Reserved
 
 """Backend functionality for Kilink."""
@@ -266,6 +266,7 @@ class KilinkBackend(object):
                 'timestamp': treenode.timestamp.isoformat(),
                 'linkode_id': treenode.linkode_id,
                 'parent': treenode.parent,
+                'order': treenode.order,
             }
             if treenode.parent is None:
                 root_node = node_dict

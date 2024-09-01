@@ -244,9 +244,12 @@ $ curl -s "https://linkode.org/api/2/linkode/x1F110pkRqWclAhXVcqtD1/"{
 >>> response.json()
 {'linkode_id': '7bxvJqtvFIggJnyNXba1K4',
  'timestamp': '2024-08-22T12:31:53.237094',
+ 'order': 1,
  'children': [{'children': [{'children': [],
                              'linkode_id': 'dkaj4P3pJrdpMZomSKuQb7',
+                             'order': 3,
                              'timestamp': '2024-08-22T19:57:54.454925'}],
+               'order': 2,
                'linkode_id': 'TRgCnj5fXrcEC66dALDxt7',
                'timestamp': '2024-08-22T19:57:22.270264'}]}
 </pre>
@@ -261,14 +264,17 @@ $ curl -s "https://linkode.org/api/2/tree/SrDotVY03btcJBxSAtINC6/"
         {
           "children": [],
           "linkode_id": "ww9RtsVzx6srGGjYmlpiY5",
+          "order": 3,
           "timestamp": "2024-08-22T20:13:24.673839"
         }
       ],
       "linkode_id": "x1F110pkRqWclAhXVcqtD1",
+      "order": 2,
       "timestamp": "2024-08-22T20:12:38.499254"
     }
   ],
   "linkode_id": "SrDotVY03btcJBxSAtINC6",
+  "order": 1,
   "timestamp": "2024-08-22T12:49:29.845979"
 }
 </pre>
