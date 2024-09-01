@@ -132,7 +132,7 @@ class TestGetTree:
         assert response.json == {
             "linkode_id": parent.linkode_id,
             "timestamp": parent.timestamp.isoformat(),
-            "order": 1, 
+            "order": 1,
             "children": [
                 {
                     "linkode_id": child_1.linkode_id,
