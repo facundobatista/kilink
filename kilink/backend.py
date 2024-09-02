@@ -10,7 +10,7 @@ import operator
 import uuid
 import zlib
 
-from sqlalchemy import Column, DateTime, String, LargeBinary
+from sqlalchemy import Boolean, Column, DateTime, String, LargeBinary
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -32,6 +32,10 @@ class KilinkNotFoundError(Exception):
 
 class KilinkDataTooBigError(Exception):
     """Content data too big."""
+
+
+class KilinkReadOnlyError(Exception):
+    """Kilink is read only."""
 
 
 class LinkodeNotRootNodeError(Exception):
@@ -67,6 +71,7 @@ class Kilink(Base, object):
     compressed = Column(LargeBinary)
     timestamp = Column(DateTime, default=datetime.datetime.now)
     _text_type = Column('text_type', String)
+    read_only = Column(Boolean, unique=False, default=False)
 
     def _get_content(self):
         """Return the content, uncompressed."""
@@ -142,11 +147,12 @@ class KilinkBackend(object):
         return self._cached_version
 
     @session_manager
-    def create_kilink(self, content, text_type):
+    def create_kilink(self, content, text_type, read_only=False):
         """Create a new kilink with given content."""
         self._check_kilink(content)
         new_id = _get_unique_id()
-        klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type)
+        klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type,
+                      read_only=read_only)
         self.session.add(klnk)
         return klnk
 
@@ -157,6 +163,8 @@ class KilinkBackend(object):
         parent_klnk = self.session.get(Kilink, parent_id)
         if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
+        elif parent_klnk.read_only:
+            raise KilinkReadOnlyError("Parent kilink is read only")
 
         new_id = _get_unique_id()
         klnk = Kilink(linkode_id=new_id, parent=parent_id, root=parent_klnk.root,
