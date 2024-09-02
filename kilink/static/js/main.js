@@ -81,9 +81,14 @@ var linkode = (function (){
     function api_post(current_retry){
         var api_post_url = API_URL;
         var text_type = $("#selectlang").val().replace("auto_", "");
+        var read_only = "";
+        if ($("#read_only").is(':checked')) {
+            read_only = "true";
+        }
         var creation_params = {
-            content: editor.val(), 
+            content: editor.val(),
             text_type: text_type,
+            read_only: read_only
         };
 
         if(first_load_success && linkode_id_val()){
@@ -148,7 +153,7 @@ var linkode = (function (){
         })
         .done(function(data) {
             $(".klk-tree").empty();
-            
+
             if (data !== false) {
                 $(".klk-tree").empty();
                 display_tree(linkode_id, data);
@@ -185,13 +190,13 @@ var linkode = (function (){
         var api_get_url = API_URL + linkode_id;
         result = $.get(api_get_url)
                 .done(function(data) {
-                    load_linkode(data.content, data.text_type, data.timestamp);
+                    load_linkode(data.content, data.text_type, data.timestamp, data.read_only);
                     if(include_tree){
                         fetch_and_render_tree(linkode_id, data.root_id);
                     } else {
                         color_node(linkode_id);
                     }
-                    
+
                     if(!first_load){
                         linkode_id_val(linkode_id);
                     }
@@ -200,8 +205,8 @@ var linkode = (function (){
                     if(first_load || data.status == 404){
                         first_load_success = false;
                         $("#btn-submit").text(text_new_submit);
-                        show_error_noty(data.status, false, 
-                                        api_get, 
+                        show_error_noty(data.status, false,
+                                        api_get,
                                         [linkode_id, include_tree, first_load, 0]);
                     }
                     else{
@@ -215,8 +220,8 @@ var linkode = (function (){
                             }, retry_delay);
                         }
                         else{
-                            show_error_noty(data.status, false, 
-                                            api_get, 
+                            show_error_noty(data.status, false,
+                                            api_get,
                                             [linkode_id, include_tree, first_load, 0]);
                         }
                     }
@@ -244,7 +249,7 @@ var linkode = (function (){
      * @param  {string}
      * @param  {string}
      */
-    function load_linkode(content, text_type, timestamp){
+    function load_linkode(content, text_type, timestamp, read_only){
         //Reset the auto option.
         $("#selectlang option[value^='auto']").text("auto");
         $("#selectlang option[value^='auto']").val("auto");
@@ -252,6 +257,7 @@ var linkode = (function (){
         editor.selectMode();
         set_timestamp(timestamp);
         editor.val(content);
+        $("#read_only").prop('checked', read_only);
     }
 
     /**
@@ -519,7 +525,7 @@ var linkode = (function (){
     var text_post_too_big_noty;
     var text_post_not_exist_noty;
     var text_retry_button;
-    
+
     var close_tree_img;
     var open_tree_img;
     var open_tree_tooltip;
@@ -623,7 +629,7 @@ var editor = (function (){
     * Get or set the text in the editor
     */
     function val(new_val){
-        if (new_val){   
+        if (new_val){
             $editor.setValue(new_val);
         }
         else {
