@@ -30,6 +30,13 @@
                     {{text_options()}}
                 </select>
                 <button id='btn-submit' type="button" class='btn btn-success'>{{button_text}}</button>
+                <div class="col-md-2 pull-right read-only">
+                    <span class="title">{{ _("Read Only") }} - {{read_only}} {{content}}</span>
+                    <label class="switch">
+                        <input type="checkbox" id="read_only" name="read_only" value="true"/>
+                        <span class="slider round" title="Read Only"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
