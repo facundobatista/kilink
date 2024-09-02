@@ -169,6 +169,7 @@ class ApiTestCase(BaseTestCase):
             u'selected': True,
             u'order': 1,
             u'contents': [],
+            u'read_only': False
         })
 
     def test_get_norevno(self):
@@ -191,6 +192,7 @@ class ApiTestCase(BaseTestCase):
             u'url': "/{}".format(linkode_id),
             u'selected': True,
             u'order': 1,
+            u'read_only': False,
             u'contents': [],
         })
 
@@ -226,6 +228,7 @@ class ApiTestCase(BaseTestCase):
             u'timestamp': anything,
             u'selected': True,
             u'order': 1,
+            u'read_only': False,
             u'contents': [{
                 u'revno': child1_revno,
                 u'linkode_id': child1_revno,
@@ -234,6 +237,7 @@ class ApiTestCase(BaseTestCase):
                 u'timestamp': anything,
                 u'selected': False,
                 u'order': 2,
+                u'read_only': False,
                 u'contents': [{
                     u'revno': child11_revno,
                     u'linkode_id': child11_revno,
@@ -242,6 +246,7 @@ class ApiTestCase(BaseTestCase):
                     u'timestamp': anything,
                     u'selected': False,
                     u'order': 3,
+                    u'read_only': False,
                     u'contents': []
                 }],
             }, {
@@ -252,6 +257,7 @@ class ApiTestCase(BaseTestCase):
                 u'timestamp': anything,
                 u'selected': False,
                 u'order': 4,
+                u'read_only': False,
                 u'contents': [],
             }]
         })
@@ -269,3 +275,49 @@ class ApiTestCase(BaseTestCase):
         text_type = "type1"
         datos = {'content': content, 'text_type': text_type}
         self.api_create(data=datos, code=413)
+
+    def test_create_read_only(self):
+        """Read only toggle."""
+        datos = {'content': 'content', 'text_type': ''}
+
+        def create(read_only_value):
+            data = dict(datos)
+            if read_only_value is not None:
+                data['read_only'] = read_only_value
+            resp = self.api_create(data=data)
+            return backend.kilinkbackend.get_kilink(resp["linkode_id"])
+
+        for truish in "TRUE true True".split():
+            klnk = create(truish)
+            self.assertTrue(klnk.read_only)
+
+        # anything else is False
+        for falsish in "FALSE false False 0 1".split():
+            klnk = create(falsish)
+            self.assertFalse(klnk.read_only)
+
+        for emptish in ["", None]:
+            klnk = create(emptish)
+            self.assertFalse(klnk.read_only)
+
+    def test_update_read_only(self):
+        parent_content = {'content': u'ÑOÑO', 'text_type': 'type1'}
+        resp = self.api_create(data=parent_content)
+        linkode_id = resp['linkode_id']
+        revno0 = resp["revno"]
+
+        child_content = {
+            'content': u'Moñito', 'parent': revno0,
+            'text_type': 'type2',
+        }
+        for val in [None, 'true']:
+            child_data = dict(child_content)
+            if val is not None:
+                child_data['read_only'] = val
+            resp = self.api_update(linkode_id, data=child_data)
+            rev_child = resp["revno"]
+            klnk = backend.kilinkbackend.get_kilink(rev_child)
+            if val is not None:
+                self.assertTrue(klnk.read_only)
+            else:
+                self.assertFalse(klnk.read_only)

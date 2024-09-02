@@ -43,7 +43,7 @@ class LinkodeNotRootNodeError(Exception):
 
 
 TreeNode = collections.namedtuple(
-    "TreeNode", "content parent order linkode_id timestamp text_type")
+    "TreeNode", "content parent order linkode_id timestamp text_type read_only")
 
 
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -157,7 +157,7 @@ class KilinkBackend(object):
         return klnk
 
     @session_manager
-    def update_kilink(self, parent_id, new_content, text_type):
+    def update_kilink(self, parent_id, new_content, text_type, read_only=False):
         """Add a new child to a kilink."""
         self._check_kilink(new_content)
         parent_klnk = self.session.get(Kilink, parent_id)
@@ -168,11 +168,11 @@ class KilinkBackend(object):
 
         new_id = _get_unique_id()
         klnk = Kilink(linkode_id=new_id, parent=parent_id, root=parent_klnk.root,
-                      content=new_content, text_type=text_type)
+                      content=new_content, text_type=text_type, read_only=read_only)
         self.session.add(klnk)
         return klnk
 
-    def create_linkode(self, content, text_type, linkode_parent_id=None):
+    def create_linkode(self, content, text_type, linkode_parent_id=None, read_only=False):
         """Create a new linkode as root node or as a child of another linkode."""
         if linkode_parent_id:
             linkode = self.update_kilink(
@@ -184,6 +184,7 @@ class KilinkBackend(object):
             linkode = self.create_kilink(
                 text_type=text_type,
                 content=content,
+                read_only=read_only
             )
 
         return linkode
@@ -210,7 +211,8 @@ class KilinkBackend(object):
         result = []
         for i, klnk in enumerate(klnk_tree, 1):
             tn = TreeNode(order=i, linkode_id=klnk.linkode_id, content=klnk.content,
-                          parent=klnk.parent, timestamp=klnk.timestamp, text_type=klnk.text_type)
+                          parent=klnk.parent, timestamp=klnk.timestamp, text_type=klnk.text_type,
+                          read_only=klnk.read_only)
             result.append(tn)
         return result
 
@@ -243,6 +245,7 @@ class KilinkBackend(object):
                 'timestamp': str(treenode.timestamp),
                 'selected': treenode.linkode_id == linkode_id,
                 'linkode_id': treenode.linkode_id,
+                'read_only': treenode.read_only,
             }
             if treenode.parent is None:
                 root_node = node
