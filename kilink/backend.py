@@ -179,12 +179,13 @@ class KilinkBackend(object):
                 parent_id=linkode_parent_id,
                 text_type=text_type,
                 new_content=content,
+                read_only=read_only,
             )
         else:
             linkode = self.create_kilink(
                 text_type=text_type,
                 content=content,
-                read_only=read_only
+                read_only=read_only,
             )
 
         return linkode
