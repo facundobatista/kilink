@@ -17,6 +17,7 @@ var linkode = (function (){
         text_post_too_big_noty = opts.text_post_too_big_noty;
         text_post_not_exist_noty = opts.text_post_not_exist_noty;
         text_retry_button = opts.text_retry_button;
+        text_button_disabled = opts.text_button_disabled;
 
         close_tree_img = opts.close_tree_img;
         open_tree_img = opts.open_tree_img;
@@ -114,6 +115,7 @@ var linkode = (function (){
             else{
                 window.location.replace(URL_BASE + "/#" + data.linkode_id);
             }
+            set_submit_disabled(creation_params.read_only);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             current_retry = current_retry ? current_retry : 0;
@@ -244,12 +246,29 @@ var linkode = (function (){
     }
 
     /**
+     * Enables/disables de submit button
+     * @param {bool}
+     */
+    function set_submit_disabled(disabled){
+        console.log('called with ' + disabled);
+        if(disabled){
+            $("#btn-submit").prop('disabled', true);
+            $("#btn-submit").text(text_button_disabled);
+        }
+        else{
+            $("#btn-submit").prop('disabled', false);
+            $("#btn-submit").text(text_update_submit);
+        }
+    }
+
+    /**
      * Load the linkode to the page
      * @param  {string}
      * @param  {string}
      * @param  {string}
      */
     function load_linkode(content, text_type, timestamp, read_only){
+        set_submit_disabled(read_only);
         //Reset the auto option.
         $("#selectlang option[value^='auto']").text("auto");
         $("#selectlang option[value^='auto']").val("auto");
