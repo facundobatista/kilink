@@ -250,7 +250,6 @@ var linkode = (function (){
      * @param {bool}
      */
     function set_submit_disabled(disabled){
-        console.log('called with ' + disabled);
         if(disabled){
             $("#btn-submit").prop('disabled', true);
             $("#btn-submit").text(text_button_disabled);
