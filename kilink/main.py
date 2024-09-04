@@ -107,8 +107,6 @@ def api_update(linkode_id):
     parent = request.form['parent']
     text_type = request.form['text_type']
     read_only = request.form.get('read_only', "").lower() == 'true'
-    print('Form data: ', content, parent, text_type, read_only)
-    print(request.form)
     logger.debug("API update start; linkode_id=%r parent=%r type=%r size=%d read_only=%r",
                  linkode_id, parent, text_type, len(content), read_only)
     try:
