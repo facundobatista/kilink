@@ -24,19 +24,31 @@
         <div class="col-md-12 action-container">
             <div id="timestamp" class="col-md-5 kilink-timestamp"></div>
             <div id="current_node" class="col-md-2"></div> <!-- For future current kilink icon -->
-            <div class="col-md-5 pull-right kilink-buttons buttons">
-                {{ _("Select a text type:") }}
-                <select onchange="editor.selectMode()" id=selectlang class='' name="text_type">
-                    {{text_options()}}
-                </select>
-                <button id='btn-submit' type="button" class='btn btn-success'>{{button_text}}</button>
-                <div class="col-md-2 pull-right read-only">
-                    <span class="title">{{ _("Read Only") }}</span>
-                    <label class="switch">
-                        <input type="checkbox" id="read_only" name="read_only" value="true"/>
-                        <span class="slider round" title="Read Only"></span>
-                    </label>
-                </div>
+            <div class="col-md-4 pull-right kilink-buttons buttons">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="row vcenter txtleft">
+                            <div class="col-md-6">{{ _("Select a text type:") }}</div>
+                            <div class="col-md-3 selectlang">
+                                <select onchange="editor.selectMode()" id=selectlang class='' name="text_type">
+                                {{text_options()}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row vcenter txtleft">
+                            <div class="col-md-6">{{ _("Read Only:") }}</div>
+                            <div class="col-md-3 read_only">
+                                <label class="switch">
+                                    <input type="checkbox" id="read_only" name="read_only" value="true"/>
+                                    <span class="slider round" title="Read Only"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 col-md-3 col-sm-3 col-lg-3 centered vcenter">
+                        <button id='btn-submit' type="button" class='btn btn-success'>{{button_text}}</button>
+                    </div>
+                  </div>
             </div>
         </div>
     </div>
