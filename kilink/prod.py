@@ -1,3 +1,5 @@
+"""Run service in production."""
+
 from kilink import main, loghelper
 from kilink.config import config
 
