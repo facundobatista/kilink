@@ -84,9 +84,11 @@ def api_create():
     """Create a kilink."""
     content = request.form['content']
     text_type = request.form.get('text_type', "")
-    logger.debug("API create start; type=%r size=%d", text_type, len(content))
+    read_only = request.form.get('read_only', "").lower() == 'true'
+    logger.debug("API create start; type=%r size=%d, read_only=%r",
+                 text_type, len(content), read_only)
     try:
-        klnk = backend.kilinkbackend.create_kilink(content, text_type)
+        klnk = backend.kilinkbackend.create_kilink(content, text_type, read_only)
     except backend.KilinkDataTooBigError:
         logger.debug("Content data too big; on creation")
         response = make_response()
@@ -104,10 +106,11 @@ def api_update(linkode_id):
     content = request.form['content']
     parent = request.form['parent']
     text_type = request.form['text_type']
-    logger.debug("API update start; linkode_id=%r parent=%r type=%r size=%d",
-                 linkode_id, parent, text_type, len(content))
+    read_only = request.form.get('read_only', "").lower() == 'true'
+    logger.debug("API update start; linkode_id=%r parent=%r type=%r size=%d read_only=%r",
+                 linkode_id, parent, text_type, len(content), read_only)
     try:
-        klnk = backend.kilinkbackend.update_kilink(parent, content, text_type)
+        klnk = backend.kilinkbackend.update_kilink(parent, content, text_type, read_only)
     except backend.KilinkNotFoundError:
         logger.debug("API update done; linkode_id %r not found", linkode_id)
         response = make_response()
@@ -141,7 +144,7 @@ def api_get(linkode_id, revno=None):
     logger.debug("API get done; type=%r size=%d len_tree=%d",
                  klnk.text_type, len(klnk.content), nodeq)
     ret_json = jsonify(content=klnk.content, text_type=klnk.text_type,
-                       tree=tree, timestamp=klnk.timestamp)
+                       tree=tree, timestamp=klnk.timestamp, read_only=klnk.read_only)
     return ret_json
 
 

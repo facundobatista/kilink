@@ -29,6 +29,7 @@
 - data:
     content: the content of the linkode (Unicode!)
     text_type: the type of the content (plain text, Python, diff, C, etc.) [optional]
+    read_only: set to "true" if you want the linkode to be read only. [optional] (default: false)
 - returns:
     linkode_id: the unique id of the new node
     linkode_url: the URL to access that node
@@ -81,12 +82,14 @@ $ curl -s -H 'Content-type: application/json' -d '
   <br>
   <br>
   <h4 id="api-createchild">To create a child of an existing linkode node</h4>
+
   <pre>
 - type: POST
 - url: /api/2/linkode/&lt;parent_linkode_id&gt;/
 - data:
     content: the content of the new node (Unicode!)
     text_type: the type of the content (plain text, Python, diff, C, etc.) [optional]
+    read_only: set to "true" if you want the linkode to be read only. [optional] (default: false)
 - returns:
     linkode_id: the unique id of the new node
     linkode_url: the URL to access that node
@@ -168,6 +171,7 @@ $ curl -s -H 'Content-type: application/json' -d '
     linkode_url: the URL to access that node
     content: the text of the node
     text_type: its text type
+    read_only: whether it is read only
     timestamp: when it was created
     root_id: the id of the root of all the structure
     root_url: the URL to access the linkode
@@ -189,6 +193,7 @@ $ curl -s -H 'Content-type: application/json' -d '
 {'content': 'even newer content',
  'linkode_id': 'TRgCnj5fXrcEC66dALDxt7',
  'linkode_url': '/api/2/linkode/TRgCnj5fXrcEC66dALDxt7',
+ 'read_only': False,
  'root_id': '7bxvJqtvFIggJnyNXba1K4',
  'root_url': '/api/2/linkode/7bxvJqtvFIggJnyNXba1K4',
  'text_type': 'python',
@@ -197,9 +202,11 @@ $ curl -s -H 'Content-type: application/json' -d '
       </div>
       <div class="tab-pane" id="tab32">
 <pre>
-$ curl -s "https://linkode.org/api/2/linkode/x1F110pkRqWclAhXVcqtD1/"{
+$ curl -s "https://linkode.org/api/2/linkode/x1F110pkRqWclAhXVcqtD1/"
+{
   "content": "new content",
   "linkode_id": "x1F110pkRqWclAhXVcqtD1",
+  "read_only": false,
   "linkode_url": "https://linkode.org/api/2/linkode/x1F110pkRqWclAhXVcqtD1",
   "root_id": "SrDotVY03btcJBxSAtINC6",
   "root_url": "https://linkode.org/api/2/linkode/SrDotVY03btcJBxSAtINC6",

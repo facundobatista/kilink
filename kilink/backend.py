@@ -10,7 +10,7 @@ import operator
 import uuid
 import zlib
 
-from sqlalchemy import Column, DateTime, String, LargeBinary
+from sqlalchemy import Boolean, Column, DateTime, String, LargeBinary
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -34,12 +34,16 @@ class KilinkDataTooBigError(Exception):
     """Content data too big."""
 
 
+class KilinkReadOnlyError(Exception):
+    """Kilink is read only."""
+
+
 class LinkodeNotRootNodeError(Exception):
     """Linkode is not a root node."""
 
 
 TreeNode = collections.namedtuple(
-    "TreeNode", "content parent order linkode_id timestamp text_type")
+    "TreeNode", "content parent order linkode_id timestamp text_type read_only")
 
 
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -67,6 +71,7 @@ class Kilink(Base, object):
     compressed = Column(LargeBinary)
     timestamp = Column(DateTime, default=datetime.datetime.now)
     _text_type = Column('text_type', String)
+    read_only = Column(Boolean, unique=False, default=False)
 
     def _get_content(self):
         """Return the content, uncompressed."""
@@ -142,40 +147,45 @@ class KilinkBackend(object):
         return self._cached_version
 
     @session_manager
-    def create_kilink(self, content, text_type):
+    def create_kilink(self, content, text_type, read_only=False):
         """Create a new kilink with given content."""
         self._check_kilink(content)
         new_id = _get_unique_id()
-        klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type)
+        klnk = Kilink(linkode_id=new_id, root=new_id, content=content, text_type=text_type,
+                      read_only=read_only)
         self.session.add(klnk)
         return klnk
 
     @session_manager
-    def update_kilink(self, parent_id, new_content, text_type):
+    def update_kilink(self, parent_id, new_content, text_type, read_only=False):
         """Add a new child to a kilink."""
         self._check_kilink(new_content)
         parent_klnk = self.session.get(Kilink, parent_id)
         if parent_klnk is None:
             raise KilinkNotFoundError("Parent kilink not found")
+        elif parent_klnk.read_only:
+            raise KilinkReadOnlyError("Parent kilink is read only")
 
         new_id = _get_unique_id()
         klnk = Kilink(linkode_id=new_id, parent=parent_id, root=parent_klnk.root,
-                      content=new_content, text_type=text_type)
+                      content=new_content, text_type=text_type, read_only=read_only)
         self.session.add(klnk)
         return klnk
 
-    def create_linkode(self, content, text_type, linkode_parent_id=None):
+    def create_linkode(self, content, text_type, linkode_parent_id=None, read_only=False):
         """Create a new linkode as root node or as a child of another linkode."""
         if linkode_parent_id:
             linkode = self.update_kilink(
                 parent_id=linkode_parent_id,
                 text_type=text_type,
                 new_content=content,
+                read_only=read_only,
             )
         else:
             linkode = self.create_kilink(
                 text_type=text_type,
                 content=content,
+                read_only=read_only,
             )
 
         return linkode
@@ -202,7 +212,8 @@ class KilinkBackend(object):
         result = []
         for i, klnk in enumerate(klnk_tree, 1):
             tn = TreeNode(order=i, linkode_id=klnk.linkode_id, content=klnk.content,
-                          parent=klnk.parent, timestamp=klnk.timestamp, text_type=klnk.text_type)
+                          parent=klnk.parent, timestamp=klnk.timestamp, text_type=klnk.text_type,
+                          read_only=klnk.read_only)
             result.append(tn)
         return result
 
@@ -235,6 +246,7 @@ class KilinkBackend(object):
                 'timestamp': str(treenode.timestamp),
                 'selected': treenode.linkode_id == linkode_id,
                 'linkode_id': treenode.linkode_id,
+                'read_only': treenode.read_only,
             }
             if treenode.parent is None:
                 root_node = node

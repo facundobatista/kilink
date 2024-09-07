@@ -15,6 +15,7 @@ from kilink.backend import (
     Kilink,
     KilinkBackend,
     KilinkNotFoundError,
+    KilinkReadOnlyError,
     PLAIN_TEXT,
     _get_unique_id,
 )
@@ -72,6 +73,33 @@ class ContentTestCase(BaseTestCase):
         """No kilink to update."""
         self.assertRaises(KilinkNotFoundError, self.bkend.update_kilink,
                           "unexistant", "content", "")
+
+
+class TestReadOnlyKilink(BaseTestCase):
+    """Tests for read only kilinks."""
+
+    def setUp(self):
+        """Set up."""
+        super(TestReadOnlyKilink, self).setUp()
+        Session = sessionmaker()
+        conn = self.db_engine.connect()
+        self.session = Session(bind=conn)
+
+    def test_by_default_is_editable(self):
+        klnk = self.bkend.create_kilink("content 1", "type1")
+        self.assertFalse(klnk.read_only)
+
+    def test_readonly(self):
+        """Test read only kilinks."""
+        klnk = self.bkend.create_kilink("content 1", "type1", read_only=True)
+        klnk = self.session.query(Kilink).filter_by(linkode_id=klnk.linkode_id).one()
+        self.assertTrue(klnk.read_only)
+
+    def test_cant_edit_readonly(self):
+        """Test read only kilinks."""
+        klnk = self.bkend.create_kilink("content 1", "type1", read_only=True)
+        self.assertRaises(KilinkReadOnlyError, self.bkend.update_kilink,
+                          klnk.linkode_id, "content 2", "type2")
 
 
 class DataRetrievalTestCase(BaseTestCase):

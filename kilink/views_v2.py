@@ -57,10 +57,11 @@ def create_linkode(linkode_id=None):
 
     content = request.json['content']
     text_type = request.json.get('text_type', "")
+    read_only = request.json.get('read_only', "").lower() == 'true'
 
     logger.debug("API create start; type=%r size=%d", text_type, len(content))
     try:
-        linkode = kilinkbackend.create_linkode(content, text_type, linkode_id)
+        linkode = kilinkbackend.create_linkode(content, text_type, linkode_id, read_only=read_only)
 
     except KilinkDataTooBigError:
         msg = "Content data too big; on creation"
@@ -114,6 +115,7 @@ def get_linkode(linkode_id):
         linkode_url=external_url_for("linkode_v2.get_linkode", linkode_id=linkode.linkode_id),
         root_id=linkode.root,
         root_url=external_url_for("linkode_v2.get_linkode", linkode_id=linkode.root),
+        read_only=linkode.read_only
     )
 
     return ret_json, HTTPStatus.OK
