@@ -24,7 +24,7 @@ ExecStart=/home/kilink/.virtualenvs/kilink/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/linkode.sock \
-          kilink.app
+          kilink.prod
 
 [Install]
 WantedBy=multi-user.target
