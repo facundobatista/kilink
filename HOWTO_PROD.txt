@@ -1,0 +1,44 @@
+- configure systemd
+
+```
+$ cat /etc/systemd/system/linkode.socket
+[Unit]
+Description=Linkode gunicorn socket
+
+[Socket]
+ListenStream=/run/linkode.sock
+
+[Install]
+WantedBy=sockets.target
+
+$ cat /etc/systemd/system/linkode.service
+[Unit]
+Description=Linkode gunicorn daemon
+Requires=linkode.socket
+After=network.target
+
+[Service]
+User=kilink
+WorkingDirectory=/home/kilink/project/production
+ExecStart=/home/kilink/.virtualenvs/kilink/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/linkode.sock \
+          kilink.app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Setup:
+
+```
+sudo systemctl start linkode.socket
+sudo systemctl enable linkode.socket
+
+sudo journalctl -u linkode.socket
+
+sudo systemctl status linkode
+curl --unix-socket /run/linkode.sock localhost
+sudo systemctl status linkode
+```
