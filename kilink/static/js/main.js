@@ -647,7 +647,7 @@ var editor = (function (){
     * Get or set the text in the editor
     */
     function val(new_val){
-        if (new_val){
+        if (typeof new_val === 'string'){
             $editor.setValue(new_val);
         }
         else {
