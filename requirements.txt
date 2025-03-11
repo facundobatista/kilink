@@ -1,5 +1,5 @@
 flask==3.1.0
 flask-cors==5.0.0
 flask-babel==4.0.0
-sqlalchemy==2.0.37
+sqlalchemy==2.0.39
 pyyaml==6.0.2
